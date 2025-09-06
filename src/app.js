@@ -11,6 +11,9 @@ app.use(bodyParser.json());
 const activityRoutes = require('./routes/activityRoutes');
 app.use('/api/activities', activityRoutes);
 
+const registrationRoutes = require('./routes/registrationRoutes');
+app.use('/api', registrationRoutes);
+
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
 module.exports = app;
