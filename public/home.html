@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Home (Dev)</title>
+</head>
+<body>
+  <h2>Home</h2>
+  <div id="message">Checking login...</div>
+  <button id="logoutBtn">Logout</button>
+  <script>
+    async function load() {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        document.getElementById('message').textContent = 'Not logged in. Go to login.html';
+        return;
+      }
+      const res = await fetch('/api/auth/me', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      if (!res.ok) {
+        document.getElementById('message').textContent = 'Token invalid or expired. Please login again.';
+        return;
+      }
+      const json = await res.json();
+      document.getElementById('message').textContent = 'Logged in as: ' + (json.name || (json.user && json.user.name) || json.email);
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('token');
+      location.href = '/login.html';
+    });
+
+    load();
+  </script>
+</body>
+</html>
