@@ -1,177 +1,178 @@
-เว็บไซต์ลงทะเบียนกิจกรรม (Activity Registration Website)
-นักศึกษา:
+# เว็บไซต์ลงทะเบียนกิจกรรม
 
-นาย กิตติพิชญ์ เพ็งแจ่ม
+ระบบเว็บแอปพลิเคชันสำหรับจัดการการลงทะเบียนกิจกรรมภายในสถาบันหรือองค์กร พัฒนาด้วยเทคโนโลยีทันสมัยเพื่อความสามารถในการขยายและความสะดวกในการพัฒนา
 
-นาย เกียรติศักดิ์ สกุลวันธนพัฒน์
+## สมาชิกทีม
+- **นาย กิตติพิชญ์ เพ็งแจ่ม**
+- **นาย เกียรติศักดิ์ สกุลวันธนพัฒน์**
+- **นาย ธิเบศ สว่างการ**
 
-นาย ธิเบศ สว่างการ
+## ภาพรวมโครงการ
+โครงการนี้เป็นเว็บแอปพลิเคชันสำหรับการลงทะเบียนกิจกรรม พัฒนาด้วย:
+- **Backend**: Node.js + Express
+- **ฐานข้อมูล**: PostgreSQL ร่วมกับ Sequelize (ORM + migrations)
+- **Frontend**: React (Vite)
+- **บริการคลาวด์**: รองรับ AWS (S3, Cognito, RDS) แต่ปัจจุบันรันในระบบท้องถิ่นเพื่อการทดสอบและเรียนรู้
 
-สรุปโครงการ (Project Overview)
-ระบบเว็บไซต์สำหรับลงทะเบียนกิจกรรมภายในสถาบัน/องค์กร พัฒนาด้วยสแตกหลักคือ Node.js + Express (backend), PostgreSQL (database), Sequelize (ORM + migrations) และ React (client) โดยออกแบบให้ทำงานร่วมกับบริการ Cloud (เช่น S3, Cognito, RDS) แต่ในเวอร์ชันปัจจุบันถูกพัฒนาเป็นระบบท้องถิ่นสำหรับการทดสอบและเรียนรู้
+ระบบนี้ถูก dockerized เพื่อการติดตั้งที่ง่ายและมีฟีเจอร์เช่น การยืนยันตัวตนด้วย JWT, การจัดการกิจกรรม, และการสร้างรายงาน
 
-คุณสมบัติหลัก (Features)
-สมัครสมาชิก / เข้าสู่ระบบ: (local JWT สำหรับ dev; รองรับ Cognito สำหรับ production)
+## คุณสมบัติ
+- **การยืนยันตัวตน**: สมัครสมาชิก/เข้าสู่ระบบด้วย JWT (สำหรับ dev) และรองรับ Cognito (สำหรับ production)
+- **การจัดการกิจกรรม**: สร้าง, แก้ไข, ลบกิจกรรม (CRUD)
+- **การลงทะเบียน**: ลงทะเบียน/ยกเลิกการลงทะเบียนกิจกรรม พร้อมตรวจสอบจำนวนที่ว่าง
+- **การสร้างรายงาน**: ส่งออกรายชื่อผู้เข้าร่วมเป็น CSV หรือ PDF (ผ่าน Puppeteer)
+- **การอัปโหลดไฟล์**: อัปโหลดโปสเตอร์กิจกรรมไปยัง S3 ด้วย presigned URL
+- **เหมาะสำหรับการพัฒนา**: Dockerized PostgreSQL + pgAdmin, Sequelize migrations และ seeders
+- **Frontend**: อินเทอร์เฟซ React สำหรับหน้า Login, Register และ Homepage
 
-สร้าง / แก้ไข / ลบกิจกรรม: (Activity CRUD)
-
-ลงทะเบียน/ยกเลิกการลงทะเบียนกิจกรรม: พร้อมตรวจสอบจำนวนผู้ลงทะเบียน (capacity)
-
-ออกรายงานผู้เข้าร่วม: สามารถส่งออกเป็นไฟล์ CSV และ PDF (ใช้ Puppeteer ในการแปลง HTML เป็น PDF)
-
-อัปโหลดไฟล์โปสเตอร์: ผ่าน presigned URL ไปยัง S3 (service พร้อมใช้งาน)
-
-Development-friendly: มาพร้อม Dockerized PostgreSQL + pgAdmin, Sequelize migrations & seeders
-
-Frontend (React): สำหรับทดสอบ UI พื้นฐาน: Login, Register, Home
-
-โครงสร้างโปรเจกต์ (Project Structure)
+## โครงสร้างโปรเจกต์
+```
 my-activity-backend/
-├─ client/                 # React app (Vite)
-├─ docker/
-│  └─ docker-compose.yml
-├─ migrations/             # Sequelize migrations
-├─ seeders/                # Sequelize seeders
-├─ src/
-│  ├─ controllers/
-│  ├─ middlewares/
-│  ├─ models/
-│  ├─ routes/
-│  ├─ services/
-│  ├─ templates/           # ejs สำหรับ HTML→PDF
-│  ├─ app.js
-│  └─ server.js
-├─ scripts/
-│  └─ clear-data.js
-├─ .env.example
-├─ package.json            # backend
-└─ README.md               # (คุณกำลังอ่าน)
+├── client/                 # แอป React (Vite)
+├── docker/                 # การตั้งค่า Docker
+│   └── docker-compose.yml
+├── migrations/             # Sequelize migrations
+├── seeders/               # Sequelize seeders
+├── src/                   # โค้ด backend
+│   ├── controllers/
+│   ├── middlewares/
+│   ├── models/
+│   ├── routes/
+│   ├── services/
+│   ├── templates/         # EJS สำหรับ HTML-to-PDF
+│   ├── app.js
+│   └── server.js
+├── scripts/               # สคริปต์เสริม
+│   └── clear-data.js
+├── .env.example           # เทมเพลตตัวแปรสภาพแวดล้อม
+├── package.json           #  dependencies ของ backend
+└── README.md              # ไฟล์นี้
+```
 
-สิ่งที่ต้องติดตั้ง (Prerequisites)
-Git
+## สิ่งที่ต้องติดตั้ง
+- **Git**
+- **Node.js** (แนะนำ v16+ หรือ v18+) และ **npm**
+- **Docker** และ **Docker Compose** (สำหรับ PostgreSQL + pgAdmin)
+- *(แนะนำ)* **WSL2** บน Windows เพื่อใช้คำสั่ง UNIX-like ได้สะดวก
+- *(สำหรับสร้าง PDF)* Puppeteer จะดาวน์โหลด Chromium (~100MB) ระหว่างติดตั้ง
 
-Node.js (v16+ หรือ v18+ แนะนำ) และ npm
+## ตัวแปรสภาพแวดล้อม
+1. คัดลอกไฟล์ตัวอย่าง:
+   ```bash
+   cp .env.example .env
+   ```
+2. แก้ไข `.env` ให้ตรงกับเครื่องของคุณ ตัวอย่าง:
+   ```env
+   # Server
+   PORT=3000
+   NODE_ENV=development
 
-Docker & Docker Compose (สำหรับรัน Postgres + pgAdmin)
+   # Dev auth helper
+   DISABLE_AUTH=true
+   LOCAL_JWT_SECRET=devsecret
+   LOCAL_JWT_EXPIRES=2h
 
-(แนะนำ) WSL2 บน Windows เพื่อใช้งานคำสั่ง UNIX-like ได้สะดวก
+   # Database
+   DB_HOST=localhost
+   DB_PORT=5432
+   DB_USER=postgres
+   DB_PASS=postgres
+   DB_NAME=activitydb
 
-(ถ้าต้องการ PDF generation) Puppeteer จะดาวน์โหลด Chromium (~100MB) เมื่อติดตั้ง
+   # AWS (optional)
+   AWS_REGION=ap-southeast-1
+   S3_BUCKET=your-bucket
+   COGNITO_POOL_ID=ap-southeast-1_xxx
+   COGNITO_CLIENT_ID=xxxxxxxxx
+   ```
+   **หมายเหตุ**: ห้าม commit ไฟล์ `.env` ที่มีค่าจริงขึ้น GitHub
 
-ตัวแปรสภาพแวดล้อม (.env)
-คัดลอกจากไฟล์ตัวอย่าง:
+## ขั้นตอนการติดตั้ง
+1. **Clone repository**:
+   ```bash
+   git clone https://github.com/KKP240/Cloud-Proj-Repo.git
+   cd Cloud-Proj-Repo
+   ```
 
-cp .env.example .env
+2. **สร้างไฟล์ `.env`**:
+   ```bash
+   cp .env.example .env
+   # แก้ไข .env ให้ตรงกับเครื่องของคุณ
+   ```
 
-ตัวอย่างค่าที่ต้องตั้ง (แก้ไขตามสภาพแวดล้อมของแต่ละคน):
+3. **ติดตั้ง dependencies (backend)**:
+   ```bash
+   npm install
+   ```
 
-# server
-PORT=3000
-NODE_ENV=development
+4. **เริ่ม Docker (PostgreSQL + pgAdmin)**:
+   ```bash
+   docker-compose -f docker/docker-compose.yml up -d
+   ```
+   ตรวจสอบ container:
+   ```bash
+   docker ps
+   docker-compose -f docker/docker-compose.yml logs -f db
+   ```
+   รอจน PostgreSQL พร้อมรับการเชื่อมต่อ
 
-# dev auth helper
-DISABLE_AUTH=true
-LOCAL_JWT_SECRET=devsecret
-LOCAL_JWT_EXPIRES=2h
+5. **(ถ้าจำเป็น) สร้างฐานข้อมูล**:
+   หากฐานข้อมูลยังไม่ถูกสร้างโดย `docker-compose.yml`:
+   ```bash
+   npx sequelize-cli db:create
+   ```
 
-# database
-DB_HOST=localhost
-DB_PORT=5432
-DB_USER=postgres
-DB_PASS=postgres
-DB_NAME=activitydb
+6. **รัน migrations**:
+   ```bash
+   npx sequelize-cli db:migrate
+   ```
 
-# aws (optional)
-AWS_REGION=ap-southeast-1
-S3_BUCKET=your-bucket
-COGNITO_POOL_ID=ap-southeast-1_xxx
-COGNITO_CLIENT_ID=xxxxxxxxx
+7. **(ตัวเลือก) เติมข้อมูลตัวอย่าง**:
+   ```bash
+   npx sequelize-cli db:seed:all
+   ```
 
-สำคัญ: ห้าม commit ไฟล์ .env ที่มีค่าจริงขึ้น GitHub
+8. **รัน backend**:
+   - Development:
+     ```bash
+     npm run dev
+     ```
+   - Production:
+     ```bash
+     npm start
+     ```
+   ตรวจสอบ health endpoint: [http://localhost:3000/health](http://localhost:3000/health)
 
-ขั้นตอนการตั้งค่า (Step-by-step Setup)
-Clone repository
+## การตั้งค่า Frontend (React)
+โฟลเดอร์ `client/` เป็นแอป React (สร้างด้วย Vite)
 
-git clone [https://github.com/KKP240/Cloud-Proj-Repo.git](https://github.com/KKP240/Cloud-Proj-Repo.git)
-cd Cloud-Proj-Repo
+1. ติดตั้งและรัน:
+   ```bash
+   cd client
+   npm install
+   npm run dev
+   ```
+2. เปิด browser: [http://localhost:5173](http://localhost:5173)
 
-สร้างไฟล์ .env
+3. **ตั้งค่า Proxy** (แนะนำ):
+   ใน `client/vite.config.js` ตั้งค่า proxy เพื่อส่ง `/api` ไปยัง backend:
+   ```javascript
+   server: {
+     proxy: {
+       '/api': 'http://localhost:3000'
+     }
+   }
+   ```
 
-cp .env.example .env
-# แก้ไขค่าใน .env ให้ตรงกับเครื่องของคุณ
+## คำสั่งที่ใช้งานบ่อย
+- เริ่ม backend (dev): `npm run dev`
+- เริ่ม backend (prod): `npm start`
+- รัน migrations: `npx sequelize-cli db:migrate`
+- สร้างฐานข้อมูล (ถ้าจำเป็น): `npx sequelize-cli db:create`
+- รัน seeders: `npx sequelize-cli db:seed:all`
+- ล้างข้อมูลตัวอย่าง: `node scripts/clear-data.js` (ถ้ามีสคริปต์นี้)
 
-ติดตั้ง dependencies (backend)
-
-npm install
-
-เริ่ม Docker (Postgres + pgAdmin)
-
-docker-compose -f docker/docker-compose.yml up -d
-
-ตรวจสอบสถานะ container:
-
-docker ps
-docker-compose -f docker/docker-compose.yml logs -f db
-
-รอจน PostgreSQL พร้อมรับ connection
-
-(ถ้าจำเป็น) สร้าง database ก่อน
-หากคุณเชื่อมต่อกับ Database Server ที่ยังไม่มีฐานข้อมูลสำหรับโปรเจกต์นี้ ให้รัน:
-
-npx sequelize-cli db:create
-
-หมายเหตุ: หากใน docker-compose.yml มีการกำหนด POSTGRES_DB ไว้อยู่แล้ว มักไม่จำเป็นต้องรันคำสั่งนี้ เพราะ container จะสร้าง DB ให้โดยอัตโนมัติ
-
-รัน migrations
-
-npx sequelize-cli db:migrate
-
-(Optional) เติมข้อมูลตัวอย่าง
-
-npx sequelize-cli db:seed:all
-
-รัน backend
-
-Development mode:
-
-npm run dev
-
-Production mode:
-
-npm start
-
-ตรวจสอบว่าเซิร์ฟเวอร์ทำงานถูกต้องที่: http://localhost:3000/health
-
-Frontend (React) — สั่งรัน client
-โฟลเดอร์ client/ เป็นแอปพลิเคชัน React ที่สร้างด้วย Vite
-
-ติดตั้งและรัน
-
-cd client
-npm install
-npm run dev
-
-เปิด browser ไปที่: http://localhost:5173
-
-Proxy (แนะนำ)
-ในไฟล์ client/vite.config.js สามารถตั้งค่า proxy เพื่อให้ request ที่ขึ้นต้นด้วย /api ถูกส่งต่อไปยัง backend ที่ http://localhost:3000 ได้โดยอัตโนมัติ ทำให้ไม่ต้องกำหนด base URL ในโค้ด frontend
-
-// client/vite.config.js
-server: {
-  proxy: {
-    '/api': 'http://localhost:3000'
-  }
-}
-
-คำสั่งสำคัญที่ใช้งานบ่อย
-Start backend (dev): npm run dev
-
-Start backend (prod): npm start
-
-Run migrations: npx sequelize-cli db:migrate
-
-Create DB (ถ้าจำเป็น): npx sequelize-cli db:create
-
-Run seeders: npx sequelize-cli db:seed:all
-
-Clear demo data: node scripts/clear-data.js (หากมีไฟล์นี้)
+## หมายเหตุ
+- ตรวจสอบว่า Docker รันอยู่ก่อนเริ่ม backend
+- สำหรับ production ให้ตั้งค่าบริการ AWS (S3, Cognito, RDS) ใน `.env`
+- ดูเพิ่มเติมที่ [เอกสาร Sequelize CLI](https://sequelize.org/docs/v6/other-topics/migrations/) สำหรับคำสั่ง migration/seed ขั้นสูง
