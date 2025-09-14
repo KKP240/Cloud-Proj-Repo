@@ -1,17 +1,23 @@
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000';
+// client/src/services/api.js
+const API_BASE = import.meta.env.VITE_API_BASE || '';
 
-export async function login(email, password) {
-  const res = await fetch(`${API_BASE}/api/auth/login`, {
+export async function postJson(path, body) {
+  const res = await fetch(`${API_BASE}${path}`, {
     method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ email, password })
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
   });
-  return res.json();
+  const json = await res.json().catch(()=>({}));
+  return { ok: res.ok, status: res.status, body: json };
 }
 
-export function authFetch(path, opts={}) {
-  const token = localStorage.getItem('token');
-  const headers = { ...(opts.headers||{}), 'Content-Type': 'application/json' };
-  if (token) headers['Authorization'] = 'Bearer ' + token;
-  return fetch(`${API_BASE}${path}`, { ...opts, headers });
+export async function getJson(path, withAuth=true) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (withAuth) {
+    const token = localStorage.getItem('token');
+    if (token) headers['Authorization'] = 'Bearer ' + token;
+  }
+  const res = await fetch(`${API_BASE}${path}`, { headers });
+  const json = await res.json().catch(()=>({}));
+  return { ok: res.ok, status: res.status, body: json };
 }
