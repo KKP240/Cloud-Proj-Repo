@@ -1,26 +1,28 @@
+// models/user.js
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
-      // define association here
+      // ผู้ใช้งานสามารถลงทะเบียนเข้าร่วมได้
+      User.hasMany(models.Registration, { foreignKey: 'userId' });
+      // ผู้ใช้งานสามารถคอมเมนต์ได้
+      User.hasMany(models.Comment, { foreignKey: 'userId' });
+      // (ถ้าต้องการให้ user สร้างกิจกรรม ให้เพิ่ม foreignKey creatorId ใน Activities ผ่าน migration แล้ว uncomment บรรทัดนี้)
+      // User.hasMany(models.Activity, { foreignKey: 'creatorId', as: 'createdActivities' });
     }
   }
   User.init({
-    name: DataTypes.STRING,
-    email: DataTypes.STRING,
+    username: { type: DataTypes.STRING, allowNull: false, unique: true },
+    firstName: { type: DataTypes.STRING, allowNull: true },
+    lastName: { type: DataTypes.STRING, allowNull: true },
+    email: { type: DataTypes.STRING, allowNull: false, unique: true },
     password: DataTypes.STRING,
-    role: DataTypes.STRING
+    role: { type: DataTypes.STRING, allowNull: false, defaultValue: 'user' }
   }, {
     sequelize,
     modelName: 'User',
+    tableName: 'Users'
   });
   return User;
 };
