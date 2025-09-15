@@ -7,12 +7,6 @@ import Home from './pages/Home'
 export default function App() {
   return (
     <div>
-      <nav style={{ padding: 12, borderBottom: '1px solid #ddd' }}>
-        <Link to="/" style={{ marginRight: 12 }}>Home</Link>
-        <Link to="/login" style={{ marginRight: 12 }}>Login</Link>
-        <Link to="/register">Register</Link>
-      </nav>
-
       <main style={{ padding: 16 }}>
         <Routes>
           <Route path="/" element={<Home/>} />

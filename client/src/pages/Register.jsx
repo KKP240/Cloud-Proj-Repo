@@ -1,17 +1,28 @@
 import React, { useState } from 'react'
 import { postJson } from '../services/api'
 import { useNavigate } from 'react-router-dom'
+import '../css/Register.css'
 
-export default function Register(){
-  const [name,setName] = useState('')
-  const [email,setEmail] = useState('')
-  const [password,setPassword] = useState('')
-  const [msg,setMsg] = useState(null)
+export default function Register() {
+  const [Firstname, setFirstname] = useState('')
+  const [Lastname, setLastname] = useState('')
+  const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [Confirmpassword, setConfirmpassword] = useState('')
+  const [msg, setMsg] = useState(null)
   const nav = useNavigate()
 
-  async function onSubmit(e){
+  async function onSubmit(e) {
     e.preventDefault()
-    const { ok, body, status } = await postJson('/api/auth/register', { name, email, password })
+    const { ok, body, status } = await postJson('/api/auth/register', { 
+      Firstname, 
+      Lastname, 
+      email, 
+      username, 
+      Confirmpassword, 
+      password 
+    })
     if (ok || status === 201) {
       alert('Registered. Please login.')
       nav('/login')
@@ -21,21 +32,89 @@ export default function Register(){
   }
 
   return (
-    <div className="container">
-      <h2>Register</h2>
-      {msg && <div style={{color:'red'}}>{msg}</div>}
-      <form onSubmit={onSubmit}>
-        <div style={{marginBottom:8}}>
-          <label>Name<br/><input value={name} onChange={e=>setName(e.target.value)} required /></label>
-        </div>
-        <div style={{marginBottom:8}}>
-          <label>Email<br/><input value={email} onChange={e=>setEmail(e.target.value)} type="email" required /></label>
-        </div>
-        <div style={{marginBottom:8}}>
-          <label>Password<br/><input value={password} onChange={e=>setPassword(e.target.value)} type="password" required /></label>
-        </div>
-        <button type="submit">Register</button>
-      </form>
+    <div className="register-container">
+      <div className="register-card">
+        <h2 className="register-title">Register</h2>
+        
+        {msg && <div className="error-message">{msg}</div>}
+        
+        <form onSubmit={onSubmit}>
+          <div className="form-row">
+            <div className="form-group">
+              <label className="form-label">Firstname</label>
+              <input 
+                className="form-input"
+                placeholder="Name"
+                value={Firstname} 
+                onChange={e => setFirstname(e.target.value)} 
+                required 
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Surname</label>
+              <input 
+                className="form-input"
+                placeholder="Surname"
+                value={Lastname} 
+                onChange={e => setLastname(e.target.value)} 
+                required 
+              />
+            </div>
+          </div>
+
+          <div className="form-group full-width">
+            <label className="form-label">Email</label>
+            <input 
+              className="form-input"
+              placeholder="Email"
+              value={email} 
+              onChange={e => setEmail(e.target.value)} 
+              type="email" 
+              required 
+            />
+          </div>
+
+          <div className="form-group full-width">
+            <label className="form-label">Username</label>
+            <input 
+              className="form-input"
+              placeholder="Username"
+              value={username} 
+              onChange={e => setUsername(e.target.value)} 
+              required 
+            />
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label className="form-label">Password</label>
+              <input 
+                className="form-input"
+                placeholder="Password"
+                value={password} 
+                onChange={e => setPassword(e.target.value)} 
+                type="password" 
+                required 
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Confirm password</label>
+              <input 
+                className="form-input"
+                placeholder="Confirm password"
+                value={Confirmpassword} 
+                onChange={e => setConfirmpassword(e.target.value)} 
+                type="password" 
+                required 
+              />
+            </div>
+          </div>
+
+          <button type="submit" className="submit-button">
+            Create User
+          </button>
+        </form>
+      </div>
     </div>
   )
 }

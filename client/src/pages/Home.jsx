@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { getJson } from '../services/api'
+import "../css/Home.css";
+
 
 export default function Home(){
   const [user, setUser] = useState(null)
@@ -24,18 +26,13 @@ export default function Home(){
   }
 
   return (
+    
     <div className="container">
-      <h2>Home</h2>
-      {user ? (
-        <>
-          <p>Logged in as: <strong>{user.name || user.email}</strong></p>
-          <button onClick={logout}>Logout</button>
-        </>
-      ) : (
-        <>
-          <p>{err || 'Loading...'}</p>
-        </>
-      )}
+      <h2>Create Your Own Event</h2>
+      <p>Create Your Own Event Create Your Own Event Create Your Own Event 
+Create Your Own Event Create Your Own Event Create Your Own Event Create Your Own Event</p>
+      <button className='Start'>Start Your Event</button>
+      <button className='Join'>Join an Event</button>
     </div>
   )
 }
