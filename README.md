@@ -172,6 +172,24 @@ my-activity-backend/
 - รัน seeders: `npx sequelize-cli db:seed:all`
 - ล้างข้อมูลตัวอย่าง: `node scripts/clear-data.js` (ถ้ามีสคริปต์นี้)
 
+## Reset database (Update 15-9-68 19:52)
+
+### รันตามนี้ ถ้าใช้คำสั่ง `docker-compose -f docker/docker-compose.yml up -d` ไม่ได้
+   ```javascript
+   # stop & remove containers & volumes
+   docker-compose -f docker/docker-compose.yml down -v
+
+   # start fresh DB
+   docker-compose -f docker/docker-compose.yml up -d
+
+   # สร้าง DB ใหม่ (ถาจำเป็น) แล้ว migrate
+   npx sequelize-cli db:create
+   npx sequelize-cli db:migrate
+   npx sequelize-cli db:seed:all   # ถ้ามี seeders
+   ```
+
+จากนั้น npm run dev เพื่อรัน backend ใหม่ และ cd client && npm run dev สำหรับ frontend
+
 ## หมายเหตุ
 - ตรวจสอบว่า Docker รันอยู่ก่อนเริ่ม backend
 - สำหรับ production ให้ตั้งค่าบริการ AWS (S3, Cognito, RDS) ใน `.env`

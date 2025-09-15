@@ -1,3 +1,4 @@
+// models/registration.js
 'use strict';
 const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
@@ -8,13 +9,14 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Registration.init({
-    userId: DataTypes.INTEGER,
-    activityId: DataTypes.INTEGER,
-    status: DataTypes.STRING,
-    registeredAt: DataTypes.DATE
+    userId: { type: DataTypes.INTEGER, allowNull: false },
+    activityId: { type: DataTypes.INTEGER, allowNull: false },
+    status: { type: DataTypes.STRING, allowNull: false, defaultValue: 'registered' },
+    registeredAt: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW }
   }, {
     sequelize,
     modelName: 'Registration',
+    tableName: 'Registrations'
   });
   return Registration;
 };
