@@ -17,7 +17,6 @@ export default function App() {
         <Link to="/register" style={{ marginRight: 12 }}>Register</Link>
         <Link to="/activities" style={{ marginRight: 12 }}>Activities</Link>
         <Link to="/events/new" style={{ marginRight: 12 }}>Create Event</Link>
-        <Link to="/activities" style={{ marginRight: 12 }}>Activities</Link>
       </nav>
 
       <main style={{ padding: 16}}>

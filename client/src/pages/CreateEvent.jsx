@@ -1,34 +1,40 @@
 // client/src/pages/CreateEvent.jsx
 import React, { useState } from 'react';
-import { postJson } from '../services/api';
 import { useNavigate } from 'react-router-dom';
+import '../css/CreateEvent.css';
 
 export default function CreateEvent() {
   const [title, setTitle] = useState('');
-  const [description, setDesc] = useState('');
+  const [description, setDescription] = useState('');
   const [location, setLocation] = useState('');
   const [country, setCountry] = useState('');
   const [province, setProvince] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [capacity, setCapacity] = useState('');
-  const [tags, setTags] = useState(''); // comma separated
-  const [images, setImages] = useState(''); // comma separated URLs for now
+  const [tags, setTags] = useState('');
+  const [images, setImages] = useState('');
   const [msg, setMsg] = useState(null);
+
   const nav = useNavigate();
 
   async function onSubmit(e) {
     e.preventDefault();
     setMsg('Creating...');
     const payload = {
-      title, description, location, country, province,
-      startDate, endDate, capacity: capacity ? Number(capacity) : null,
-      tags: tags ? tags.split(',').map(s=>s.trim()).filter(Boolean) : [],
-      images: images ? images.split(',').map(s=>s.trim()).filter(Boolean) : []
+      title,
+      description,
+      location,
+      country,
+      province,
+      startDate,
+      endDate,
+      capacity: capacity ? Number(capacity) : null,
+      tags: tags ? tags.split(',').map(s => s.trim()).filter(Boolean) : [],
+      images: images ? images.split(',').map(s => s.trim()).filter(Boolean) : []
     };
-    const token = localStorage.getItem('token'); // or use DISABLE_AUTH dev bypass
+    const token = localStorage.getItem('token');
 
-    // use fetch directly because postJson may not attach Auth header
     const res = await fetch('/api/activities', {
       method: 'POST',
       headers: {
@@ -37,36 +43,143 @@ export default function CreateEvent() {
       },
       body: JSON.stringify(payload)
     });
-    const data = await res.json().catch(()=>({}));
+
+    const data = await res.json().catch(() => ({}));
     if (res.ok) {
       setMsg('Created');
-      nav(`/activities/${data.activity.id}`); // redirect to detail page (to be implemented)
+      nav(`/activities/${data.activity.id}`);
     } else {
       setMsg('Error: ' + (data.error || JSON.stringify(data)));
     }
   }
 
   return (
-    <div className="container">
-      <h2>Create Event</h2>
-      {msg && <div style={{marginBottom:10}}>{msg}</div>}
-      <form onSubmit={onSubmit}>
-        <div><label>Title<br/><input value={title} onChange={e=>setTitle(e.target.value)} required/></label></div>
-        <div><label>Description<br/><textarea value={description} onChange={e=>setDesc(e.target.value)} /></label></div>
-        <div><label>Location<br/><input value={location} onChange={e=>setLocation(e.target.value)} /></label></div>
-        <div style={{display:'flex', gap:8}}>
-          <label>Country<br/><input value={country} onChange={e=>setCountry(e.target.value)} /></label>
-          <label>Province<br/><input value={province} onChange={e=>setProvince(e.target.value)} /></label>
-        </div>
-        <div style={{display:'flex', gap:8}}>
-          <label>Start (ISO datetime)<br/><input value={startDate} onChange={e=>setStartDate(e.target.value)} placeholder="2025-09-01T09:00:00"/></label>
-          <label>End (ISO datetime)<br/><input value={endDate} onChange={e=>setEndDate(e.target.value)} placeholder="2025-09-01T12:00:00"/></label>
-        </div>
-        <div><label>Capacity<br/><input type="number" value={capacity} onChange={e=>setCapacity(e.target.value)} /></label></div>
-        <div><label>Tags (comma separated)<br/><input value={tags} onChange={e=>setTags(e.target.value)} /></label></div>
-        <div><label>Images URLs (comma separated)<br/><input value={images} onChange={e=>setImages(e.target.value)} /></label></div>
-        <div style={{marginTop:10}}><button type="submit">Create</button></div>
-      </form>
+    <div className='StartEvent1'>
+      <div className='StartEvent-life'>
+        <h1>Start Your Event</h1>
+        <form className='left-column' onSubmit={onSubmit}>
+          
+          {/* LEFT COLUMN */}
+          <div className="left-content">
+            {/* Name Event */}
+            <div className='form-group'>
+              <h4>Name Event</h4>
+              <input
+                className="form-input"
+                placeholder="Name Event"
+                value={title}
+                onChange={e => setTitle(e.target.value)}
+                required
+              />
+            </div>
+
+            {/* Description */}
+            <div className='form-group'>
+              <h4>Description</h4>
+              <textarea
+                className="form-input description-textarea"
+                placeholder="Description"
+                value={description}
+                onChange={e => setDescription(e.target.value)}
+                required
+              />
+            </div>
+
+            {/* Image Section */}
+            <div className='image-section'>
+              <h4>Image</h4>
+              <input
+                className="form-input"
+                placeholder="Image URLs (comma separated)"
+                value={images}
+                onChange={e => setImages(e.target.value)}
+                style={{marginTop: '10px'}}
+              />
+            </div>
+
+            {/* Dates */}
+            <div className='date-section'>
+              <div className='date-group'>
+                <h4>Start Day</h4>
+                <input
+                  type="date"
+                  className="date-input"
+                  value={startDate}
+                  onChange={e => setStartDate(e.target.value)}
+                  required
+                />
+              </div>
+              <div className='date-group'>
+                <h4>End Day</h4>
+                <input
+                  type="date"
+                  className="date-input"
+                  value={endDate}
+                  onChange={e => setEndDate(e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* Participants */}
+            <div className='participants-section'>
+              <h4>Set participants</h4>
+              <select className="participants-select">
+                <option>0</option>
+                <option>5</option>
+                <option>10</option>
+                <option>25</option>
+                <option>50</option>
+                <option>100</option>
+              </select>
+              <input
+                type="hidden"
+                value={capacity}
+                onChange={e => setCapacity(e.target.value)}
+              />
+            </div>
+          </div>
+
+          {/* RIGHT COLUMN */}
+          <div className="right-content">
+            {/* Show Event Page */}
+            <div className='show-event-section'>
+              <h4>Show Event Page</h4>
+              <div className="event-preview-area">
+              </div>
+            </div>
+
+            {/* Tags */}
+            <div className='tags-section'>
+              <h4>Tags</h4>
+              <div className="tags-input-area">
+                <input
+                  className="tags-input"
+                  placeholder="Tags"
+                  value={tags}
+                  onChange={e => setTags(e.target.value)}
+                />
+                <button type="button" className="tags-add-button">+</button>
+              </div>
+            </div>
+
+            {/* Location */}
+            <div className='location-section'>
+              <h4>Location</h4>
+              <input
+                className="form-input"
+                placeholder="Location"
+                value={location}
+                onChange={e => setLocation(e.target.value)}
+                required
+              />
+            </div>
+
+            <button type="submit" className='create-event-btn'>Create Event</button>
+            {msg && <p>{msg}</p>}
+          </div>
+
+        </form>
+      </div>
     </div>
   );
 }

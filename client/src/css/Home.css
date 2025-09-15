@@ -1,3 +1,13 @@
+.container-Home {
+  position: absolute;
+
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;       /* หรือกำหนดความกว้างตามต้องการ */
+  text-align: center;
+  margin-top: 400px;
+}
+
 h2 {
     font-size: 50px;
 }
@@ -7,5 +17,52 @@ h2 {
     color: white; /* กำหนดสีตัวอักษรด้วยจะเห็นชัด */
     padding: 10px 20px;
     border: none;
-    border-radius: 5px;
+    border-radius: 15px;
+    width: 170px;
+    height: 60px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
+    font-weight: bold;
+    margin-right: 100px;
+    margin-top: 100px;
+    transition: background-color 0.5s;
+}
+
+.Start:hover {
+  background-color: rgb(155, 155, 155);
+}
+
+.Start:active {
+  background-color: rgb(255, 255, 255); 
+}
+.Join{
+    background-color: white;
+    color: #0A57FF; 
+    padding: 10px 20px;
+    border-radius: 15px;
+    width: 170px;
+    height: 60px;
+    border-color: #0A57FF;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
+    font-weight: bold;
+    transition: background-color 0.5s;
+}
+
+.Join:hover {
+  background-color: #a5c2ff; 
+}
+.Join:active {
+  background-color: #0A57FF; 
+}
+img{
+    width: 250px;
+    height: 150px;
+    border-radius: 10px;
+    margin: 20px;
+    margin-top: 150px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 1);
+    transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+img:hover {
+    transform: scale(1.1);
 }

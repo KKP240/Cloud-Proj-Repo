@@ -3,6 +3,7 @@ body {
   margin: 0;
   background: #fbfbfb;
   color: #222;
+  align-items: center;
 }
 a { text-decoration: none; color: #0366d6; }
 input, button { font-size: 14px; padding: 8px; }

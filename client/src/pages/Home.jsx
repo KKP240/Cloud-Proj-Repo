@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { getJson } from '../services/api'
 import "../css/Home.css";
+import img1 from "../img/img1.webp";
+import img2 from "../img/img2.webp";
+import img3 from "../img/img3.webp";
+import img4 from "../img/img4.jpeg";
+
 
 
 export default function Home(){
@@ -27,12 +32,17 @@ export default function Home(){
 
   return (
     
-    <div className="container">
+    <div className="container-Home">
       <h2>Create Your Own Event</h2>
-      <p>Create Your Own Event Create Your Own Event Create Your Own Event 
-Create Your Own Event Create Your Own Event Create Your Own Event Create Your Own Event</p>
+      <p>Get ready for a special experience that you shouldn't miss at the event, which will be filled with fun, knowledge, and opportunities to meet new friends with great ideas,<br /> along with exciting activities, special prizes, and moments that will create unforgettable memories.</p>
       <button className='Start'>Start Your Event</button>
       <button className='Join'>Join an Event</button>
+      <div>
+        <img src={img1} alt="" />
+        <img src={img2} alt="" />
+        <img src={img3} alt="" />
+        <img src={img4} alt="" />
+      </div>
     </div>
   )
 }
