@@ -6,6 +6,7 @@ import Home from './pages/Home'
 import Activities from './pages/Activities';
 import CreateEvent from './pages/CreateEvent';
 import ActivityDetail from './pages/ActivityDetail';
+import Participants from './pages/Participants';
 
 
 export default function App() {
@@ -27,6 +28,7 @@ export default function App() {
           <Route path="/activities" element={<Activities/>} />
           <Route path="/events/new" element={<CreateEvent/>} />
           <Route path="/activities/:id" element={<ActivityDetail/>} />
+          <Route path="/activities/:id/participants" element={<Participants/>} />
         </Routes>
       </main>
     </div>
