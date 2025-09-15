@@ -16,7 +16,7 @@ const authRoutes = require('./routes/authRoutes');
 app.use('/api', authRoutes);
 
 const activityRoutes = require('./routes/activityRoutes');
-app.use('/api/activities', activityRoutes);
+app.use('/api', activityRoutes);
 
 const registrationRoutes = require('./routes/registrationRoutes');
 app.use('/api', registrationRoutes);

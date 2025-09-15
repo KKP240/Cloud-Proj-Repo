@@ -6,4 +6,11 @@ body {
 }
 a { text-decoration: none; color: #0366d6; }
 input, button { font-size: 14px; padding: 8px; }
-.container { max-width: 720px; margin: 24px auto; background: #fff; padding: 18px; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.container { 
+  max-width: 720px; 
+  margin: 24px auto; 
+  background: #fff; 
+  padding: 18px; 
+  border-radius: 8px; 
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);  
+}

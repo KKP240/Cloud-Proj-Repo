@@ -4,6 +4,8 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import Home from './pages/Home'
 import Activities from './pages/Activities';
+import CreateEvent from './pages/CreateEvent';
+
 
 export default function App() {
   return (
@@ -13,14 +15,16 @@ export default function App() {
         <Link to="/login" style={{ marginRight: 12 }}>Login</Link>
         <Link to="/register" style={{ marginRight: 12 }}>Register</Link>
         <Link to="/activities" style={{ marginRight: 12 }}>Activities</Link>
+        <Link to="/events/new" style={{ marginRight: 12 }}>Create Event</Link>
       </nav>
 
-      <main style={{ padding: 16 }}>
+      <main style={{ padding: 16}}>
         <Routes>
           <Route path="/" element={<Home/>} />
           <Route path="/login" element={<Login/>} />
           <Route path="/register" element={<Register/>} />
           <Route path="/activities" element={<Activities/>} />
+          <Route path="/events/new" element={<CreateEvent/>} />
         </Routes>
       </main>
     </div>
