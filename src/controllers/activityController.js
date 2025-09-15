@@ -1,7 +1,54 @@
 // src/controllers/activityController.js
-const { sequelize, Activity, ActivityImage, Tag, User } = require('../../models');
+const { Activity, ActivityImage, Tag, Comment, Registration, User } = require('../../models');
 
 module.exports = {
+
+  async detail(req, res) {
+    try {
+      const id = Number(req.params.id);
+      if (!id) return res.status(400).json({ error: 'Invalid activity id' });
+
+      // โหลด activity พร้อม relations (tags, images, comments (+ user))
+      const activity = await Activity.findByPk(id, {
+        include: [
+          { model: Tag, through: { attributes: [] } },
+          { model: ActivityImage },
+          { model: Comment, include: [{ model: User, attributes: ['id','username','firstName','lastName'] } ] }
+        ]
+      });
+
+      if (!activity) return res.status(404).json({ error: 'Activity not found' });
+
+      // นับผู้เข้าร่วมสถานะ registered
+      const participantCount = await Registration.count({
+        where: { activityId: id, status: 'registered' }
+      });
+
+      // ตรวจว่า request มีผู้ใช้ล็อกอินแล้วหรือไม่ และผู้ใช้นั้นลงทะเบียนไว้หรือยัง
+      let isRegistered = false;
+      let myRegistrationId = null;
+      // req.auth อาจมีหลายรูปแบบ ขึ้นกับ middleware ของคุณ
+      const userId = req.auth && (req.auth.sub || req.auth.userId || req.auth.id || req.auth.username) ? Number(req.auth.sub || req.auth.userId || req.auth.id) : null;
+      if (userId) {
+        const reg = await Registration.findOne({
+          where: { activityId: id, userId, status: 'registered' }
+        });
+        if (reg) { isRegistered = true; myRegistrationId = reg.id; }
+      }
+
+      // ส่ง response
+      return res.json({
+        activity,
+        participantCount,
+        isRegistered,
+        myRegistrationId
+      });
+    } catch (err) {
+      console.error('activity detail error', err);
+      return res.status(500).json({ error: 'Server error', details: err.message });
+    }
+  },
+
   async list(req, res) {
     try {
       if (!Activity) {

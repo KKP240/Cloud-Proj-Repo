@@ -5,6 +5,7 @@ import Register from './pages/Register'
 import Home from './pages/Home'
 import Activities from './pages/Activities';
 import CreateEvent from './pages/CreateEvent';
+import ActivityDetail from './pages/ActivityDetail';
 
 
 export default function App() {
@@ -16,6 +17,7 @@ export default function App() {
         <Link to="/register" style={{ marginRight: 12 }}>Register</Link>
         <Link to="/activities" style={{ marginRight: 12 }}>Activities</Link>
         <Link to="/events/new" style={{ marginRight: 12 }}>Create Event</Link>
+        <Link to="/activities" style={{ marginRight: 12 }}>Activities</Link>
       </nav>
 
       <main style={{ padding: 16}}>
@@ -25,6 +27,7 @@ export default function App() {
           <Route path="/register" element={<Register/>} />
           <Route path="/activities" element={<Activities/>} />
           <Route path="/events/new" element={<CreateEvent/>} />
+          <Route path="/activities/:id" element={<ActivityDetail/>} />
         </Routes>
       </main>
     </div>
