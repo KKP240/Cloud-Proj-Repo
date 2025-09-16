@@ -38,10 +38,10 @@ export default function Home(){
       <button className='Start'>Start Your Event</button>
       <button className='Join'>Join an Event</button>
       <div>
-        <img src={img1} alt="" />
-        <img src={img2} alt="" />
-        <img src={img3} alt="" />
-        <img src={img4} alt="" />
+        <img src={img1} alt="" className='home-img123'/>
+        <img src={img2} alt="" className='home-img123'/>
+        <img src={img3} alt="" className='home-img123'/>
+        <img src={img4} alt="" className='home-img123'/>
       </div>
     </div>
   )

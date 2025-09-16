@@ -1,0 +1,12 @@
+.Profile1{
+    border-radius: 100%;
+    height: 300px;
+    width: 300px;
+}
+
+.Profile{
+    display: flex;
+  flex-direction: column; /* เรียงแนวตั้ง */
+  align-items: center;     /* กึ่งกลางแนวนอน */
+  height: 100vh;
+}

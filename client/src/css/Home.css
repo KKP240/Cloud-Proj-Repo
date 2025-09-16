@@ -53,7 +53,7 @@ h2 {
 .Join:active {
   background-color: #0A57FF; 
 }
-img{
+.home-img123{
     width: 250px;
     height: 150px;
     border-radius: 10px;
@@ -63,6 +63,6 @@ img{
     transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s;
 }
 
-img:hover {
+.home-img123:hover {
     transform: scale(1.1);
 }

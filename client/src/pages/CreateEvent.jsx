@@ -58,7 +58,7 @@ export default function CreateEvent() {
   }
 
   function subtract(){
-    if (capacity){
+    if (capacity > 1){
       setCapacity(capacity-1)
     }
   }
