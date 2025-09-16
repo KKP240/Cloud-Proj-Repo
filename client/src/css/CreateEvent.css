@@ -136,6 +136,12 @@
   flex-direction: column;
 }
 
+.participants-section1 {
+  display: flex;       /* ต้องมี flex ถึงใช้ flex-direction ได้ */
+  flex-direction: row; /* เรียงแนวนอน */
+  gap: 10px;           /* เว้นระหว่าง child */
+}
+
 .participants-section h4 {
   font-size: 16px;
   font-weight: 600;
@@ -143,16 +149,6 @@
   margin: 0 0 12px 0;
 }
 
-.participants-select {
-  width: 80px;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 14px;
-  background: #f8f8f8;
-  color: #666;
-  text-align: center;
-}
 
 /* Right Column Styles */
 .right-column {
@@ -212,6 +208,7 @@
 .tags-input-area {
   position: relative;
   width: 90%;
+  margin-bottom: 16px;
 }
 
 .tags-input {
@@ -226,7 +223,7 @@
 
 .tags-add-button {
   position: absolute;
-  right: 12px;
+  left: 103%;
   top: 50%;
   transform: translateY(-50%);
   background: none;
@@ -247,6 +244,18 @@
   font-weight: 600;
   color: #2563eb;
   margin: 0 0 12px 0;
+}
+
+.add{
+  background: none;
+  width: 30px;
+  border-color: #ececec;
+}
+
+.subtract{
+  background: none;
+  width: 30px;
+  border-color: #ececec;
 }
 
 /* Create Event Button */
@@ -277,4 +286,20 @@
   .date-section {
     grid-template-columns: 1fr;
   }
+}
+
+.tags-section ul {
+  display: flex;
+  flex-wrap: wrap; /* ถ้าเกินบรรทัดให้ตัดลงแถวใหม่ */
+  gap: 8px;        /* ระยะห่างระหว่าง tag */
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.tags-section li {
+  background: #2563eb;
+  color: #ffffff;
+  padding: 5px 10px;
+  border-radius: 8px;
 }

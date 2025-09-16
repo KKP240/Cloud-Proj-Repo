@@ -11,10 +11,11 @@ export default function CreateEvent() {
   const [province, setProvince] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const [capacity, setCapacity] = useState('');
-  const [tags, setTags] = useState('');
+  const [capacity, setCapacity] = useState(1);
+  const [tags, setTags] = useState([]);
   const [images, setImages] = useState('');
   const [msg, setMsg] = useState(null);
+  const [inputValue, setInputValue] = useState("");
 
   const nav = useNavigate();
 
@@ -50,6 +51,22 @@ export default function CreateEvent() {
       nav(`/activities/${data.activity.id}`);
     } else {
       setMsg('Error: ' + (data.error || JSON.stringify(data)));
+    }
+  }
+  function add(){
+    setCapacity(capacity+1)
+  }
+
+  function subtract(){
+    if (capacity){
+      setCapacity(capacity-1)
+    }
+  }
+
+  function addTags() {
+    if (inputValue.trim() !== "" && !tags.includes(inputValue)) {
+      setTags([...tags, inputValue.trim()]);
+      setInputValue(""); // ล้างช่อง input หลังเพิ่ม
     }
   }
 
@@ -123,19 +140,11 @@ export default function CreateEvent() {
             {/* Participants */}
             <div className='participants-section'>
               <h4>Set participants</h4>
-              <select className="participants-select">
-                <option>0</option>
-                <option>5</option>
-                <option>10</option>
-                <option>25</option>
-                <option>50</option>
-                <option>100</option>
-              </select>
-              <input
-                type="hidden"
-                value={capacity}
-                onChange={e => setCapacity(e.target.value)}
-              />
+              <div className='participants-section1'>
+                <button onClick={add} className='add'>+</button>
+                {capacity}
+                <button onClick={subtract} className='subtract'>-</button>
+              </div>
             </div>
           </div>
 
@@ -149,18 +158,25 @@ export default function CreateEvent() {
             </div>
 
             {/* Tags */}
-            <div className='tags-section'>
-              <h4>Tags</h4>
-              <div className="tags-input-area">
-                <input
-                  className="tags-input"
-                  placeholder="Tags"
-                  value={tags}
-                  onChange={e => setTags(e.target.value)}
-                />
-                <button type="button" className="tags-add-button">+</button>
-              </div>
-            </div>
+            <div className="tags-section">
+      <h4>Tags</h4>
+      <div className="tags-input-area">
+        <input
+          className="tags-input"
+          placeholder="Tags"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+        />
+        <button type="button" className="tags-add-button" onClick={addTags}>
+          +
+        </button>
+      </div>
+      <ul>
+        {tags.map((tag, index) => (
+          <li key={index}>{tag}</li>
+        ))}
+      </ul>
+    </div>
 
             {/* Location */}
             <div className='location-section'>
