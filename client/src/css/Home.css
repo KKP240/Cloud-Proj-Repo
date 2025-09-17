@@ -1,11 +1,17 @@
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  margin: 0;
+  background: #fbfbfb;
+  color: #222;
+  align-items: center;
+}
 .container-Home {
   position: absolute;
-
+  top: 100px;              /* ปรับค่านี้เพื่อเลื่อนลง */
   left: 50%;
-  transform: translate(-50%, -50%);
-  width: 100%;       /* หรือกำหนดความกว้างตามต้องการ */
+  transform: translateX(-50%); /* ลบ -50% ของ Y ออก ให้ใช้เฉพาะ X */
+  width: 100%;
   text-align: center;
-  margin-top: 400px;
 }
 
 h2 {
@@ -65,4 +71,8 @@ h2 {
 
 .home-img123:hover {
     transform: scale(1.1);
+}
+
+.link_event{
+  color: #ffffff;
 }

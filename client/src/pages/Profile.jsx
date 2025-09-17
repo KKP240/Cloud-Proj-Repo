@@ -8,10 +8,10 @@ export default function Profile() {
     return(
         <div className='Profile'>
             <img src={img12} alt="Profile" className='Profile1' />
-            <div className='User'><p>Username</p></div>
-            <div className='User'><p>Firstname</p></div>
-            <div className='User'><p>Lastname</p></div>
-            <div className='User'><p>Email</p></div>
+            <div className='User'><h3>Username: </h3> <h3>ibetfinnz</h3></div>
+            <div className='Firstname'><h3>Firstname: </h3><h3>Tibet</h3></div>
+            <div className='Surname'><h3>Surname: </h3><h3>Sawangkan</h3></div>
+            <div className='Email'><h3>Email: </h3><h3>ibetfinnz@gmail.com</h3></div>
         </div>
     )
 }
