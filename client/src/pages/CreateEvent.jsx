@@ -22,51 +22,62 @@ export default function CreateEvent() {
   async function onSubmit(e) {
     e.preventDefault();
     setMsg('Creating...');
+
+    // normalize date-only (yyyy-mm-dd) to ISO start-of-day if needed
+    const normStart = startDate ? (startDate.length === 10 ? startDate + 'T00:00:00' : startDate) : null;
+    const normEnd = endDate ? (endDate.length === 10 ? endDate + 'T00:00:00' : endDate) : null;
+
     const payload = {
       title,
       description,
       location,
       country,
       province,
-      startDate,
-      endDate,
+      startDate: normStart,   // <- use normalized values
+      endDate: normEnd,       // <- use normalized values
       capacity: capacity ? Number(capacity) : null,
-      tags: tags ? tags.split(',').map(s => s.trim()).filter(Boolean) : [],
+      tags: Array.isArray(tags) ? tags : (tags ? String(tags).split(',').map(s=>s.trim()).filter(Boolean) : []),
       images: images ? images.split(',').map(s => s.trim()).filter(Boolean) : []
     };
     const token = localStorage.getItem('token');
 
-    const res = await fetch('/api/activities', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { 'Authorization': 'Bearer ' + token } : {})
-      },
-      body: JSON.stringify(payload)
-    });
+    try {
+      const res = await fetch('/api/activities', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': 'Bearer ' + token } : {})
+        },
+        body: JSON.stringify(payload)
+      });
 
-    const data = await res.json().catch(() => ({}));
-    if (res.ok) {
-      setMsg('Created');
-      nav(`/activities/${data.activity.id}`);
-    } else {
-      setMsg('Error: ' + (data.error || JSON.stringify(data)));
-    }
-  }
-  function add(){
-    setCapacity(capacity+1)
-  }
-
-  function subtract(){
-    if (capacity > 1){
-      setCapacity(capacity-1)
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        setMsg('Created');
+        nav(`/activities/${data.activity.id}`);
+      } else {
+        setMsg('Error: ' + (data.error || JSON.stringify(data)));
+      }
+    } catch (err) {
+      setMsg('Network error: ' + err.message);
     }
   }
 
-  function addTags() {
-    if (inputValue.trim() !== "" && !tags.includes(inputValue)) {
+  function add(e){
+    e.preventDefault();
+    setCapacity(prev => Number(prev) + 1);
+  }
+
+  function subtract(e){
+    e.preventDefault();
+    setCapacity(prev => (Number(prev) > 1 ? Number(prev) - 1 : 1));
+  }
+
+  function addTags(e) {
+    e.preventDefault();
+    if (inputValue.trim() !== "" && !tags.includes(inputValue.trim())) {
       setTags([...tags, inputValue.trim()]);
-      setInputValue(""); // ล้างช่อง input หลังเพิ่ม
+      setInputValue("");
     }
   }
 
@@ -137,35 +148,32 @@ export default function CreateEvent() {
               </div>
             </div>
 
-            
-
             {/* Tags */}
             <div className="tags-section">
-      <h4>Tags</h4>
-      <div className="tags-input-area">
-        <input
-          className="tags-input"
-          placeholder="Tags"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-        />
-        <button type="button" className="tags-add-button" onClick={addTags}>
-          +
-        </button>
-      </div>
-      <ul>
-        {tags.map((tag, index) => (
-          <li key={index}>{tag}</li>
-        ))}
-      </ul>
-    </div>
-    {/* Participants */}
+              <h4>Tags</h4>
+              <div className="tags-input-area">
+                <input
+                  className="tags-input"
+                  placeholder="Tags"
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                />
+                <button type="button" className="tags-add-button" onClick={addTags}>+</button>
+              </div>
+              <ul>
+                {tags.map((tag, index) => (
+                  <li key={index}>{tag}</li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Participants */}
             <div className='participants-section'>
               <h4>Set participants</h4>
               <div className='participants-section1'>
-                <button onClick={add} className='add'>+</button>
-                {capacity}
-                <button onClick={subtract} className='subtract'>-</button>
+                <button type="button" onClick={add} className='add'>+</button>
+                <span style={{padding:'0 12px'}}>{capacity}</span>
+                <button type="button" onClick={subtract} className='subtract'>-</button>
               </div>
             </div>
           </div>
@@ -175,10 +183,8 @@ export default function CreateEvent() {
             {/* Show Event Page */}
             <div className='show-event-section'>
               <h4>Show Event Page</h4>
-              <div className="event-preview-area">
-              </div>
+              <div className="event-preview-area"></div>
             </div>
-
 
             {/* Location */}
             <div className='location-section'>

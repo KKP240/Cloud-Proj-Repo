@@ -1,5 +1,6 @@
 // src/controllers/activityController.js
 const { Activity, ActivityImage, Tag, Comment, Registration, User } = require('../../models');
+const { sequelize } = require('../../models');
 
 module.exports = {
 
