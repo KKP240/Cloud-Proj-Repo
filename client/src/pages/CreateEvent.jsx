@@ -36,7 +36,7 @@ export default function CreateEvent() {
       startDate: normStart,   // <- use normalized values
       endDate: normEnd,       // <- use normalized values
       capacity: capacity ? Number(capacity) : null,
-      tags: Array.isArray(tags) ? tags : (tags ? String(tags).split(',').map(s=>s.trim()).filter(Boolean) : []),
+      tags: Array.isArray(tags) ? tags : (tags ? String(tags).split(',').map(s => s.trim()).filter(Boolean) : []),
       images: images ? images.split(',').map(s => s.trim()).filter(Boolean) : []
     };
     const token = localStorage.getItem('token');
@@ -63,12 +63,12 @@ export default function CreateEvent() {
     }
   }
 
-  function add(e){
+  function add(e) {
     e.preventDefault();
     setCapacity(prev => Number(prev) + 1);
   }
 
-  function subtract(e){
+  function subtract(e) {
     e.preventDefault();
     setCapacity(prev => (Number(prev) > 1 ? Number(prev) - 1 : 1));
   }
@@ -86,7 +86,7 @@ export default function CreateEvent() {
       <div className='StartEvent-life'>
         <h1>Start Your Event</h1>
         <form className='left-column' onSubmit={onSubmit}>
-          
+
           {/* LEFT COLUMN */}
           <div className="left-content">
             {/* Name Event */}
@@ -121,7 +121,7 @@ export default function CreateEvent() {
                 placeholder="Image URLs (comma separated)"
                 value={images}
                 onChange={e => setImages(e.target.value)}
-                style={{marginTop: '10px'}}
+                style={{ marginTop: '10px' }}
               />
             </div>
 
@@ -170,11 +170,13 @@ export default function CreateEvent() {
             {/* Participants */}
             <div className='participants-section'>
               <h4>Set participants</h4>
-              <div className='participants-section1'>
-                <button type="button" onClick={add} className='add'>+</button>
-                <span style={{padding:'0 12px'}}>{capacity}</span>
-                <button type="button" onClick={subtract} className='subtract'>-</button>
-              </div>
+              <input
+                type="number"
+                value={capacity}
+                onChange={(e) => setCapacity(parseInt(e.target.value, 10))}
+                min="0"
+                className='participants-input'
+              />
             </div>
           </div>
 
@@ -198,26 +200,26 @@ export default function CreateEvent() {
               />
             </div>
 
-            {/* country */}
-            <div className='country-section'>
-              <h4>country</h4>
+            {/* Province */}
+            <div className='province-section'>
+              <h4>Province</h4>
               <input
                 className="form-input"
-                placeholder="country"
-                value={country}
-                onChange={e => setCountry(e.target.value)}
+                placeholder="Province"
+                value={province}
+                onChange={e => setProvince(e.target.value)}
                 required
               />
             </div>
 
-            {/* province */}
-            <div className='province-section'>
-              <h4>province</h4>
+            {/* Country */}
+            <div className='country-section'>
+              <h4>Country</h4>
               <input
                 className="form-input"
-                placeholder="province"
-                value={province}
-                onChange={e => setProvince(e.target.value)}
+                placeholder="Country"
+                value={country}
+                onChange={e => setCountry(e.target.value)}
                 required
               />
             </div>

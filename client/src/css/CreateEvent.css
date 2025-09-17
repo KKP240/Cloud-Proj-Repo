@@ -75,6 +75,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  margin: 0 0 20px 0;
 }
 
 .image-section h4 {
@@ -114,6 +115,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
+  margin: 0 0 20px 0;
 }
 
 .date-group {
@@ -143,17 +145,28 @@
   flex-direction: column;
 }
 
-.participants-section1 {
-  display: flex;       /* ต้องมี flex ถึงใช้ flex-direction ได้ */
-  flex-direction: row; /* เรียงแนวนอน */
-  gap: 10px;           /* เว้นระหว่าง child */
-}
-
 .participants-section h4 {
+  color: #2563eb;
   font-size: 16px;
   font-weight: 600;
-  color: #2563eb;
   margin: 0 0 12px 0;
+}
+
+/* สไตล์หลักของช่อง input */
+.participants-input {
+  width: 60px;
+  padding: 8px;
+  border: 2px solid #a0c4ff;
+  border-radius: 6px;
+  text-align: center;
+  font-size: 1rem;
+  color: #2563eb;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.participants-input:focus {
+  border-color: #2563eb;
 }
 
 
@@ -167,6 +180,7 @@
 .show-event-section {
   display: flex;
   flex-direction: column;
+  margin: 0 0 20px 0;
 }
 
 .show-event-section h4 {
@@ -203,6 +217,7 @@
 .tags-section {
   display: flex;
   flex-direction: column;
+  margin: 0 0 20px 0;
 }
 
 .tags-section h4 {
@@ -215,7 +230,6 @@
 .tags-input-area {
   position: relative;
   width: 90%;
-  margin-bottom: 16px;
 }
 
 .tags-input {
@@ -244,9 +258,22 @@
 .location-section {
   display: flex;
   flex-direction: column;
+  margin: 0 0 20px 0;
 }
 
 .location-section h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2563eb;
+}
+
+.province-section {
+  display: flex;
+  flex-direction: column;
+  margin: 0 0 20px 0;
+}
+
+.province-section h4 {
   font-size: 16px;
   font-weight: 600;
   color: #2563eb;
@@ -256,6 +283,7 @@
 .country-section {
   display: flex;
   flex-direction: column;
+  margin: 0 0 20px 0;
 }
 
 .country-section h4 {
@@ -265,17 +293,7 @@
   margin: 0 0 12px 0;
 }
 
-.province-section {
-  display: flex;
-  flex-direction: column;
-}
 
-.province-section h4 {
-  font-size: 16px;
-  font-weight: 600;
-  color: #2563eb;
-  margin: 0 0 12px 0;
-}
 
 .add, .subtract {
   display: flex;             
