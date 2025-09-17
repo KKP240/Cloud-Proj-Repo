@@ -190,6 +190,30 @@ export default function CreateEvent() {
               />
             </div>
 
+            {/* country */}
+            <div className='country-section'>
+              <h4>country</h4>
+              <input
+                className="form-input"
+                placeholder="country"
+                value={country}
+                onChange={e => setCountry(e.target.value)}
+                required
+              />
+            </div>
+
+            {/* province */}
+            <div className='province-section'>
+              <h4>province</h4>
+              <input
+                className="form-input"
+                placeholder="province"
+                value={province}
+                onChange={e => setProvince(e.target.value)}
+                required
+              />
+            </div>
+
             <button type="submit" className='create-event-btn'>Create Event</button>
             {msg && <p>{msg}</p>}
           </div>

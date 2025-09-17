@@ -253,6 +253,30 @@
   margin: 0 0 12px 0;
 }
 
+.country-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.country-section h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2563eb;
+  margin: 0 0 12px 0;
+}
+
+.province-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.province-section h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2563eb;
+  margin: 0 0 12px 0;
+}
+
 .add, .subtract {
   display: flex;             
   align-items: center;     
