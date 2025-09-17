@@ -246,16 +246,29 @@
   margin: 0 0 12px 0;
 }
 
-.add{
-  background: none;
-  width: 30px;
-  border-color: #ececec;
+.add, .subtract {
+  display: flex;              /* ทำให้จัด layout ด้วย flex */
+  align-items: center;        /* จัดข้อความตรงกลางแนวตั้ง */
+  justify-content: center;
+  background: #2563eb;
+  color: white;
+  border: none;
+  width: 20px;
+  height: 28px;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.subtract{
-  background: none;
-  width: 30px;
-  border-color: #ececec;
+.add:hover, .subtract:hover {
+  background: #82a9ff;
+  transform: scale(1.1);
+}
+
+.add:active, .subtract:active {
+  transform: scale(0.95);
 }
 
 /* Create Event Button */
