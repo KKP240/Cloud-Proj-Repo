@@ -14,7 +14,7 @@ export default function Login(){
     const { ok, body } = await postJson('/api/auth/login', { email, password })
     if (ok && body.token) {
       localStorage.setItem('token', body.token)
-      nav('/')
+      nav('/home')
     } else {
       setMsg(body.error || 'Login failed')
     }
