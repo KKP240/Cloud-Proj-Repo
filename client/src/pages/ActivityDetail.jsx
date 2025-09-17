@@ -78,42 +78,56 @@ export default function ActivityDetail() {
   return (
     <div className="activity-detail-container">
       {/* Header */}
-      <div className="activity-header">
-        <h1 className="activity-title">{activity.title}</h1>
+      {/* Header */}
+<div
+  className="activity-header"
+  style={{
+    backgroundImage: activity.ActivityImages && activity.ActivityImages.length > 0 
+      ? `url(${activity.ActivityImages[0].url})` 
+      : 'none',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+  }}
+>
+  <h1 className="activity-title">{activity.title}</h1>
 
-        {/* Stats */}
-        <div className="stats-row">
-          <div className="stat-item">
-            <span className="icon">👁️</span>
-            <div>
-              <div style={{ fontWeight: 'bold' }}>Total view</div>
-              <div>n/a</div>
-            </div>
-          </div>
+  {/* Stats */}
+  <div className="stats-row">
+    <div className="stat-item">
+      <span className="icon">👁️</span>
+      <div>
+        <div style={{ fontWeight: 'bold' }}>Total view</div>
+        <div>n/a</div>
+      </div>
+    </div>
 
-          <div className="stat-item">
-            <span className="icon">👥</span>
-            <div>
-              <div style={{ fontWeight: 'bold' }}>Participant</div>
-              <div>{participantCount}{activity.capacity ? ` / ${activity.capacity}` : ''}</div>
-            </div>
-          </div>
-
-          {isRegistered ? (
-            <button className="cancel-button" onClick={doCancel} disabled={busy}>
-              Cancel Registration
-            </button>
-          ) : (
-            <button
-              className="participant-button"
-              onClick={doRegister}
-              disabled={busy || (activity.capacity && participantCount >= activity.capacity)}
-            >
-              Participant
-            </button>
-          )}
+    <div className="stat-item">
+      <span className="icon">👥</span>
+      <div>
+        <div style={{ fontWeight: 'bold' }}>Participant</div>
+        <div>
+          {participantCount}
+          {activity.capacity ? ` / ${activity.capacity}` : ''}
         </div>
       </div>
+    </div>
+
+    {isRegistered ? (
+      <button className="cancel-button" onClick={doCancel} disabled={busy}>
+        Cancel Registration
+      </button>
+    ) : (
+      <button
+        className="participant-button"
+        onClick={doRegister}
+        disabled={busy || (activity.capacity && participantCount >= activity.capacity)}
+      >
+        Participant
+      </button>
+    )}
+  </div>
+</div>
+
         {/* Tags */}
         <div className="tags-section">
           <div className="tags-label">Tags for this Event</div>
