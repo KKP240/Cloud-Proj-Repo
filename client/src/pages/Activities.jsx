@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getActivities } from '../services/api';
-
+import '../css/Activities.css';
 export default function Activities(){
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);

@@ -23,6 +23,8 @@ function BodyClassController() {
       document.body.className = "home-body"
     }else if (location.pathname === "/events/new") {
       document.body.className = "events-body"
+    }else if (location.pathname === "/activities") {
+      document.body.className = "activities-body"
     }else {
       document.body.className = "default-body"
     }
