@@ -137,25 +137,7 @@ export default function CreateEvent() {
               </div>
             </div>
 
-            {/* Participants */}
-            <div className='participants-section'>
-              <h4>Set participants</h4>
-              <div className='participants-section1'>
-                <button onClick={add} className='add'>+</button>
-                {capacity}
-                <button onClick={subtract} className='subtract'>-</button>
-              </div>
-            </div>
-          </div>
-
-          {/* RIGHT COLUMN */}
-          <div className="right-content">
-            {/* Show Event Page */}
-            <div className='show-event-section'>
-              <h4>Show Event Page</h4>
-              <div className="event-preview-area">
-              </div>
-            </div>
+            
 
             {/* Tags */}
             <div className="tags-section">
@@ -177,6 +159,26 @@ export default function CreateEvent() {
         ))}
       </ul>
     </div>
+    {/* Participants */}
+            <div className='participants-section'>
+              <h4>Set participants</h4>
+              <div className='participants-section1'>
+                <button onClick={add} className='add'>+</button>
+                {capacity}
+                <button onClick={subtract} className='subtract'>-</button>
+              </div>
+            </div>
+          </div>
+
+          {/* RIGHT COLUMN */}
+          <div className="right-content">
+            {/* Show Event Page */}
+            <div className='show-event-section'>
+              <h4>Show Event Page</h4>
+              <div className="event-preview-area">
+              </div>
+            </div>
+
 
             {/* Location */}
             <div className='location-section'>
