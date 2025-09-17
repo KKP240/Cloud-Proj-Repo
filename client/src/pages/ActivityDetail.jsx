@@ -79,57 +79,67 @@ export default function ActivityDetail() {
     <div className="activity-detail-container">
       {/* Header */}
       {/* Header */}
-<div
-  className="activity-header"
-  style={{
-    backgroundImage: activity.ActivityImages && activity.ActivityImages.length > 0 
-      ? `url(${activity.ActivityImages[0].url})` 
-      : 'none',
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-  }}
->
-  <h1 className="activity-title">{activity.title}</h1>
+<div className="activity-header" style={{ position: 'relative', overflow: 'hidden' }}>
+  {activity.ActivityImages && activity.ActivityImages.length > 0 && (
+    <img
+      src={activity.ActivityImages[0].url}
+      alt={activity.title}
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        objectFit: 'cover',
+        filter: 'blur(4px)',
+        transform: 'scale(1.1)', 
+      }}
+    />
+  )}
 
-  {/* Stats */}
-  <div className="stats-row">
-    <div className="stat-item">
-      <span className="icon">👁️</span>
-      <div>
-        <div style={{ fontWeight: 'bold' }}>Total view</div>
-        <div>n/a</div>
-      </div>
+  {/* เนื้อหา */}
+  <h1 className="activity-title" style={{ position: 'relative', zIndex: 1 }}>
+    {activity.title}
+  </h1>
+
+  <div className="stats-row" style={{ position: 'relative', zIndex: 1 }}>
+  <div className="stat-item">
+    <span className="icon">👁️</span>
+    <div>
+      <div style={{ fontWeight: 'bold' }}>Total view</div>
+      <div>n/a</div>
     </div>
-
-    <div className="stat-item">
-      <span className="icon">👥</span>
-      <div>
-        <div style={{ fontWeight: 'bold' }}>Participant</div>
-        <div>
-          {participantCount}
-          {activity.capacity ? ` / ${activity.capacity}` : ''}
-        </div>
-      </div>
-    </div>
-
-    {isRegistered ? (
-      <button className="cancel-button" onClick={doCancel} disabled={busy}>
-        Cancel Registration
-      </button>
-    ) : (
-      <button
-        className="participant-button"
-        onClick={doRegister}
-        disabled={busy || (activity.capacity && participantCount >= activity.capacity)}
-      >
-        Participant
-      </button>
-    )}
   </div>
+
+  <div className="stat-item">
+    <span className="icon">👥</span>
+    <div>
+      <div style={{ fontWeight: 'bold' }}>Participant</div>
+      <div>
+        {participantCount}
+        {activity.capacity ? ` / ${activity.capacity}` : ''}
+      </div>
+    </div>
+  </div>
+
+  {isRegistered ? (
+    <button className="cancel-button" onClick={doCancel} disabled={busy}>
+      Cancel Registration
+    </button>
+  ) : (
+    <button
+      className="participant-button"
+      onClick={doRegister}
+      disabled={busy || (activity.capacity && participantCount >= activity.capacity)}
+    >
+      Participant
+    </button>
+  )}
+</div>
 </div>
 
         {/* Tags */}
-        <div className="tags-section">
+        <div className="tags-section2">
           <div className="tags-label">Tags for this Event</div>
           <div>
             {activity.Tags && activity.Tags.length
