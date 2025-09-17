@@ -1,7 +1,9 @@
-body {
+.login-body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
   margin: 0;
-  height: 100vh;
-  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  background: #fbfbfb;
+  color: #222;
+  align-items: center;
 }
 
 .login-container {
