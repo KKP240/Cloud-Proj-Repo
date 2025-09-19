@@ -53,7 +53,7 @@ module.exports = {
     const auth = req.auth || {};
     // if local JWT, auth may contain sub/email/name already
     if (auth.sub && auth.email) {
-      return res.json({ id: auth.sub, email: auth.email, name: auth.name || null });
+      return res.json({ id: auth.sub, email: auth.email, name: auth.name, username : auth.username , firstName : auth.firstName, lastName: auth.lastName || null });
     }
     // fallback: try to find in DB by id
     try {
