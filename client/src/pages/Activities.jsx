@@ -16,6 +16,7 @@ export default function Activities() {
   const [countries, setCountries] = useState([]);
   const [provinces, setProvinces] = useState([]);
   const [sortOrder, setSortOrder] = useState("");
+  
 
   useEffect(() => {
     let mounted = true;

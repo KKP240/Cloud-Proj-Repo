@@ -18,6 +18,7 @@ export default function Participants() {
           headers: { 'Content-Type':'application/json', ...(token?{ Authorization: 'Bearer '+token }:{}) }
         });
         const body = await res.json().catch(()=>({}));
+        console.log(`/api/activities/${id}/participants`, body);
         if (!res.ok) {
           setErr(body.error || 'Failed to load');
         } else {

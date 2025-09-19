@@ -3,7 +3,8 @@
   margin: 0;
   background: #fbfbfb;
   color: #222;
-  align-items: center;
+  display: flex;
+  flex-direction: column;
 }
 
 .Profile {
