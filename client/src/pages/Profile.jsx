@@ -4,21 +4,32 @@ import img12 from "../img/Profile.jpeg";
 
 export default function Profile() {
   const [user, setUser] = useState(null);
+  const [err, setErr] = useState(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
-    try {
-      // decode payload ของ JWT
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      setUser(payload);
-    } catch (e) {
-      console.error("Invalid token", e);
-    }
+    const token = localStorage.getItem('token');
+    fetch('/api/auth/me', {
+      headers: {
+        'Authorization': 'Bearer ' + token
+      }
+    })
+      .then(async res => {
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(text || res.statusText);
+        }
+        return res.json();
+      })
+      .then(data => {
+        console.log(data); // ดูข้อมูลที่ได้รับจาก API
+        if (data.error) setErr(data.error);
+        else setUser(data.user || data); // รองรับทั้ง {user: {...}} และ {...}
+      })
+      .catch(e => setErr(e.message));
   }, []);
 
-  if (!user) return <div className="Profile">Loading...</div>;
+  if (err) return <div style={{color:'red'}}>Error: {err}</div>;
+  if (!user) return <div>Loading...</div>;
 
   return (
     <div className="Profile">
