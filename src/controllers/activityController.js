@@ -4,17 +4,18 @@ const { sequelize } = require('../../models');
 
 module.exports = {
 
+  // ========================= DETAIL =========================
   async detail(req, res) {
     try {
       const id = Number(req.params.id);
       if (!id) return res.status(400).json({ error: 'Invalid activity id' });
 
-      // โหลด activity พร้อม relations (tags, images, comments (+ user))
+      // โหลด activity พร้อม relations (Tags, Images, Comments (+User))
       const activity = await Activity.findByPk(id, {
         include: [
           { model: Tag, through: { attributes: [] } },
           { model: ActivityImage },
-          { model: Comment, include: [{ model: User, attributes: ['id','username','firstName','lastName'] } ] }
+          { model: Comment, include: [{ model: User, attributes: ['id','username','firstName','lastName'] }] }
         ]
       });
 
@@ -28,8 +29,7 @@ module.exports = {
       // ตรวจว่า request มีผู้ใช้ล็อกอินแล้วหรือไม่ และผู้ใช้นั้นลงทะเบียนไว้หรือยัง
       let isRegistered = false;
       let myRegistrationId = null;
-      // req.auth อาจมีหลายรูปแบบ ขึ้นกับ middleware ของคุณ
-      const userId = req.auth && (req.auth.sub || req.auth.userId || req.auth.id || req.auth.username) ? Number(req.auth.sub || req.auth.userId || req.auth.id) : null;
+      const userId = req.auth && (req.auth.sub || req.auth.userId || req.auth.id) ? Number(req.auth.sub || req.auth.userId || req.auth.id) : null;
       if (userId) {
         const reg = await Registration.findOne({
           where: { activityId: id, userId, status: 'registered' }
@@ -37,7 +37,6 @@ module.exports = {
         if (reg) { isRegistered = true; myRegistrationId = reg.id; }
       }
 
-      // ส่ง response
       return res.json({
         activity,
         participantCount,
@@ -50,23 +49,31 @@ module.exports = {
     }
   },
 
+  // ========================= LIST =========================
   async list(req, res) {
     try {
-      if (!Activity) {
-        console.error('Activity model is NOT defined. models object keys:', Object.keys(models || {}));
-        return res.status(500).json({ error: 'Server error: Activity model not found' });
-      }
-      const activities = await Activity.findAll();
+      const activities = await Activity.findAll({
+        include: [
+          { model: Tag, through: { attributes: [] } },    // include Tags
+          { model: ActivityImage }                        // include Images
+        ]
+      });
       res.json(activities);
     } catch (err) {
-      console.error('ActivityController Error:', err && err.stack ? err.stack : err);
+      console.error('ActivityController Error:', err);
       res.status(500).json({ error: 'Server error' });
     }
   },
 
+  // ========================= GET BY ID =========================
   async getById(req, res) {
     try {
-      const activity = await Activity.findByPk(req.params.id);
+      const activity = await Activity.findByPk(req.params.id, {
+        include: [
+          { model: Tag, through: { attributes: [] } },
+          { model: ActivityImage }
+        ]
+      });
       if (!activity) return res.status(404).json({ error: 'Not found' });
       res.json(activity);
     } catch (err) {
@@ -75,10 +82,10 @@ module.exports = {
     }
   },
 
+  // ========================= CREATE =========================
   async create(req, res) {
     const t = await sequelize.transaction();
     try {
-      // get creator user id from auth middleware (req.auth.sub) if exists
       const creatorId = req.auth && (req.auth.sub || req.auth['cognito:username'] || req.auth.username) ? Number(req.auth.sub || req.auth['cognito:username'] || req.auth.username) : null;
 
       const {
@@ -106,9 +113,8 @@ module.exports = {
         posterUrl: images.length ? images[0] : null
       }, { transaction: t });
 
-      // handle tags: find or create, then associate
+      // handle tags
       if (Array.isArray(tags) && tags.length) {
-        // normalize tag names
         const normalized = tags.map(s => String(s).trim().toLowerCase()).filter(Boolean);
         const tagRecords = [];
         for (const tn of normalized) {
@@ -124,7 +130,7 @@ module.exports = {
         }
       }
 
-      // handle images: create ActivityImage entries
+      // handle images
       if (Array.isArray(images) && images.length) {
         const imageCreates = images.map((url, idx) => ({
           activityId: activity.id,
@@ -153,6 +159,7 @@ module.exports = {
     }
   },
 
+  // ========================= UPDATE =========================
   async update(req, res) {
     try {
       const activity = await Activity.findByPk(req.params.id);
@@ -165,6 +172,7 @@ module.exports = {
     }
   },
 
+  // ========================= DELETE =========================
   async remove(req, res) {
     try {
       const activity = await Activity.findByPk(req.params.id);

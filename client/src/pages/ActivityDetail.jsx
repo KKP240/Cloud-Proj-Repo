@@ -13,18 +13,21 @@ export default function ActivityDetail() {
 
   // Fetch activity details
   async function fetchDetail() {
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/activities/${id}`);
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) setError(data.error || 'Failed to load activity');
-      else setActivityData(data);
-    } catch (e) {
-      setError(e.message || 'Network error');
-    } finally {
-      setLoading(false);
-    }
+  setLoading(true);
+  try {
+    const res = await fetch(`/api/activities/${id}`);
+    const data = await res.json().catch(() => ({}));
+
+    console.log("Fetched data:", data); // 👈 ดูข้อมูลที่ดึงมา
+
+    if (!res.ok) setError(data.error || 'Failed to load activity');
+    else setActivityData(data);
+  } catch (e) {
+    setError(e.message || 'Network error');
+  } finally {
+    setLoading(false);
   }
+}
 
   useEffect(() => { fetchDetail(); }, [id]);
 
