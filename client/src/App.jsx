@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { Routes, Route, Link, useLocation } from 'react-router-dom'
 import './navbar.css';
 import Login from './pages/Login'
@@ -36,7 +36,71 @@ function BodyClassController() {
   return null
 }
 
+function UserMenu({ userChanged, setUserChanged }) {
+  const [user, setUser] = useState(null)
+  const [open, setOpen] = useState(false)
+  const menuRef = useRef(null)
+
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    if (token) {
+      fetch('/api/auth/me', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      })
+        .then(res => res.json())
+        .then(data => setUser(data.user || data))
+        .catch(() => setUser(null))
+    } else {
+      setUser(null)
+    }
+  }, [userChanged]) // <--- เพิ่ม dependency
+
+  // Close dropdown when click outside
+  useEffect(() => {
+    function handleClick(e) {
+      if (menuRef.current && !menuRef.current.contains(e.target)) setOpen(false)
+    }
+    if (open) document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [open])
+
+  function logout() {
+    localStorage.removeItem('token')
+    setUserChanged(v => v + 1)
+    window.location.href = '/login'
+  }
+
+  if (!user) {
+    return (
+      <Link to="/login" className='signin-btn'>
+        <span>Sign in</span>
+        {/* ...icon... */}
+      </Link>
+    )
+  }
+
+  return (
+    <div className="user-menu" ref={menuRef} style={{ position: 'relative', display: 'inline-block' }}>
+      <button className="user-btn" onClick={() => setOpen(v => !v)}>
+        {user.username || user.email}
+        <span style={{ marginLeft: 6 }}>▼</span>
+      </button>
+      {open && (
+        <div className="dropdown" style={{
+          position: 'absolute', right: 0, top: '100%', background: '#fff', border: '1px solid #ddd', borderRadius: 6, minWidth: 160, zIndex: 1000
+        }}>
+          <div><Link to="/profile" className="dropdown-item" onClick={() => setOpen(false)}>Profile</Link> </div>
+          <div><Link to="/events" className="dropdown-item" onClick={() => setOpen(false)}>Event</Link> </div>
+          <div><Link to="/my-events" className="dropdown-item" onClick={() => setOpen(false)}>Created Event</Link> </div>
+          <div><button className="dropdown-item" onClick={logout} style={{ width: '100%', textAlign: 'left', background: 'none', border: 'none', padding: '8px 16px' }}>Logout</button> </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function App() {
+  const [userChanged, setUserChanged] = useState(0);
   return (
     <div>
       <BodyClassController />   {/* ใช้งานตรงนี้ */}
@@ -58,12 +122,7 @@ export default function App() {
         </div>
 
         <div className='navbar-signin'>
-          <Link to="/login" className='signin-btn'>
-            <span>Sign in</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-              <path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z" />
-            </svg>
-          </Link>
+          <UserMenu userChanged={userChanged} setUserChanged={setUserChanged} />
         </div>
       </nav>
 
@@ -75,7 +134,7 @@ export default function App() {
       }}>
         <Routes>
           <Route path="/home" element={<Home />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<Login setUserChanged={setUserChanged} />} />
           <Route path="/register" element={<Register />} />
           <Route path="/activities" element={<Activities />} />
           <Route path="/events/new" element={<CreateEvent />} />

@@ -3,7 +3,7 @@ import { postJson } from '../services/api'
 import { useNavigate } from 'react-router-dom'
 import "../css/Login.css";
 
-export default function Login(){
+export default function Login({ setUserChanged }) {
   const [email,setEmail] = useState('')
   const [password,setPassword] = useState('')
   const [msg,setMsg] = useState(null)
@@ -14,6 +14,7 @@ export default function Login(){
     const { ok, body } = await postJson('/api/auth/login', { email, password })
     if (ok && body.token) {
       localStorage.setItem('token', body.token)
+      setUserChanged(v => v + 1)
       nav('/home')
     } else {
       setMsg(body.error || 'Login failed')

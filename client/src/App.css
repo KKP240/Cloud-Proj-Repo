@@ -40,3 +40,98 @@
 .read-the-docs {
   color: #888;
 }
+
+
+/* === Profile UI Styles === */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+}
+
+/* User Menu container */
+.user-menu {
+  position: relative;
+  display: inline-block;
+}
+
+/* User Button styles */
+.user-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.3s;
+}
+
+.user-btn:hover {
+  background-color: #0056b3;
+}
+
+/* Dropdown menu styles */
+.dropdown {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  min-width: 160px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+/* Dropdown item styles */
+.dropdown-item {
+  padding: 10px 15px;
+  color: #333;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+
+.dropdown-item:hover {
+  background-color: #f1f1f1;
+}
+
+/* Icon styles */
+.dropdown-item::before {
+  content: "►";
+  margin-right: 8px;
+  color: #007bff;
+}
+
+/* Sign-in button styles */
+.signin-btn {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  text-decoration: none;
+  transition: background-color 0.3s;
+}
+
+.signin-btn:hover {
+  background-color: #0056b3;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .user-btn,
+  .signin-btn {
+    padding: 8px 10px;
+    font-size: 14px;
+  }
+
+  .dropdown-item {
+    padding: 8px 10px;
+  }
+
+  .dropdown {
+    min-width: 100px;
+  }
+}
