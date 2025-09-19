@@ -107,6 +107,15 @@ body {
   color: #007bff;
 }
 
+.dropdown-arrow {
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+  .dropdown-arrow.rotate {
+    transform: rotate(180deg);
+}
+
 /* Sign-in button styles */
 .signin-btn {
   background-color: #007bff;

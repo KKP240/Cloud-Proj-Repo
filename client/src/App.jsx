@@ -96,7 +96,10 @@ function UserMenu({ userChanged, setUserChanged }) {
           <path d="M32,216c19.37-33.47,54.55-56,96-56s76.63,22.53,96,56" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="16"/>
         </svg>
         {user.username || user.email}
-        <span style={{ marginLeft: 6 }}>▼</span>
+        <span
+          className={`dropdown-arrow ${open ? 'rotate' : ''}`}
+          style={{ marginLeft: 6 }}
+        >▼</span>
       </button>
       {open && (
         <div className="dropdown" style={{
