@@ -1,37 +1,34 @@
 // client/src/pages/ActivityDetail.jsx
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import '../css/ActivityDetail.css';
 
 export default function ActivityDetail() {
   const { id } = useParams();
   const [activityData, setActivityData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [err, setErr] = useState(null);
+  const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [activeTab, setActiveTab] = useState('description');
 
+  // Fetch activity details
   async function fetchDetail() {
     setLoading(true);
     try {
-      const res = await fetch(`/api/activities/${id}`, {
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }
-      });
-      const body = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setErr(body.error || 'Failed to load');
-      } else {
-        setActivityData(body);
-      }
+      const res = await fetch(`/api/activities/${id}`);
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) setError(data.error || 'Failed to load activity');
+      else setActivityData(data);
     } catch (e) {
-      setErr(e.message || 'Network error');
+      setError(e.message || 'Network error');
     } finally {
       setLoading(false);
     }
   }
 
-  useEffect(() => {
-    fetchDetail();
-  }, [id]);
+  useEffect(() => { fetchDetail(); }, [id]);
 
+  // Register for activity
   async function doRegister() {
     setBusy(true);
     try {
@@ -43,19 +40,15 @@ export default function ActivityDetail() {
           ...(token ? { Authorization: 'Bearer ' + token } : {})
         }
       });
-      const body = await res.json().catch(() => ({}));
-      if (res.ok) {
-        await fetchDetail();
-      } else {
-        alert(body.error || 'Register failed');
-      }
-    } catch (e) {
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) await fetchDetail();
+      else alert(data.error || 'Register failed');
+    } catch {
       alert('Network error');
-    } finally {
-      setBusy(false);
-    }
+    } finally { setBusy(false); }
   }
 
+  // Cancel registration
   async function doCancel() {
     if (!confirm('ยืนยันยกเลิกการลงทะเบียนใช่หรือไม่?')) return;
     setBusy(true);
@@ -68,95 +61,210 @@ export default function ActivityDetail() {
           ...(token ? { Authorization: 'Bearer ' + token } : {})
         }
       });
-      const body = await res.json().catch(() => ({}));
-      if (res.ok) {
-        await fetchDetail();
-      } else {
-        alert(body.error || 'Cancel failed');
-      }
-    } catch (e) {
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) await fetchDetail();
+      else alert(data.error || 'Cancel failed');
+    } catch {
       alert('Network error');
-    } finally {
-      setBusy(false);
-    }
+    } finally { setBusy(false); }
   }
 
-  if (loading) return <div className="container">Loading...</div>;
-  if (err) return <div className="container" style={{ color: 'red' }}>Error: {err}</div>;
-  if (!activityData) return <div className="container">No data</div>;
+  if (loading) return <div className="activity-detail-container">Loading...</div>;
+  if (error) return <div className="activity-detail-container" style={{ color: 'red' }}>Error: {error}</div>;
+  if (!activityData) return <div className="activity-detail-container">No data available</div>;
 
   const { activity, participantCount, isRegistered } = activityData;
 
   return (
-    <div className="container">
-      <h2>{activity.title}</h2>
-      <div style={{ display: 'flex', gap: 16 }}>
-        <div style={{ flex: 1 }}>
-          <p><strong>Location:</strong> {activity.location || '-'}</p>
-          <p><strong>Country / Province:</strong> {activity.country || '-'} / {activity.province || '-'}</p>
-          <p><strong>Period:</strong> {activity.startDate ? new Date(activity.startDate).toLocaleString() : '-'} — {activity.endDate ? new Date(activity.endDate).toLocaleString() : '-'}</p>
-          <p>
-            <strong>Capacity:</strong> {activity.capacity || '-'}
-          </p>
-          <p>
-            <strong>Participants:</strong> {participantCount}
-            {activity.capacity ? ` / ${activity.capacity}` : ''}
-            <Link to={`/activities/${id}/participants`} style={{ marginLeft: 8 }}>
-              View list
-            </Link>
-          </p>
-          <p><strong>Tags:</strong> {activity.Tags && activity.Tags.length ? activity.Tags.map(t => t.name).join(', ') : '-'}</p>
-          <div style={{ marginTop: 12 }}>
-            {isRegistered ? (
-              <button onClick={doCancel} disabled={busy}>Cancel registration</button>
-            ) : (
-              <button onClick={doRegister} disabled={busy || (activity.capacity && participantCount >= activity.capacity)}>Participate</button>
-            )}
-          </div>
-        </div>
+    <div className="activity-detail-container">
+      {/* Header */}
+      {/* Header */}
+<div className="activity-header" style={{ position: 'relative', overflow: 'hidden' }}>
+  {activity.ActivityImages && activity.ActivityImages.length > 0 && (
+    <img
+      src={activity.ActivityImages[0].url}
+      alt={activity.title}
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        objectFit: 'cover',
+        transform: 'scale(1.1)', 
+      }}
+    />
+  )}
 
-        <div style={{ width: 300 }}>
-          <div>
-            {activity.ActivityImages && activity.ActivityImages.length ? (
-              activity.ActivityImages.map(img => (
-                <img
-                  key={img.id}
-                  src={img.url}
-                  alt={img.alt || activity.title}
-                  style={{ width: '100%', marginBottom: 8, borderRadius: 6 }}
-                />
-              ))
-            ) : (
-              <div style={{ height: 160, background: '#f2f2f2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>No images</div>
-            )}
-          </div>
-        </div>
+  {/* เนื้อหา */}
+  <h1 className="activity-title" style={{ position: 'relative', zIndex: 1 }}>
+    {activity.title}
+  </h1>
+
+  <div className="stats-row" style={{ position: 'relative', zIndex: 1 }}>
+  <div className="stat-item">
+    <span className="icon">👁️</span>
+    <div>
+      <div style={{ fontWeight: 'bold' }}>Total view</div>
+      <div>n/a</div>
+    </div>
+  </div>
+
+  <div className="stat-item">
+    <span className="icon">👥</span>
+    <div>
+      <div style={{ fontWeight: 'bold' }}>Participant</div>
+      <div>
+        {participantCount}
+        {activity.capacity ? ` / ${activity.capacity}` : ''}
       </div>
+    </div>
+  </div>
 
-      <section style={{ marginTop: 16 }}>
-        <h3>Description</h3>
-        <div>{activity.description || '-'}</div>
-      </section>
+  {isRegistered ? (
+    <button className="cancel-button" onClick={doCancel} disabled={busy}>
+      Cancel Registration
+    </button>
+  ) : (
+    <button
+      className="participant-button"
+      onClick={doRegister}
+      disabled={busy || (activity.capacity && participantCount >= activity.capacity)}
+    >
+      Participant
+    </button>
+  )}
+</div>
+</div>
 
-      <section style={{ marginTop: 16 }}>
-        <h3>Comments</h3>
-        {activity.Comments && activity.Comments.length ? (
-          activity.Comments.map(c => (
-            <div key={c.id} style={{ padding: 8, borderBottom: '1px solid #eee' }}>
-              <div style={{ fontSize: 13, color: '#444' }}>
-                <strong>{c.User ? (c.User.firstName || c.User.username) : 'Guest'}</strong>
-                <span style={{ color: '#999', fontSize: 12 }}> — {new Date(c.createdAt).toLocaleString()}</span>
+        {/* Tags */}
+        <div className="tags-section2">
+          <div className="tags-label">Tags for this Event</div>
+          <div>
+            {activity.Tags && activity.Tags.length
+              ? activity.Tags.map(tag => <span key={tag.id} className="tag">{tag.name}</span>)
+              : <span className="tag">No tags</span>
+            }
+          </div>
+        </div>
+      
+
+      {/* Tabs */}
+      <div className="tab-container">
+        <div className="tab-header">
+          {['description', 'image', 'post'].map(tab => (
+            <button
+              key={tab}
+              className={`tab-button ${activeTab === tab ? 'active' : ''}`}
+              onClick={() => setActiveTab(tab)}
+            >
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            </button>
+          ))}
+        </div>
+
+        <div className="tab-content">
+          {/* Description Tab */}
+          {activeTab === 'description' && (
+            <div>
+              <div className="event-details">
+                <div>
+                  <div className="detail-item">
+                    <div className="detail-label">Location:</div>
+                    <div className="detail-value">{activity.location || '-'}</div>
+                  </div>
+                  <div className="detail-item">
+                    <div className="detail-label">Country / Province:</div>
+                    <div className="detail-value">{activity.country || '-'} / {activity.province || '-'}</div>
+                  </div>
+                  <div className="detail-item">
+                    <div className="detail-label">Capacity:</div>
+                    <div className="detail-value">{activity.capacity || '-'}</div>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="detail-item">
+                    <div className="detail-label">Start Date:</div>
+                    <div className="detail-value">{activity.startDate ? new Date(activity.startDate).toLocaleString() : '-'}</div>
+                  </div>
+                  <div className="detail-item">
+                    <div className="detail-label">End Date:</div>
+                    <div className="detail-value">{activity.endDate ? new Date(activity.endDate).toLocaleString() : '-'}</div>
+                  </div>
+                  <div className="detail-item">
+                    <div className="detail-label">Participants:</div>
+                    <div className="detail-value">
+                      <Link to={`/activities/${id}/participants`}>
+                        View participant list ({participantCount} people)
+                      </Link>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div style={{ marginTop: 6 }}>{c.content}</div>
-            </div>
-          ))
-        ) : (
-          <div>No comments yet</div>
-        )}
-      </section>
 
-      <div style={{ marginTop: 8 }}>
-        <Link to="/activities">Back to list</Link>
+              <div className="detail-item">
+                <div className="detail-label">About this Event 🌟🌟🌟</div>
+                <div className="detail-value">{activity.description || 'No description available'}</div>
+              </div>
+
+              <div className="detail-item">
+                <div className="detail-label">Permissions and credits</div>
+                <div className="detail-value">...</div>
+              </div>
+
+              <div className="detail-item">
+                <div className="detail-label">Compatibility ⚡⚡⚡</div>
+                <div className="detail-value">Compatible with all devices</div>
+              </div>
+            </div>
+          )}
+
+          {/* Image Tab */}
+          {activeTab === 'image' && (
+            <div>
+              <h3>Event Images</h3>
+              {activity.ActivityImages && activity.ActivityImages.length ? (
+                <div className="image-gallery">
+                  {activity.ActivityImages.map(img => (
+                    <img
+                      key={img.id}
+                      src={img.url}
+                      alt={img.alt || activity.title}
+                      className="image"
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="no-image">No images available</div>
+              )}
+            </div>
+          )}
+
+          {/* Post Tab */}
+          {activeTab === 'post' && (
+            <div>
+              <h3>Comments</h3>
+              {activity.Comments && activity.Comments.length ? (
+                activity.Comments.map(c => (
+                  <div key={c.id} className="comment">
+                    <div className="comment-header">
+                      <span className="comment-author">
+                        {c.User ? (c.User.firstName || c.User.username) : 'Guest'}
+                      </span>
+                      <span className="comment-date">
+                        {new Date(c.createdAt).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="comment-content">{c.content}</div>
+                  </div>
+                ))
+              ) : (
+                <div>No comments yet</div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

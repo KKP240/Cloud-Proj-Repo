@@ -63,15 +63,6 @@ export default function CreateEvent() {
     }
   }
 
-  function add(e) {
-    e.preventDefault();
-    setCapacity(prev => Number(prev) + 1);
-  }
-
-  function subtract(e) {
-    e.preventDefault();
-    setCapacity(prev => (Number(prev) > 1 ? Number(prev) - 1 : 1));
-  }
 
   function addTags(e) {
     e.preventDefault();
@@ -144,6 +135,7 @@ export default function CreateEvent() {
                   className="date-input"
                   value={endDate}
                   onChange={e => setEndDate(e.target.value)}
+                  min={startDate || ''}
                 />
               </div>
             </div>

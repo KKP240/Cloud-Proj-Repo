@@ -36,7 +36,7 @@ export default function Home(){
       <h2>Create Your Own Event</h2>
       <p>Get ready for a special experience that you shouldn't miss at the event, which will be filled with fun, knowledge, and opportunities to meet new friends with great ideas,<br /> along with exciting activities, special prizes, and moments that will create unforgettable memories.</p>
       <button className='Start'><a href="/events/new" className='link_event'>Start Your Event</a></button>
-      <button className='Join'>Join an Event</button>
+      <button className='Join'><a href="/activities" className='link_event2'>Join an Event</a></button>
       <div>
         <img src={img1} alt="" className='home-img123'/>
         <img src={img2} alt="" className='home-img123'/>

@@ -24,7 +24,11 @@ function BodyClassController() {
       document.body.className = "home-body"
     } else if (location.pathname === "/events/new") {
       document.body.className = "events-body"
-    } else {
+    }else if (location.pathname === "/activities") {
+      document.body.className = "activities-body"
+    }else if (/^\/activities\/\d+/.test(location.pathname)) {
+  document.body.className = "activities-body-1"
+}else {
       document.body.className = "default-body"
     }
   }, [location])
