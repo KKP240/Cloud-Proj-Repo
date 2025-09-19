@@ -251,7 +251,7 @@
 /* ===== TAGS DROPDOWN STYLES ===== */
 .activities-tags-select {
   flex: 1;
-  min-width: 250px;
+  min-width: 200px;
   position: relative;
   margin: 10px;
 }
@@ -738,6 +738,7 @@
 
 /* Content Styles */
 .activities-content {
+  text-align: left;
   flex: 1;
   padding: 25px 30px;
   display: flex;
