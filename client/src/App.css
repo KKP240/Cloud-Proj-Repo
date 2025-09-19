@@ -141,8 +141,8 @@ body {
 
 /* Sign-in button styles */
 .signin-btn {
-  background-color: #007bff;
-  color: white;
+  background-color: #FFFFFF;
+  color: rgb(0, 0, 0);
   padding: 10px 15px;
   border: none;
   border-radius: 5px;
@@ -151,7 +151,7 @@ body {
 }
 
 .signin-btn:hover {
-  background-color: #0056b3;
+  background-color: #f1f1f1;
 }
 
 /* Responsive adjustments */
