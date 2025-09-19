@@ -15,6 +15,7 @@ export default function Activities() {
   // เก็บ country / province ที่มีอยู่จริงจาก activities
   const [countries, setCountries] = useState([]);
   const [provinces, setProvinces] = useState([]);
+  const [sortOrder, setSortOrder] = useState("");
 
   useEffect(() => {
     let mounted = true;
@@ -70,31 +71,39 @@ export default function Activities() {
   }
 
   // filter data ตาม search + country + province
-  const filteredActivities = activities.filter(act => {
-    const matchesSearch =
-      act.title.toLowerCase().includes(search.toLowerCase()) ||
-      act.description.toLowerCase().includes(search.toLowerCase());
+  let filteredActivities = activities.filter(act => {
+  const matchesSearch =
+    act.title.toLowerCase().includes(search.toLowerCase()) ||
+    act.description.toLowerCase().includes(search.toLowerCase());
 
-    const matchesCountry = country ? act.country === country : true;
-    const matchesProvince = province ? act.province === province : true;
+  const matchesCountry = country ? act.country === country : true;
+  const matchesProvince = province ? act.province === province : true;
 
-    return matchesSearch && matchesCountry && matchesProvince;
-  });
+  return matchesSearch && matchesCountry && matchesProvince;
+});
+
+// sort ตาม sortOrder
+if (sortOrder === "asc") {
+  filteredActivities.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+} else if (sortOrder === "desc") {
+  filteredActivities.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+}
+  
 
   return (
     <div className="activities-container">
       <div className="activities-inner-container">
         <h2 className="activities-title">รายการกิจกรรม</h2>
-
-        {/* Search + Filters */}
-        <div className="activities-filters">
-          <input
+        <input
             type="text"
             placeholder="ค้นหากิจกรรม..."
             value={search}
             onChange={e => setSearch(e.target.value)}
             className="activities-search-input"
           />
+
+        {/* Search + Filters */}
+        <div className="activities-filters">
 
           <select value={country} onChange={e => setCountry(e.target.value)}>
             <option value="">-- เลือกประเทศ --</option>
@@ -109,6 +118,12 @@ export default function Activities() {
               <option key={i} value={p}>{p}</option>
             ))}
           </select>
+
+          <select value={sortOrder} onChange={e => setSortOrder(e.target.value)}>
+    <option value="">-- เรียงตามวันที่สร้าง --</option>
+    <option value="asc">จากเก่าสุด → ใหม่สุด</option>
+    <option value="desc">จากใหม่สุด → เก่าสุด</option>
+  </select>
         </div>
 
         {filteredActivities.length === 0 ? (

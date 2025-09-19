@@ -24,8 +24,8 @@ export default function Profile() {
     <div className="Profile">
       <img src={img12} alt="Profile" className="Profile1" />
       <div className="User"><h3>Username: </h3> <h3>{user.username}</h3></div>
-      <div className="Firstname"><h3>Firstname: </h3><h3>{user.firstname}</h3></div>
-      <div className="Surname"><h3>Surname: </h3><h3>{user.surname}</h3></div>
+      <div className="Firstname"><h3>Firstname: </h3><h3>{user.firstName}</h3></div>
+      <div className="Surname"><h3>Surname: </h3><h3>{user.lastName}</h3></div>
       <div className="Email"><h3>Email: </h3><h3>{user.email}</h3></div>
     </div>
   );
