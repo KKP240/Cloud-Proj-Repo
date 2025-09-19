@@ -9,17 +9,17 @@ const JWT_EXPIRES = process.env.LOCAL_JWT_EXPIRES || '2h';
 module.exports = {
   async register(req, res) {
     try {
-      const { name, email, password } = req.body;
+      const { username, email, password, firstName, lastName } = req.body;
       if (!email || !password) return res.status(400).json({ error: 'email and password required' });
 
       const existing = await User.findOne({ where: { email } });
       if (existing) return res.status(409).json({ error: 'Email already registered' });
 
       const hashed = await bcrypt.hash(password, 10);
-      const user = await User.create({ name, email, password: hashed, role: 'user' });
+      const user = await User.create({ username, email, password: hashed, role: 'user', firstName, lastName });
 
       // return minimal user (no password)
-      return res.status(201).json({ user: { id: user.id, name: user.name, email: user.email } });
+      return res.status(201).json({ user: { id: user.id, username: user.username, email: user.email } });
     } catch (err) {
       console.error(err);
       return res.status(500).json({ error: 'Server error', details: err.message });

@@ -4,8 +4,8 @@ import { useNavigate } from 'react-router-dom'
 import '../css/Register.css'
 
 export default function Register() {
-  const [Firstname, setFirstname] = useState('')
-  const [Lastname, setLastname] = useState('')
+  const [firstName, setFirstname] = useState('')
+  const [lastName, setLastname] = useState('')
   const [email, setEmail] = useState('')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -16,8 +16,8 @@ export default function Register() {
   async function onSubmit(e) {
     e.preventDefault()
     const { ok, body, status } = await postJson('/api/auth/register', { 
-      Firstname, 
-      Lastname, 
+      firstName, 
+      lastName, 
       email, 
       username, 
       Confirmpassword, 
@@ -45,7 +45,7 @@ export default function Register() {
               <input 
                 className="form-input"
                 placeholder="Name"
-                value={Firstname} 
+                value={firstName} 
                 onChange={e => setFirstname(e.target.value)} 
                 required 
               />
@@ -55,7 +55,7 @@ export default function Register() {
               <input 
                 className="form-input"
                 placeholder="Surname"
-                value={Lastname} 
+                value={lastName} 
                 onChange={e => setLastname(e.target.value)} 
                 required 
               />
