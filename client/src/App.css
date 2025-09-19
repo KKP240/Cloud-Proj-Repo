@@ -58,8 +58,8 @@ body {
 /* User Button styles */
 .user-btn {
   width: 100%;
-  background-color: #007bff;
-  color: white;
+  background-color: #FFFFFF;
+  color: #000000;
   border: none;
   border-radius: 5px;
   padding: 10px 15px;
@@ -72,7 +72,7 @@ body {
 }
 
 .user-btn:hover {
-  background-color: #0056b3;
+  background-color: #f1f1f1;
 }
 
 /* Dropdown menu styles */
@@ -120,12 +120,15 @@ body {
   background-color: #f1f1f1;
 }
 
-/* Icon styles */
+/* Icon styles 
 .dropdown-item::before {
   content: "►";
   margin-right: 8px;
   color: #007bff;
 }
+*/
+
+
 
 .dropdown-arrow {
   display: inline-block;
