@@ -38,7 +38,15 @@ module.exports = {
       if (!match) return res.status(401).json({ error: 'Invalid credentials' });
 
       // sign local JWT (for dev testing)
-      const payload = { sub: String(user.id), email: user.email, name: user.name, 'custom:role': user.role };
+      const payload = {
+        sub: String(user.id),
+        email: user.email,
+        name: user.name,
+        username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        'custom:role': user.role
+      };
       const token = jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES });
 
       return res.json({ token, user: { id: user.id, name: user.name, email: user.email } });
