@@ -52,10 +52,12 @@ body {
 .user-menu {
   position: relative;
   display: inline-block;
+  width: 160px;
 }
 
 /* User Button styles */
 .user-btn {
+  width: 100%;
   background-color: #007bff;
   color: white;
   border: none;
@@ -63,6 +65,7 @@ body {
   padding: 10px 15px;
   cursor: pointer;
   display: flex;
+  justify-content: space-between;
   align-items: center;
   transition: background-color 0.3s;
 }

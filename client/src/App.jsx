@@ -73,16 +73,28 @@ function UserMenu({ userChanged, setUserChanged }) {
 
   if (!user) {
     return (
-      <Link to="/login" className='signin-btn'>
+      <Link to="/login" className="signin-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="20" height="20">
+          <rect width="256" height="256" fill="none"/>
+          <circle cx="128" cy="96" r="64" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="16"/>
+          <path d="M32,216c19.37-33.47,54.55-56,96-56s76.63,22.53,96,56" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="16"/>
+        </svg>
         <span>Sign in</span>
-        {/* ...icon... */}
-      </Link>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z" />
+        </svg>
+</Link>
     )
   }
 
   return (
     <div className="user-menu" ref={menuRef} style={{ position: 'relative', display: 'inline-block' }}>
       <button className="user-btn" onClick={() => setOpen(v => !v)}>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="20" height="20">
+          <rect width="256" height="256" fill="none"/>
+          <circle cx="128" cy="96" r="64" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="16"/>
+          <path d="M32,216c19.37-33.47,54.55-56,96-56s76.63,22.53,96,56" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="16"/>
+        </svg>
         {user.username || user.email}
         <span style={{ marginLeft: 6 }}>▼</span>
       </button>
