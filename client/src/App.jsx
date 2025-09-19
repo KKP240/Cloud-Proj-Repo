@@ -40,6 +40,7 @@ function BodyClassController() {
 function UserMenu({ userChanged, setUserChanged }) {
   const [user, setUser] = useState(null)
   const [open, setOpen] = useState(false)
+  const [showDropdown, setShowDropdown] = useState(false)
   const menuRef = useRef(null)
 
   useEffect(() => {
@@ -63,6 +64,17 @@ function UserMenu({ userChanged, setUserChanged }) {
     }
     if (open) document.addEventListener('mousedown', handleClick)
     return () => document.removeEventListener('mousedown', handleClick)
+  }, [open])
+
+  // dropdown เลื่อนลง
+  useEffect(() => {
+  if (open) {
+    setShowDropdown(true) // show dropdown when open
+    } else {
+      // wait for animation before unmount
+      const timeout = setTimeout(() => setShowDropdown(false), 300)
+      return () => clearTimeout(timeout)
+    }
   }, [open])
 
   function logout() {
@@ -101,14 +113,12 @@ function UserMenu({ userChanged, setUserChanged }) {
           style={{ marginLeft: 6 }}
         >▼</span>
       </button>
-      {open && (
-        <div className="dropdown" style={{
-          position: 'absolute', right: 0, top: '100%', background: '#fff', border: '1px solid #ddd', borderRadius: 6, minWidth: 160, zIndex: 1000
-        }}>
-          <div><Link to="/profile" className="dropdown-item" onClick={() => setOpen(false)}>Profile</Link> </div>
-          <div><Link to="/activities" className="dropdown-item" onClick={() => setOpen(false)}>Event</Link> </div>
-          <div><Link to="/my-events" className="dropdown-item" onClick={() => setOpen(false)}>Created Event</Link> </div>
-          <div><Link className="dropdown-item" onClick={logout}>Logout</Link> </div>
+      {showDropdown && (
+        <div className={`dropdown ${open ? 'show' : 'hide'}`}>
+          <Link to="/profile" className="dropdown-item" onClick={() => setOpen(false)}>Profile</Link>
+          <Link to="/activities" className="dropdown-item" onClick={() => setOpen(false)}>Event</Link>
+          <Link to="/my-events" className="dropdown-item" onClick={() => setOpen(false)}>Created Event</Link>
+          <Link className="dropdown-item" onClick={logout}>Logout</Link>
         </div>
       )}
     </div>

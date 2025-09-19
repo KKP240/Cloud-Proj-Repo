@@ -68,6 +68,7 @@ body {
   justify-content: space-between;
   align-items: center;
   transition: background-color 0.3s;
+  z-index: 2;
 }
 
 .user-btn:hover {
@@ -84,7 +85,26 @@ body {
   border-radius: 6px;
   min-width: 160px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
+  z-index: 1;
+
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  pointer-events: none;
+}
+
+/* เมื่อแสดง */
+.dropdown.show {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* เมื่อซ่อน */
+.dropdown.hide {
+  opacity: 0;
+  transform: translateY(-10px);
+  pointer-events: none;
 }
 
 /* Dropdown item styles */
@@ -112,8 +132,8 @@ body {
   transition: transform 0.3s ease;
 }
 
-  .dropdown-arrow.rotate {
-    transform: rotate(180deg);
+.dropdown-arrow.rotate {
+  transform: rotate(180deg);
 }
 
 /* Sign-in button styles */
@@ -124,7 +144,7 @@ body {
   border: none;
   border-radius: 5px;
   text-decoration: none;
-  transition: background-color 0.3s;
+  transition: background-color 0.5s;
 }
 
 .signin-btn:hover {
