@@ -20,16 +20,16 @@ export default function Profile() {
         // decode JWT payload
         const payload = JSON.parse(atob(token.split(".")[1]));
 
-        // ถ้า payload มีข้อมูลครบก็ใช้จาก JWT
+        // fallback จาก JWT
         const userFromToken = {
           id: payload.sub || "-",
           email: payload.email || "-",
           username: payload.username || "-",
-          firstname: payload.firstname || "-",
-          lastname: payload.lastname || "-",
+          firstName: payload.firstname || "-",
+          lastName: payload.lastname || "-",
         };
 
-        // หรือ fetch /me จาก backend
+        // fetch /me จาก backend
         const res = await fetch("/api/auth/me", {
           headers: {
             "Content-Type": "application/json",
@@ -45,8 +45,8 @@ export default function Profile() {
           id: body.id || userFromToken.id,
           email: body.email || userFromToken.email,
           username: body.username || userFromToken.username,
-          firstname: body.firstname || userFromToken.firstname,
-          lastname: body.lastname || userFromToken.lastname,
+          firstName: body.firstName || userFromToken.firstName,
+          lastName: body.lastName || userFromToken.lastName,
         };
 
         if (!res.ok) {
@@ -83,12 +83,12 @@ export default function Profile() {
 
       <div className="Firstname">
         <h3>Firstname:</h3>
-        <h3>{user.firstname || "Not provided"}</h3>
+        <h3>{user.firstName || "Not provided"}</h3>
       </div>
 
       <div className="Surname">
         <h3>Surname:</h3>
-        <h3>{user.lastname || "Not provided"}</h3>
+        <h3>{user.lastName || "Not provided"}</h3>
       </div>
 
       <div className="Email">

@@ -11,10 +11,12 @@ export default function Activities() {
   const [search, setSearch] = useState("");
   const [country, setCountry] = useState("");
   const [province, setProvince] = useState("");
+  const [selectedTags, setSelectedTags] = useState([]); // เก็บ tags ที่เลือกแบบ array
 
-  // เก็บ country / province ที่มีอยู่จริงจาก activities
+  // เก็บ country / province / tags ที่มีอยู่จริงจาก activities
   const [countries, setCountries] = useState([]);
   const [provinces, setProvinces] = useState([]);
+  const [availableTags, setAvailableTags] = useState([]); // เก็บ tags ทั้งหมดที่มี
   const [sortOrder, setSortOrder] = useState("");
   
 
@@ -32,8 +34,13 @@ export default function Activities() {
         const uniqueCountries = [...new Set(data.map(a => a.country).filter(Boolean))];
         const uniqueProvinces = [...new Set(data.map(a => a.province).filter(Boolean))];
 
+        // สร้าง list ของ tags จาก data (สมมติว่า tags เป็น array ใน activity object)
+        const allTags = data.flatMap(a => a.tags || []); // รวม tags ทั้งหมดจากทุก activity
+        const uniqueTags = [...new Set(allTags.filter(Boolean))]; // กรองเอาเฉพาะที่ไม่เป็น null/undefined และไม่ซ้ำ
+
         setCountries(uniqueCountries);
         setProvinces(uniqueProvinces);
+        setAvailableTags(uniqueTags);
 
       } catch (e) {
         console.error(e);
@@ -44,6 +51,24 @@ export default function Activities() {
     })();
     return () => { mounted = false; };
   }, []);
+
+  // ฟังก์ชันสำหรับจัดการการเลือก/ยกเลิก tag
+  const handleTagToggle = (tag) => {
+    setSelectedTags(prev => {
+      if (prev.includes(tag)) {
+        // ถ้ามี tag นี้อยู่แล้ว ให้เอาออก
+        return prev.filter(t => t !== tag);
+      } else {
+        // ถ้าไม่มี ให้เพิ่มเข้าไป
+        return [...prev, tag];
+      }
+    });
+  };
+
+  // ฟังก์ชันสำหรับล้าง tags ทั้งหมด
+  const clearAllTags = () => {
+    setSelectedTags([]);
+  };
 
   if (loading) {
     return (
@@ -71,41 +96,45 @@ export default function Activities() {
     );
   }
 
-  // filter data ตาม search + country + province
+  // filter data ตาม search + country + province + tags
   let filteredActivities = activities.filter(act => {
-  const matchesSearch =
-    act.title.toLowerCase().includes(search.toLowerCase()) ||
-    act.description.toLowerCase().includes(search.toLowerCase());
+    const matchesSearch =
+      act.title.toLowerCase().includes(search.toLowerCase()) ||
+      act.description.toLowerCase().includes(search.toLowerCase());
 
-  const matchesCountry = country ? act.country === country : true;
-  const matchesProvince = province ? act.province === province : true;
+    const matchesCountry = country ? act.country === country : true;
+    const matchesProvince = province ? act.province === province : true;
 
-  return matchesSearch && matchesCountry && matchesProvince;
-});
+    // ตรวจสอบ tags - ถ้าเลือก tags ไว้ ต้องมี tag อย่างน้อย 1 ตัวที่ตรงกัน
+    const matchesTags = selectedTags.length === 0 || 
+      (act.tags && act.tags.some(tag => selectedTags.includes(tag)));
 
-// sort ตาม sortOrder
-if (sortOrder === "asc") {
-  filteredActivities.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-} else if (sortOrder === "desc") {
-  filteredActivities.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-}
+    return matchesSearch && matchesCountry && matchesProvince && matchesTags;
+  });
+
+  // sort ตาม sortOrder
+  if (sortOrder === "asc") {
+    filteredActivities.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+  } else if (sortOrder === "desc") {
+    filteredActivities.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  }
   
 
   return (
     <div className="activities-container">
       <div className="activities-inner-container">
         <h2 className="activities-title">รายการกิจกรรม</h2>
+        
         <input
-            type="text"
-            placeholder="ค้นหากิจกรรม..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="activities-search-input"
-          />
+          type="text"
+          placeholder="ค้นหากิจกรรม..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="activities-search-input"
+        />
 
         {/* Search + Filters */}
         <div className="activities-filters">
-
           <select value={country} onChange={e => setCountry(e.target.value)}>
             <option value="">-- เลือกประเทศ --</option>
             {countries.map((c, i) => (
@@ -121,11 +150,61 @@ if (sortOrder === "asc") {
           </select>
 
           <select value={sortOrder} onChange={e => setSortOrder(e.target.value)}>
-    <option value="">-- เรียงตามวันที่สร้าง --</option>
-    <option value="asc">จากเก่าสุด → ใหม่สุด</option>
-    <option value="desc">จากใหม่สุด → เก่าสุด</option>
-  </select>
+            <option value="">-- เรียงตามวันที่สร้าง --</option>
+            <option value="asc">จากเก่าสุด → ใหม่สุด</option>
+            <option value="desc">จากใหม่สุด → เก่าสุด</option>
+          </select>
         </div>
+
+        {/* Tag Selection */}
+        {availableTags.length > 0 && (
+          <div className="activities-tag-section">
+            <div className="activities-tag-header">
+              <h4>เลือก Tags</h4>
+              {selectedTags.length > 0 && (
+                <button 
+                  onClick={clearAllTags}
+                  className="activities-clear-tags-btn"
+                >
+                  ล้างทั้งหมด ({selectedTags.length})
+                </button>
+              )}
+            </div>
+            
+            <div className="activities-tag-container">
+              {availableTags.map((tag, i) => (
+                <button
+                  key={i}
+                  onClick={() => handleTagToggle(tag)}
+                  className={`activities-tag-btn ${
+                    selectedTags.includes(tag) ? 'activities-tag-selected' : ''
+                  }`}
+                >
+                  {tag}
+                  {selectedTags.includes(tag) && <span className="activities-tag-check">✓</span>}
+                </button>
+              ))}
+            </div>
+
+            {/* แสดง selected tags */}
+            {selectedTags.length > 0 && (
+              <div className="activities-selected-tags">
+                <span>Tags ที่เลือก: </span>
+                {selectedTags.map((tag, i) => (
+                  <span key={i} className="activities-selected-tag">
+                    {tag}
+                    <button 
+                      onClick={() => handleTagToggle(tag)}
+                      className="activities-remove-tag-btn"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {filteredActivities.length === 0 ? (
           <div className="activities-empty">
@@ -159,6 +238,17 @@ if (sortOrder === "asc") {
                   <div className="activities-content">
                     <h3 className="activities-activity-title">{act.title}</h3>
                     <div className="activities-description">{act.description}</div>
+
+                    {/* แสดง tags ของ activity */}
+                    {act.tags && act.tags.length > 0 && (
+                      <div className="activities-card-tags">
+                        {act.tags.map((tag, i) => (
+                          <span key={i} className="activities-card-tag">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
 
                     <div className="activities-meta">
                       <div className="activities-meta-item">
