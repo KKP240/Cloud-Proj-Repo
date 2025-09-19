@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { Routes, Route, Link, useLocation } from 'react-router-dom'
 import './navbar.css';
+import './App.css';
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Home from './pages/Home'
@@ -90,7 +91,7 @@ function UserMenu({ userChanged, setUserChanged }) {
           position: 'absolute', right: 0, top: '100%', background: '#fff', border: '1px solid #ddd', borderRadius: 6, minWidth: 160, zIndex: 1000
         }}>
           <div><Link to="/profile" className="dropdown-item" onClick={() => setOpen(false)}>Profile</Link> </div>
-          <div><Link to="/events" className="dropdown-item" onClick={() => setOpen(false)}>Event</Link> </div>
+          <div><Link to="/activities" className="dropdown-item" onClick={() => setOpen(false)}>Event</Link> </div>
           <div><Link to="/my-events" className="dropdown-item" onClick={() => setOpen(false)}>Created Event</Link> </div>
           <div><button className="dropdown-item" onClick={logout} style={{ width: '100%', textAlign: 'left', background: 'none', border: 'none', padding: '8px 16px' }}>Logout</button> </div>
         </div>
