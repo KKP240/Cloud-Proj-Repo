@@ -53,7 +53,7 @@ export default function App() {
           
           {/* for quick test */}
           <Link to="/profile">profile</Link>
-          <Link to="/Login">login</Link>
+          <Link to="/login">login</Link>
           <Link to="/Register">register</Link>
         </div>
 
