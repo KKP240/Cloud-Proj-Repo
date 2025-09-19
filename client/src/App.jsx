@@ -93,7 +93,7 @@ function UserMenu({ userChanged, setUserChanged }) {
           <div><Link to="/profile" className="dropdown-item" onClick={() => setOpen(false)}>Profile</Link> </div>
           <div><Link to="/activities" className="dropdown-item" onClick={() => setOpen(false)}>Event</Link> </div>
           <div><Link to="/my-events" className="dropdown-item" onClick={() => setOpen(false)}>Created Event</Link> </div>
-          <div><button className="dropdown-item" onClick={logout} style={{ width: '100%', textAlign: 'left', background: 'none', border: 'none', padding: '8px 16px' }}>Logout</button> </div>
+          <div><Link className="dropdown-item" onClick={logout}>Logout</Link> </div>
         </div>
       )}
     </div>
