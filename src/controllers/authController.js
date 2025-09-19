@@ -66,7 +66,7 @@ module.exports = {
     // fallback: try to find in DB by id
     try {
       if (!auth.sub) return res.status(401).json({ error: 'Unauthorized' });
-      const user = await User.findByPk(auth.sub, { attributes: ['id', 'name', 'email'] });
+      const user = await User.findByPk(auth.sub, { attributes: ['id', 'username', 'email', 'firstName', 'lastName'] });
       if (!user) return res.status(404).json({ error: 'User not found' });
       return res.json({ user });
     } catch (err) {
