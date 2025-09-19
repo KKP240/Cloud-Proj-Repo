@@ -91,7 +91,6 @@ export default function ActivityDetail() {
         width: '100%',
         height: '100%',
         objectFit: 'cover',
-        filter: 'blur(4px)',
         transform: 'scale(1.1)', 
       }}
     />

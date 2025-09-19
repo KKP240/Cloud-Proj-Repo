@@ -67,7 +67,9 @@
     opacity: 0.7;
   }
 }
-
+.activities-body{
+  background: #407CFF;
+}
 /* Container Styles */
 .activities-container {
   min-height: 100vh;
