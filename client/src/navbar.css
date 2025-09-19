@@ -1,0 +1,64 @@
+/* Navbar.css */
+/* Main container for the navbar */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  background-color: #2563eb;
+  padding: 1rem 2.5rem;
+  color: white;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  box-sizing: border-box; 
+}
+
+/* Styling for the "Logo" */
+.navbar-logo a {
+  color: white;
+  text-decoration: none;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+/* Container for the middle links */
+.navbar-links {
+  display: flex;
+  gap: 2.5rem;
+  margin-top: 10px;
+  margin-left: 40%;
+}
+
+.navbar-links a {
+  color: white;
+  text-decoration: none;
+  font-size: 1rem;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.navbar-links a:hover {
+  opacity: 0.8;
+}
+
+.signin-btn {
+  background-color: white;
+  color: #0d69ff;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: transform 0.2s ease-in-out;
+}
+
+.signin-btn:hover {
+  transform: scale(1.05); /* Slightly enlarge on hover */
+}
+
+.signin-btn svg {
+  margin-top: 1px;
+}
