@@ -10,6 +10,7 @@ import CreateEvent from './pages/CreateEvent';
 import ActivityDetail from './pages/ActivityDetail';
 import Participants from './pages/Participants';
 import Profile from './pages/Profile';
+import ActivityManager from './pages/ActivityManager';
 
 function BodyClassController() {
   const location = useLocation()
@@ -166,6 +167,7 @@ export default function App() {
           <Link to="/profile">profile</Link>
           <Link to="/login">login</Link>
           <Link to="/Register">register</Link>
+          <Link to="/activityManager">activityManager</Link>
         </div>
 
         <div className='navbar-signin'>
@@ -188,6 +190,7 @@ export default function App() {
           <Route path="/activities/:id" element={<ActivityDetail />} />
           <Route path="/activities/:id/participants" element={<Participants />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/activityManager" element={<ActivityManager />} />
         </Routes>
       </main>
     </div>

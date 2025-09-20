@@ -12,18 +12,13 @@ export default function Activities() {
   const [country, setCountry] = useState("");
   const [province, setProvince] = useState("");
   const [selectedTags, setSelectedTags] = useState([]);
-  const [sortOrder, setSortOrder] = useState("");
 
   // เก็บค่า filter
   const [countries, setCountries] = useState([]);
   const [provinces, setProvinces] = useState([]);
   const [availableTags, setAvailableTags] = useState([]);
-  
-  // dropdown states
+  const [sortOrder, setSortOrder] = useState("");
   const [showTagDropdown, setShowTagDropdown] = useState(false);
-  const [showCountryDropdown, setShowCountryDropdown] = useState(false);
-  const [showProvinceDropdown, setShowProvinceDropdown] = useState(false);
-  const [showSortDropdown, setShowSortDropdown] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -69,22 +64,6 @@ export default function Activities() {
     return () => { mounted = false; };
   }, []);
 
-  // Close dropdowns when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (!event.target.closest('.activities-select-container') && 
-          !event.target.closest('.activities-tags-select')) {
-        setShowCountryDropdown(false);
-        setShowProvinceDropdown(false);
-        setShowSortDropdown(false);
-        setShowTagDropdown(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
   // toggle เลือก tag
   const handleTagToggle = (tag) => {
     setSelectedTags(prev => {
@@ -103,22 +82,6 @@ export default function Activities() {
 
   const clearAllTags = () => {
     setSelectedTags([]);
-  };
-
-  // Handle dropdown selections
-  const handleCountrySelect = (selectedCountry) => {
-    setCountry(selectedCountry);
-    setShowCountryDropdown(false);
-  };
-
-  const handleProvinceSelect = (selectedProvince) => {
-    setProvince(selectedProvince);
-    setShowProvinceDropdown(false);
-  };
-
-  const handleSortSelect = (selectedSort) => {
-    setSortOrder(selectedSort);
-    setShowSortDropdown(false);
   };
 
   if (loading) {
@@ -186,79 +149,19 @@ export default function Activities() {
 
         {/* Filters */}
         <div className="activities-filters">
-          {/* Country Dropdown */}
-          <div className="activities-select-container">
-            <div
-              className="activities-select-button"
-              onClick={() => setShowCountryDropdown(!showCountryDropdown)}
-            >
-              <span>
-                {country || "-- เลือกประเทศ --"}
-              </span>
-              <span className={`activities-dropdown-arrow ${showCountryDropdown ? 'open' : ''}`}>
-                ▼
-              </span>
-            </div>
+          <select value={country} onChange={e => setCountry(e.target.value)}>
+            <option value="">-- เลือกประเทศ --</option>
+            {countries.map((c, i) => (
+              <option key={i} value={c}>{c}</option>
+            ))}
+          </select>
 
-            {showCountryDropdown && (
-              <div className="activities-dropdown">
-                <div className="activities-dropdown-list">
-                  <div
-                    className="activities-dropdown-option"
-                    onClick={() => handleCountrySelect("")}
-                  >
-                    -- เลือกประเทศ --
-                  </div>
-                  {countries.map((c, i) => (
-                    <div
-                      key={i}
-                      className={`activities-dropdown-option ${country === c ? 'selected' : ''}`}
-                      onClick={() => handleCountrySelect(c)}
-                    >
-                      {c}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Province Dropdown */}
-          <div className="activities-select-container">
-            <div
-              className="activities-select-button"
-              onClick={() => setShowProvinceDropdown(!showProvinceDropdown)}
-            >
-              <span>
-                {province || "-- เลือกจังหวัด --"}
-              </span>
-              <span className={`activities-dropdown-arrow ${showProvinceDropdown ? 'open' : ''}`}>
-                ▼
-              </span>
-            </div>
-
-            {showProvinceDropdown && (
-              <div className="activities-dropdown">
-                <div className="activities-dropdown-list">
-                  <div
-                    className="activities-dropdown-option"
-                    onClick={() => handleProvinceSelect("")}
-                  >
-                    -- เลือกจังหวัด --
-                  </div>
-                  {provinces.map((p, i) => (
-                    <div
-                      key={i}
-                      className={`activities-dropdown-option ${province === p ? 'selected' : ''}`}
-                      onClick={() => handleProvinceSelect(p)}
-                    >
-                      {p}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
+          <select value={province} onChange={e => setProvince(e.target.value)}>
+            <option value="">-- เลือกจังหวัด --</option>
+            {provinces.map((p, i) => (
+              <option key={i} value={p}>{p}</option>
+            ))}
+          </select>
 
           {/* Multi-select Tags Dropdown */}
           <div className="activities-tags-select">
@@ -310,49 +213,13 @@ export default function Activities() {
                 </div>
               </div>
             )}
+            
           </div>
-
-          {/* Sort Dropdown */}
-          <div className="activities-select-container">
-            <div
-              className="activities-select-button"
-              onClick={() => setShowSortDropdown(!showSortDropdown)}
-            >
-              <span>
-                {sortOrder === "asc" ? "จากเก่าสุด → ใหม่สุด" :
-                 sortOrder === "desc" ? "จากใหม่สุด → เก่าสุด" :
-                 "-- เรียงตามวันที่สร้าง --"}
-              </span>
-              <span className={`activities-dropdown-arrow ${showSortDropdown ? 'open' : ''}`}>
-                ▼
-              </span>
-            </div>
-
-            {showSortDropdown && (
-              <div className="activities-dropdown">
-                <div className="activities-dropdown-list">
-                  <div
-                    className="activities-dropdown-option"
-                    onClick={() => handleSortSelect("")}
-                  >
-                    -- เรียงตามวันที่สร้าง --
-                  </div>
-                  <div
-                    className={`activities-dropdown-option ${sortOrder === 'asc' ? 'selected' : ''}`}
-                    onClick={() => handleSortSelect("asc")}
-                  >
-                    จากเก่าสุด → ใหม่สุด
-                  </div>
-                  <div
-                    className={`activities-dropdown-option ${sortOrder === 'desc' ? 'selected' : ''}`}
-                    onClick={() => handleSortSelect("desc")}
-                  >
-                    จากใหม่สุด → เก่าสุด
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
+          <select value={sortOrder} onChange={e => setSortOrder(e.target.value)}>
+            <option value="">-- เรียงตามวันที่สร้าง --</option>
+            <option value="asc">จากเก่าสุด → ใหม่สุด</option>
+            <option value="desc">จากใหม่สุด → เก่าสุด</option>
+          </select>
         </div>
 
         {/* Selected Tags */}

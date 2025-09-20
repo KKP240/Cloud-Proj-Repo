@@ -206,19 +206,9 @@ export default function ActivityDetail() {
                 </div>
               </div>
 
-              <div className="detail-item">
+              <div className="detail-item-1">
                 <div className="detail-label">About this Event 🌟🌟🌟</div>
                 <div className="detail-value">{activity.description || 'No description available'}</div>
-              </div>
-
-              <div className="detail-item">
-                <div className="detail-label">Permissions and credits</div>
-                <div className="detail-value">...</div>
-              </div>
-
-              <div className="detail-item">
-                <div className="detail-label">Compatibility ⚡⚡⚡</div>
-                <div className="detail-value">Compatible with all devices</div>
               </div>
             </div>
           )}
