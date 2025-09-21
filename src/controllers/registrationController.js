@@ -104,5 +104,32 @@ module.exports = {
       console.error('participants error', err);
       return res.status(500).json({ error: 'Server error', details: err.message });
     }
+  },
+
+  // ✨ GET /api/user/activity-ids - ดึงรายการ activity IDs ที่ผู้ใช้ join แล้ว
+  async getUserActivityIds(req, res) {
+    try {
+      const userId = req.auth && (req.auth.sub || req.auth.userId || req.auth.id) ? 
+                    Number(req.auth.sub || req.auth.userId || req.auth.id) : null;
+      
+      if (!userId) {
+        return res.status(401).json({ error: 'User not authenticated' });
+      }
+      
+      const userRegistrations = await Registration.findAll({
+        where: { 
+          userId: userId,
+          status: 'registered'
+        },
+        attributes: ['activityId']
+      });
+
+      const activityIds = userRegistrations.map(reg => reg.activityId);
+      
+      res.json(activityIds);
+    } catch (error) {
+      console.error('Error fetching user activity IDs:', error);
+      res.status(500).json({ error: 'Failed to fetch user activity IDs' });
+    }
   }
 };

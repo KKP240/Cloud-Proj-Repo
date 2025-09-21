@@ -1317,3 +1317,55 @@
     height: 30px;
   }
 }
+
+/* เพิ่ม CSS นี้ในไฟล์ client/src/css/Activities.css */
+
+/* ✨ Joined Badge Styles - Corner Ribbon แบบในรูป */
+.activities-joined-badge {
+  position: absolute;
+  top: 40%; /* ปรับจาก 0px เป็น 20px */
+  left: -60px;
+  background: #3b82f6; /* สีฟ้า */
+  color: white;
+  padding: 12px 24px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  z-index: 10;
+  transform: rotate(-45deg);
+  transform-origin: 0 0;
+  margin-left: 20px; /* ปรับจาก 28px เป็น 20px */
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  min-width: 80px;
+  text-align: center;
+  width: 200px;
+  height: 35px;
+}
+
+/* เอา animation และ alternative styles ออก */
+.activities-card {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .activities-joined-badge {
+    font-size: 10px;
+    padding: 10px 20px;
+    margin-left: 24px;
+    margin-top: 24px;
+    min-width: 70px;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .activities-joined-badge {
+    font-size: 10px;
+    padding: 4px 8px;
+    top: 8px;
+    left: 8px;
+  }
+}

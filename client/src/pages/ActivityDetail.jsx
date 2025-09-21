@@ -134,7 +134,7 @@ export default function ActivityDetail() {
       onClick={doRegister}
       disabled={busy || (activity.capacity && participantCount >= activity.capacity)}
     >
-      Participant
+      Join
     </button>
   )}
 </div>

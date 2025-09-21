@@ -38,6 +38,30 @@ export async function deleteActivity(id) {
   }
 }
 
+// ✨ เพิ่มฟังก์ชันใหม่: ดึงกิจกรรมที่ผู้ใช้ join แล้ว
+export async function getUserActivityIds() {
+  const token = localStorage.getItem('token');
+  if (!token) return [];
+  
+  const res = await fetch(`${API_BASE}/api/user/activity-ids`, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    }
+  });
+  
+  if (!res.ok) {
+    console.error('Failed to fetch user activities');
+    return [];
+  }
+  
+  try {
+    return await res.json();
+  } catch {
+    return [];
+  }
+}
+
 // เพิ่มฟังก์ชันสำหรับ Profile
 export async function getCurrentUser() {
   const token = localStorage.getItem('token');
