@@ -209,11 +209,11 @@ const confirmDelete = async () => {
   return (
     <div className="activities-container">
       <div className="activities-inner-container">
-        <h2 className="activities-title">จัดการกิจกรรม</h2>
+        <h2 className="activities-title">Activity Manager</h2>
 
         <input
           type="text"
-          placeholder="ค้นหากิจกรรม..."
+          placeholder="Search"
           value={search}
           onChange={e => setSearch(e.target.value)}
           className="activities-search-input"
@@ -228,7 +228,7 @@ const confirmDelete = async () => {
               onClick={() => setShowCountryDropdown(!showCountryDropdown)}
             >
               <span>
-                {country || "-- เลือกประเทศ --"}
+                {country || "-- Select Country --"}
               </span>
               <span className={`activities-dropdown-arrow ${showCountryDropdown ? 'open' : ''}`}>
                 ▼
@@ -242,7 +242,7 @@ const confirmDelete = async () => {
                     className="activities-dropdown-option"
                     onClick={() => handleCountrySelect("")}
                   >
-                    -- เลือกประเทศ --
+                    -- Select Country --
                   </div>
                   {countries.map((c, i) => (
                     <div
@@ -265,7 +265,7 @@ const confirmDelete = async () => {
               onClick={() => setShowProvinceDropdown(!showProvinceDropdown)}
             >
               <span>
-                {province || "-- เลือกจังหวัด --"}
+                {province || "-- Select Province --"}
               </span>
               <span className={`activities-dropdown-arrow ${showProvinceDropdown ? 'open' : ''}`}>
                 ▼
@@ -279,7 +279,7 @@ const confirmDelete = async () => {
                     className="activities-dropdown-option"
                     onClick={() => handleProvinceSelect("")}
                   >
-                    -- เลือกจังหวัด --
+                    -- Select Province --
                   </div>
                   {provinces.map((p, i) => (
                     <div
@@ -303,8 +303,8 @@ const confirmDelete = async () => {
             >
               <span>
                 {selectedTags.length === 0
-                  ? "-- เลือก Tags --"
-                  : `เลือกแล้ว ${selectedTags.length} tags`
+                  ? "-- Select Tags --"
+                  : `Select ${selectedTags.length} tags`
                 }
               </span>
               <span className={`activities-dropdown-arrow ${showTagDropdown ? 'open' : ''}`}>
@@ -315,13 +315,13 @@ const confirmDelete = async () => {
             {showTagDropdown && (
               <div className="activities-tags-dropdown">
                 <div className="activities-tags-dropdown-header">
-                  <span>เลือก Tags</span>
+                  <span>Select Tags</span>
                   {selectedTags.length > 0 && (
                     <button
                       onClick={clearAllTags}
                       className="activities-clear-tags-btn"
                     >
-                      ล้างทั้งหมด
+                      Clear All
                     </button>
                   )}
                 </div>
@@ -354,9 +354,9 @@ const confirmDelete = async () => {
               onClick={() => setShowSortDropdown(!showSortDropdown)}
             >
               <span>
-                {sortOrder === "asc" ? "จากเก่าสุด → ใหม่สุด" :
-                 sortOrder === "desc" ? "จากใหม่สุด → เก่าสุด" :
-                 "-- เรียงตามวันที่สร้าง --"}
+                {sortOrder === "asc" ? "Oldest → Newest" :
+                 sortOrder === "desc" ? "Newest → Oldest" :
+                 "-- Date created --"}
               </span>
               <span className={`activities-dropdown-arrow ${showSortDropdown ? 'open' : ''}`}>
                 ▼
@@ -370,19 +370,19 @@ const confirmDelete = async () => {
                     className="activities-dropdown-option"
                     onClick={() => handleSortSelect("")}
                   >
-                    -- เรียงตามวันที่สร้าง --
+                    -- Date created --
                   </div>
                   <div
                     className={`activities-dropdown-option ${sortOrder === 'asc' ? 'selected' : ''}`}
                     onClick={() => handleSortSelect("asc")}
                   >
-                    จากเก่าสุด → ใหม่สุด
+                    Oldest → Newest
                   </div>
                   <div
                     className={`activities-dropdown-option ${sortOrder === 'desc' ? 'selected' : ''}`}
                     onClick={() => handleSortSelect("desc")}
                   >
-                    จากใหม่สุด → เก่าสุด
+                    Newest → Oldest
                   </div>
                 </div>
               </div>
@@ -444,16 +444,16 @@ const confirmDelete = async () => {
                     <div className="activities-meta">
                       <div className="activities-meta-item">
                         <span>✈️</span>
-                        <span>ประเทศ: {act.country || 'ไม่ระบุ'}</span>
+                        <span>Country: {act.country || 'ไม่ระบุ'}</span>
                       </div>
                       <div className="activities-meta-item">
                         <span>📍</span>
-                        <span>จังหวัด: {act.province || 'ไม่ระบุ'}</span>
+                        <span>Province: {act.province || 'ไม่ระบุ'}</span>
                       </div>
                       <div className="activities-meta-item">
                         <span>📅</span>
                         <span>
-                          วันที่: {new Date(act.startDate).toLocaleDateString('th-TH', {
+                          Date: {new Date(act.startDate).toLocaleDateString('Eng', {
                             year: 'numeric',
                             month: 'long',
                             day: 'numeric'
@@ -481,12 +481,12 @@ const confirmDelete = async () => {
                         {deletingId === act.id ? (
                           <>
                             <div className="activities-delete-spinner"></div>
-                            กำลังลบ...
+                            Deleting
                           </>
                         ) : (
                           <>
                             <span>🗑️</span>
-                            ลบ
+                            Delete
                           </>
                         )}
                       </button>

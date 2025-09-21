@@ -174,11 +174,11 @@ export default function Activities() {
   return (
     <div className="activities-container">
       <div className="activities-inner-container">
-        <h2 className="activities-title">รายการกิจกรรม</h2>
+        <h2 className="activities-title">Activities</h2>
 
         <input
           type="text"
-          placeholder="ค้นหากิจกรรม..."
+          placeholder="Search"
           value={search}
           onChange={e => setSearch(e.target.value)}
           className="activities-search-input"
@@ -193,7 +193,7 @@ export default function Activities() {
               onClick={() => setShowCountryDropdown(!showCountryDropdown)}
             >
               <span>
-                {country || "-- เลือกประเทศ --"}
+                {country || "-- Select Country --"}
               </span>
               <span className={`activities-dropdown-arrow ${showCountryDropdown ? 'open' : ''}`}>
                 ▼
@@ -207,7 +207,7 @@ export default function Activities() {
                     className="activities-dropdown-option"
                     onClick={() => handleCountrySelect("")}
                   >
-                    -- เลือกประเทศ --
+                    -- Select Country --
                   </div>
                   {countries.map((c, i) => (
                     <div
@@ -230,7 +230,7 @@ export default function Activities() {
               onClick={() => setShowProvinceDropdown(!showProvinceDropdown)}
             >
               <span>
-                {province || "-- เลือกจังหวัด --"}
+                {province || "-- Select Province --"}
               </span>
               <span className={`activities-dropdown-arrow ${showProvinceDropdown ? 'open' : ''}`}>
                 ▼
@@ -244,7 +244,7 @@ export default function Activities() {
                     className="activities-dropdown-option"
                     onClick={() => handleProvinceSelect("")}
                   >
-                    -- เลือกจังหวัด --
+                    -- Select Province --
                   </div>
                   {provinces.map((p, i) => (
                     <div
@@ -268,8 +268,8 @@ export default function Activities() {
             >
               <span>
                 {selectedTags.length === 0
-                  ? "-- เลือก Tags --"
-                  : `เลือกแล้ว ${selectedTags.length} tags`
+                  ? "-- Select Tags --"
+                  : `Select ${selectedTags.length} tags`
                 }
               </span>
               <span className={`activities-dropdown-arrow ${showTagDropdown ? 'open' : ''}`}>
@@ -280,13 +280,13 @@ export default function Activities() {
             {showTagDropdown && (
               <div className="activities-tags-dropdown">
                 <div className="activities-tags-dropdown-header">
-                  <span>เลือก Tags</span>
+                  <span>Select Tags</span>
                   {selectedTags.length > 0 && (
                     <button
                       onClick={clearAllTags}
                       className="activities-clear-tags-btn"
                     >
-                      ล้างทั้งหมด
+                      Clear all
                     </button>
                   )}
                 </div>
@@ -319,9 +319,9 @@ export default function Activities() {
               onClick={() => setShowSortDropdown(!showSortDropdown)}
             >
               <span>
-                {sortOrder === "asc" ? "จากเก่าสุด → ใหม่สุด" :
-                 sortOrder === "desc" ? "จากใหม่สุด → เก่าสุด" :
-                 "-- เรียงตามวันที่สร้าง --"}
+                {sortOrder === "asc" ? "Oldest → Newest" :
+                 sortOrder === "desc" ? "Newest → Oldest" :
+                 "-- Date created --"}
               </span>
               <span className={`activities-dropdown-arrow ${showSortDropdown ? 'open' : ''}`}>
                 ▼
@@ -335,19 +335,19 @@ export default function Activities() {
                     className="activities-dropdown-option"
                     onClick={() => handleSortSelect("")}
                   >
-                    -- เรียงตามวันที่สร้าง --
+                    -- Date created --
                   </div>
                   <div
                     className={`activities-dropdown-option ${sortOrder === 'asc' ? 'selected' : ''}`}
                     onClick={() => handleSortSelect("asc")}
                   >
-                    จากเก่าสุด → ใหม่สุด
+                    Oldest → Newest
                   </div>
                   <div
                     className={`activities-dropdown-option ${sortOrder === 'desc' ? 'selected' : ''}`}
                     onClick={() => handleSortSelect("desc")}
                   >
-                    จากใหม่สุด → เก่าสุด
+                    Newest → Oldest
                   </div>
                 </div>
               </div>
@@ -358,7 +358,7 @@ export default function Activities() {
         {/* Selected Tags */}
         {selectedTags.length > 0 && (
           <div className="activities-selected-tags">
-            <span className="activities-selected-tags-label">Tags ที่เลือก:</span>
+            <span className="activities-selected-tags-label">Select Tags:</span>
             {selectedTags.map((tag) => (
               <span key={tag.id} className="activities-selected-tag">
                 {tag.name}
@@ -409,16 +409,16 @@ export default function Activities() {
                     <div className="activities-meta">
                       <div className="activities-meta-item">
                         <span>✈️</span>
-                        <span>ประเทศ: {act.country || 'ไม่ระบุ'}</span>
+                        <span>Country: {act.country || 'ไม่ระบุ'}</span>
                       </div>
                       <div className="activities-meta-item">
                         <span>📍</span>
-                        <span>จังหวัด: {act.province || 'ไม่ระบุ'}</span>
+                        <span>Province: {act.province || 'ไม่ระบุ'}</span>
                       </div>
                       <div className="activities-meta-item">
                         <span>📅</span>
                         <span>
-                          วันที่: {new Date(act.startDate).toLocaleDateString('th-TH', {
+                          Date: {new Date(act.startDate).toLocaleDateString('Eng', {
                             year: 'numeric',
                             month: 'long',
                             day: 'numeric'
