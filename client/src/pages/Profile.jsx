@@ -17,6 +17,7 @@ export default function Profile() {
   const [editData, setEditData] = useState({});
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState(null);
+  const [isEmailValid, setIsEmailValid] = useState(true);
 
   // โหลดข้อมูล user
   const loadUser = async () => {
@@ -116,36 +117,49 @@ export default function Profile() {
   };
 
   const handleSaveProfile = async () => {
-    setSaving(true);
-    setSaveError(null);
-    
-    try {
-      const response = await updateProfile({
-        firstName: editData.firstName,
-        lastName: editData.lastName,
-        username: editData.username,
-        email: editData.email
-      });
-      
-      if (response.success) {
-        setUser(response.user);
-        setEditData(response.user);
-        setIsEditing(false);
-        
-        // อัปเดต token ใหม่ถ้าต้องการ (optional)
-        // หรือ reload หน้าเพื่อให้ navbar แสดงข้อมูลใหม่
-        window.location.reload();
-      }
-    } catch (error) {
-      setSaveError(error.message);
-    } finally {
-      setSaving(false);
-    }
-  };
+  // ตรวจสอบว่ามีช่องว่างหรือ email ไม่ถูกต้อง
+  if (!editData.username || !editData.firstName || !editData.lastName || !editData.email) {
+    setSaveError("กรุณากรอกข้อมูลให้ครบทุกช่อง");
+    return;
+  }
+  if (!isEmailValid) {
+    setSaveError("กรุณากรอกอีเมลให้ถูกต้องก่อนบันทึก");
+    return;
+  }
+
+  setSaving(true);
+  setSaveError(null);
+
+  try {
+    const response = await updateProfile({
+      firstName: editData.firstName,
+      lastName: editData.lastName,
+      username: editData.username,
+      email: editData.email
+    });
+
+    setUser(response.user);
+    setEditData(response.user);
+    setIsEditing(false);
+
+  } catch (error) {
+    setSaveError(error.message || "เกิดข้อผิดพลาดในการบันทึก");
+    console.error('Save profile error:', error);
+  } finally {
+    setSaving(false);
+  }
+};
+
 
   const handleInputChange = (field, value) => {
-    setEditData(prev => ({ ...prev, [field]: value }));
-  };
+  // ถ้า field เป็น email ให้ตรวจสอบความถูกต้อง
+  if (field === 'email') {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    setIsEmailValid(emailRegex.test(value));
+  }
+
+  setEditData(prev => ({ ...prev, [field]: value }));
+};
 
   if (loading) 
     return (
@@ -276,23 +290,31 @@ export default function Profile() {
             </div>
 
             <div className="info-card">
-              <div className="info-icon">✉️</div>
-              <div className="info-content">
-                <div className="info-row">
-                  <span className="info-label">Email</span>
-                  {isEditing ? (
-                    <input
-                      type="email"
-                      value={editData.email || ""}
-                      onChange={(e) => handleInputChange('email', e.target.value)}
-                      className="info-edit-input"
-                    />
-                  ) : (
-                    <span className="info-value">{user.email || "Not provided"}</span>
-                  )}
-                </div>
-              </div>
-            </div>
+  <div className="info-icon">✉️</div>
+  <div className="info-content">
+    <div className="info-row">
+      <span className="info-label">Email</span>
+      {isEditing ? (
+        <>
+          <input
+            type="email"
+            value={editData.email || ""}
+            onChange={(e) => handleInputChange('email', e.target.value)}
+            className={`info-edit-input ${!isEmailValid ? 'invalid' : ''}`}
+          />
+          {!isEmailValid && (
+            <span style={{ color: 'red', fontSize: '0.85rem' }}>
+              กรุณากรอกอีเมลให้ถูกต้อง
+            </span>
+          )}
+        </>
+      ) : (
+        <span className="info-value">{user.email || "Not provided"}</span>
+      )}
+    </div>
+  </div>
+</div>
+
           </div>
 
           {/* Action Buttons */}
