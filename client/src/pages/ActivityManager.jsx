@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { getActivities } from '../services/api';
+import { getActivities, deleteActivity } from '../services/api';
 import '../css/Activities.css';
 
-export default function Activities() {
+export default function ActivityManager() {
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [activityToDelete, setActivityToDelete] = useState(null);
 
   // state สำหรับ search และ filter
   const [search, setSearch] = useState("");
@@ -18,51 +21,101 @@ export default function Activities() {
   const [provinces, setProvinces] = useState([]);
   const [availableTags, setAvailableTags] = useState([]);
   const [sortOrder, setSortOrder] = useState("");
+  
+  // dropdown states
   const [showTagDropdown, setShowTagDropdown] = useState(false);
+  const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+  const [showProvinceDropdown, setShowProvinceDropdown] = useState(false);
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
+
+  const loadActivities = async () => {
+    try {
+      setLoading(true);
+      const data = await getActivities({ page: 1, limit: 50 });
+      console.log("✅ Activities data from API:", data);
+
+      setActivities(data);
+
+      // สร้าง list ของ country, province
+      const uniqueCountries = [...new Set(data.map(a => a.country).filter(Boolean))];
+      const uniqueProvinces = [...new Set(data.map(a => a.province).filter(Boolean))];
+
+      // ใช้ field Tags (ตัวใหญ่) จาก backend
+      const allTags = data.flatMap(a => a.Tags || []);
+      console.log("📌 All Tags from activities:", allTags);
+
+      const uniqueTags = allTags.filter((tag, index, self) =>
+        index === self.findIndex(t => t.id === tag.id)
+      );
+
+      console.log("✅ Unique Tags:", uniqueTags);
+
+      setCountries(uniqueCountries);
+      setProvinces(uniqueProvinces);
+      setAvailableTags(uniqueTags);
+
+    } catch (e) {
+      console.error("❌ Error fetching activities:", e);
+      setErr(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    let mounted = true;
-
-    (async () => {
-      try {
-        setLoading(true);
-
-        // ดึงกิจกรรม
-        const data = await getActivities({ page: 1, limit: 50 });
-        if (!mounted) return;
-
-        console.log("✅ Activities data from API:", data);
-
-        setActivities(data);
-
-        // สร้าง list ของ country, province
-        const uniqueCountries = [...new Set(data.map(a => a.country).filter(Boolean))];
-        const uniqueProvinces = [...new Set(data.map(a => a.province).filter(Boolean))];
-
-        // ใช้ field Tags (ตัวใหญ่) จาก backend
-        const allTags = data.flatMap(a => a.Tags || []);
-        console.log("📌 All Tags from activities:", allTags);
-
-        const uniqueTags = allTags.filter((tag, index, self) =>
-          index === self.findIndex(t => t.id === tag.id)
-        );
-
-        console.log("✅ Unique Tags:", uniqueTags);
-
-        setCountries(uniqueCountries);
-        setProvinces(uniqueProvinces);
-        setAvailableTags(uniqueTags);
-
-      } catch (e) {
-        console.error("❌ Error fetching activities:", e);
-        setErr(e.message);
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    })();
-
-    return () => { mounted = false; };
+    loadActivities();
   }, []);
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.activities-select-container') && 
+          !event.target.closest('.activities-tags-select')) {
+        setShowCountryDropdown(false);
+        setShowProvinceDropdown(false);
+        setShowSortDropdown(false);
+        setShowTagDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // ฟังก์ชันเพื่อแสดง modal ยืนยันการลบ
+  const showDeleteConfirmation = (activity) => {
+    setActivityToDelete(activity);
+    setShowDeleteModal(true);
+  };
+
+  // ฟังก์ชันยกเลิกการลบ
+  const cancelDelete = () => {
+    setActivityToDelete(null);
+    setShowDeleteModal(false);
+  };
+
+  // ฟังก์ชันลบจริง
+const confirmDelete = async () => {
+  if (!activityToDelete) return;
+
+  try {
+    setDeletingId(activityToDelete.id);
+    setShowDeleteModal(false);
+
+    await deleteActivity(activityToDelete.id);
+
+    // อัปเดต state ทันทีโดยไม่ต้องรีเฟรช
+    setActivities(prev => prev.filter(a => a.id !== activityToDelete.id));
+
+  } catch (error) {
+    console.error('Delete error:', error);
+    alert(`เกิดข้อผิดพลาด: ${error.message}`);
+  } finally {
+    setDeletingId(null);
+    setActivityToDelete(null);
+  }
+};
+
 
   // toggle เลือก tag
   const handleTagToggle = (tag) => {
@@ -82,6 +135,22 @@ export default function Activities() {
 
   const clearAllTags = () => {
     setSelectedTags([]);
+  };
+
+  // Handle dropdown selections
+  const handleCountrySelect = (selectedCountry) => {
+    setCountry(selectedCountry);
+    setShowCountryDropdown(false);
+  };
+
+  const handleProvinceSelect = (selectedProvince) => {
+    setProvince(selectedProvince);
+    setShowProvinceDropdown(false);
+  };
+
+  const handleSortSelect = (selectedSort) => {
+    setSortOrder(selectedSort);
+    setShowSortDropdown(false);
   };
 
   if (loading) {
@@ -104,6 +173,9 @@ export default function Activities() {
           <div className="activities-error">
             <h3>เกิดข้อผิดพลาด</h3>
             <p>Error: {err}</p>
+            <button onClick={loadActivities} className="retry-btn">
+              ลองใหม่
+            </button>
           </div>
         </div>
       </div>
@@ -137,7 +209,7 @@ export default function Activities() {
   return (
     <div className="activities-container">
       <div className="activities-inner-container">
-        <h2 className="activities-title">รายการกิจกรรม</h2>
+        <h2 className="activities-title">จัดการกิจกรรม</h2>
 
         <input
           type="text"
@@ -149,19 +221,79 @@ export default function Activities() {
 
         {/* Filters */}
         <div className="activities-filters">
-          <select value={country} onChange={e => setCountry(e.target.value)}>
-            <option value="">-- เลือกประเทศ --</option>
-            {countries.map((c, i) => (
-              <option key={i} value={c}>{c}</option>
-            ))}
-          </select>
+          {/* Country Dropdown */}
+          <div className="activities-select-container">
+            <div
+              className="activities-select-button"
+              onClick={() => setShowCountryDropdown(!showCountryDropdown)}
+            >
+              <span>
+                {country || "-- เลือกประเทศ --"}
+              </span>
+              <span className={`activities-dropdown-arrow ${showCountryDropdown ? 'open' : ''}`}>
+                ▼
+              </span>
+            </div>
 
-          <select value={province} onChange={e => setProvince(e.target.value)}>
-            <option value="">-- เลือกจังหวัด --</option>
-            {provinces.map((p, i) => (
-              <option key={i} value={p}>{p}</option>
-            ))}
-          </select>
+            {showCountryDropdown && (
+              <div className="activities-dropdown">
+                <div className="activities-dropdown-list">
+                  <div
+                    className="activities-dropdown-option"
+                    onClick={() => handleCountrySelect("")}
+                  >
+                    -- เลือกประเทศ --
+                  </div>
+                  {countries.map((c, i) => (
+                    <div
+                      key={i}
+                      className={`activities-dropdown-option ${country === c ? 'selected' : ''}`}
+                      onClick={() => handleCountrySelect(c)}
+                    >
+                      {c}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Province Dropdown */}
+          <div className="activities-select-container">
+            <div
+              className="activities-select-button"
+              onClick={() => setShowProvinceDropdown(!showProvinceDropdown)}
+            >
+              <span>
+                {province || "-- เลือกจังหวัด --"}
+              </span>
+              <span className={`activities-dropdown-arrow ${showProvinceDropdown ? 'open' : ''}`}>
+                ▼
+              </span>
+            </div>
+
+            {showProvinceDropdown && (
+              <div className="activities-dropdown">
+                <div className="activities-dropdown-list">
+                  <div
+                    className="activities-dropdown-option"
+                    onClick={() => handleProvinceSelect("")}
+                  >
+                    -- เลือกจังหวัด --
+                  </div>
+                  {provinces.map((p, i) => (
+                    <div
+                      key={i}
+                      className={`activities-dropdown-option ${province === p ? 'selected' : ''}`}
+                      onClick={() => handleProvinceSelect(p)}
+                    >
+                      {p}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Multi-select Tags Dropdown */}
           <div className="activities-tags-select">
@@ -213,13 +345,49 @@ export default function Activities() {
                 </div>
               </div>
             )}
-            
           </div>
-          <select value={sortOrder} onChange={e => setSortOrder(e.target.value)}>
-            <option value="">-- เรียงตามวันที่สร้าง --</option>
-            <option value="asc">จากเก่าสุด → ใหม่สุด</option>
-            <option value="desc">จากใหม่สุด → เก่าสุด</option>
-          </select>
+
+          {/* Sort Dropdown */}
+          <div className="activities-select-container">
+            <div
+              className="activities-select-button"
+              onClick={() => setShowSortDropdown(!showSortDropdown)}
+            >
+              <span>
+                {sortOrder === "asc" ? "จากเก่าสุด → ใหม่สุด" :
+                 sortOrder === "desc" ? "จากใหม่สุด → เก่าสุด" :
+                 "-- เรียงตามวันที่สร้าง --"}
+              </span>
+              <span className={`activities-dropdown-arrow ${showSortDropdown ? 'open' : ''}`}>
+                ▼
+              </span>
+            </div>
+
+            {showSortDropdown && (
+              <div className="activities-dropdown">
+                <div className="activities-dropdown-list">
+                  <div
+                    className="activities-dropdown-option"
+                    onClick={() => handleSortSelect("")}
+                  >
+                    -- เรียงตามวันที่สร้าง --
+                  </div>
+                  <div
+                    className={`activities-dropdown-option ${sortOrder === 'asc' ? 'selected' : ''}`}
+                    onClick={() => handleSortSelect("asc")}
+                  >
+                    จากเก่าสุด → ใหม่สุด
+                  </div>
+                  <div
+                    className={`activities-dropdown-option ${sortOrder === 'desc' ? 'selected' : ''}`}
+                    onClick={() => handleSortSelect("desc")}
+                  >
+                    จากใหม่สุด → เก่าสุด
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Selected Tags */}
@@ -299,10 +467,82 @@ export default function Activities() {
                         </div>
                       )}
                     </div>
+
+                    {/* Management Buttons */}
+                    <div className="activities-management-buttons">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation(); // ป้องกัน event bubbling
+                          showDeleteConfirmation(act);
+                        }}
+                        disabled={deletingId === act.id}
+                        className="activities-delete-btn"
+                      >
+                        {deletingId === act.id ? (
+                          <>
+                            <div className="activities-delete-spinner"></div>
+                            กำลังลบ...
+                          </>
+                        ) : (
+                          <>
+                            <span>🗑️</span>
+                            ลบ
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteModal && activityToDelete && (
+          <div className="activities-delete-modal-overlay">
+            <div className="activities-delete-modal">
+              <div className="activities-delete-modal-header">
+                <h3>⚠️ ยืนยันการลบ</h3>
+              </div>
+              
+              <div className="activities-delete-modal-body">
+                <p>คุณต้องการลบกิจกรรมนี้ใช่หรือไม่?</p>
+                <div className="activities-delete-activity-info">
+                  <h4>"{activityToDelete.title}"</h4>
+                  <p>{activityToDelete.description}</p>
+                </div>
+                <p className="activities-delete-warning">
+                  <strong>⚠️ การดำเนินการนี้ไม่สามารถย้อนกลับได้</strong>
+                </p>
+              </div>
+              
+              <div className="activities-delete-modal-footer">
+                <button
+                  onClick={cancelDelete}
+                  className="activities-cancel-btn"
+                  disabled={deletingId === activityToDelete?.id}
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  className="activities-confirm-delete-btn"
+                  disabled={deletingId === activityToDelete?.id}
+                >
+                  {deletingId === activityToDelete?.id ? (
+                    <>
+                      <div className="activities-delete-spinner"></div>
+                      กำลังลบ...
+                    </>
+                  ) : (
+                    <>
+                      🗑️ ลบ
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>

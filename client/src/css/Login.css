@@ -11,7 +11,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 350px;
+  width: 400px;
   padding: 40px 30px;
   background-color: #fff;
   border-radius: 15px;
@@ -51,7 +51,7 @@
 
 .input-wrapper svg {
   position: absolute;
-  right: 15px;
+  right: 40px;
   top: 50%;
   transform: translateY(-50%);
   width: 18px;

@@ -174,14 +174,15 @@ module.exports = {
 
   // ========================= DELETE =========================
   async remove(req, res) {
-    try {
-      const activity = await Activity.findByPk(req.params.id);
-      if (!activity) return res.status(404).json({ error: 'Not found' });
-      await activity.destroy();
-      res.json({ message: 'Deleted' });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: 'Server error' });
-    }
+  try {
+    const activity = await Activity.findByPk(req.params.id);
+    if (!activity) return res.status(404).json({ error: 'Not found' });
+    await activity.destroy();
+    res.json({ message: 'Deleted' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
   }
+}
+
 };
