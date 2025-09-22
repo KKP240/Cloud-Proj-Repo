@@ -38,7 +38,27 @@ export async function deleteActivity(id) {
   }
 }
 
-// ✨ เพิ่มฟังก์ชันใหม่: ดึงกิจกรรมที่ผู้ใช้ join แล้ว
+// ✅ แก้ไข: ฟังก์ชันสำหรับดึงกิจกรรมที่ user สร้าง
+export async function getMyCreatedActivities() {
+  const token = localStorage.getItem('token');
+  if (!token) throw new Error('No token found');
+  
+  const res = await fetch(`${API_BASE}/api/user/my-activities`, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    }
+  });
+  
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: 'Failed to fetch my activities' }));
+    throw new Error(err.error || `HTTP ${res.status}`);
+  }
+  
+  return res.json();
+}
+
+// เก็บฟังก์ชันเดิมไว้สำหรับกิจกรรมที่ join
 export async function getUserActivityIds() {
   const token = localStorage.getItem('token');
   if (!token) return [];
@@ -62,7 +82,6 @@ export async function getUserActivityIds() {
   }
 }
 
-// เพิ่มฟังก์ชันสำหรับ Profile
 export async function getCurrentUser() {
   const token = localStorage.getItem('token');
   if (!token) throw new Error('No token found');
@@ -101,9 +120,8 @@ export async function updateProfile(userData) {
     throw new Error(json.error || `HTTP ${res.status}`);
   }
   
-  return json; // 👈 อันนี้แหละที่ไม่รู้ว่า backend ส่ง { user } หรือ object ตรง ๆ
+  return json; 
 }
-
 
 export async function postJson(path, body) {
   const res = await fetch(`${API_BASE}${path}`, {
@@ -124,4 +142,9 @@ export async function getJson(path, withAuth=true) {
   const res = await fetch(`${API_BASE}${path}`, { headers });
   const json = await res.json().catch(()=>({}));
   return { ok: res.ok, status: res.status, body: json };
+}
+
+// ✅ เปลี่ยนชื่อฟังก์ชันเพื่อไม่ให้สับสน
+export async function getMyActivities() {
+  return getMyCreatedActivities();
 }

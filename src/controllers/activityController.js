@@ -195,6 +195,29 @@ module.exports = {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
   }
-}
+},
+// ========================= LIST MY ACTIVITIES =========================
+async myActivities(req, res) {
+  try {
+    const userId = req.auth?.sub ? Number(req.auth.sub) : null;
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const activities = await Activity.findAll({
+      where: { creatorId: userId },
+      include: [
+        { model: Tag, through: { attributes: [] } },
+        { model: ActivityImage }
+      ]
+    });
+
+    res.json(activities);
+  } catch (err) {
+    console.error('myActivities error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+},
+
 
 };

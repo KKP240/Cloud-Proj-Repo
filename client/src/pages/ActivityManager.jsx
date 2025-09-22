@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getActivities, deleteActivity } from '../services/api';
+import { getMyCreatedActivities, deleteActivity } from '../services/api';
 import '../css/Activities.css';
 
 export default function ActivityManager() {
@@ -28,39 +28,45 @@ export default function ActivityManager() {
   const [showProvinceDropdown, setShowProvinceDropdown] = useState(false);
   const [showSortDropdown, setShowSortDropdown] = useState(false);
 
-  const loadActivities = async () => {
-    try {
-      setLoading(true);
-      const data = await getActivities({ page: 1, limit: 50 });
-      console.log("✅ Activities data from API:", data);
+const loadActivities = async () => {
+  try {
+    setLoading(true);
+    // ✅ ใช้ฟังก์ชันที่ถูกต้อง
+    const data = await getMyCreatedActivities();
+    console.log("✅ My Created Activities:", data);
 
-      setActivities(data);
+    // ✅ ตรวจสอบว่า data เป็น array หรือไม่
+    const activitiesArray = Array.isArray(data) ? data : [];
+    setActivities(activitiesArray);
 
-      // สร้าง list ของ country, province
-      const uniqueCountries = [...new Set(data.map(a => a.country).filter(Boolean))];
-      const uniqueProvinces = [...new Set(data.map(a => a.province).filter(Boolean))];
+    // ✅ ป้องกัน error จาก undefined/null values
+    const uniqueCountries = [...new Set(
+      activitiesArray
+        .map(a => a?.country)
+        .filter(country => country && typeof country === 'string')
+    )];
+    
+    const uniqueProvinces = [...new Set(
+      activitiesArray
+        .map(a => a?.province)
+        .filter(province => province && typeof province === 'string')
+    )];
+    
+    const allTags = activitiesArray.flatMap(a => a?.Tags || []);
+    const uniqueTags = allTags.filter((tag, index, self) =>
+      tag && tag.id && index === self.findIndex(t => t?.id === tag.id)
+    );
 
-      // ใช้ field Tags (ตัวใหญ่) จาก backend
-      const allTags = data.flatMap(a => a.Tags || []);
-      console.log("📌 All Tags from activities:", allTags);
-
-      const uniqueTags = allTags.filter((tag, index, self) =>
-        index === self.findIndex(t => t.id === tag.id)
-      );
-
-      console.log("✅ Unique Tags:", uniqueTags);
-
-      setCountries(uniqueCountries);
-      setProvinces(uniqueProvinces);
-      setAvailableTags(uniqueTags);
-
-    } catch (e) {
-      console.error("❌ Error fetching activities:", e);
-      setErr(e.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+    setCountries(uniqueCountries);
+    setProvinces(uniqueProvinces);
+    setAvailableTags(uniqueTags);
+  } catch (e) {
+    console.error("❌ Error fetching my activities:", e);
+    setErr(e.message);
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     loadActivities();
@@ -82,42 +88,35 @@ export default function ActivityManager() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // ฟังก์ชันเพื่อแสดง modal ยืนยันการลบ
   const showDeleteConfirmation = (activity) => {
     setActivityToDelete(activity);
     setShowDeleteModal(true);
   };
 
-  // ฟังก์ชันยกเลิกการลบ
   const cancelDelete = () => {
     setActivityToDelete(null);
     setShowDeleteModal(false);
   };
 
-  // ฟังก์ชันลบจริง
-const confirmDelete = async () => {
-  if (!activityToDelete) return;
+  const confirmDelete = async () => {
+    if (!activityToDelete) return;
 
-  try {
-    setDeletingId(activityToDelete.id);
-    setShowDeleteModal(false);
+    try {
+      setDeletingId(activityToDelete.id);
+      setShowDeleteModal(false);
 
-    await deleteActivity(activityToDelete.id);
+      await deleteActivity(activityToDelete.id);
+      setActivities(prev => prev.filter(a => a.id !== activityToDelete.id));
 
-    // อัปเดต state ทันทีโดยไม่ต้องรีเฟรช
-    setActivities(prev => prev.filter(a => a.id !== activityToDelete.id));
+    } catch (error) {
+      console.error('Delete error:', error);
+      alert(`เกิดข้อผิดพลาด: ${error.message}`);
+    } finally {
+      setDeletingId(null);
+      setActivityToDelete(null);
+    }
+  };
 
-  } catch (error) {
-    console.error('Delete error:', error);
-    alert(`เกิดข้อผิดพลาด: ${error.message}`);
-  } finally {
-    setDeletingId(null);
-    setActivityToDelete(null);
-  }
-};
-
-
-  // toggle เลือก tag
   const handleTagToggle = (tag) => {
     setSelectedTags(prev => {
       const exists = prev.find(t => t.id === tag.id);
@@ -137,7 +136,6 @@ const confirmDelete = async () => {
     setSelectedTags([]);
   };
 
-  // Handle dropdown selections
   const handleCountrySelect = (selectedCountry) => {
     setCountry(selectedCountry);
     setShowCountryDropdown(false);
@@ -182,19 +180,26 @@ const confirmDelete = async () => {
     );
   }
 
-  // filter data
+  // ✅ แก้ filter เพื่อป้องกัน error
   let filteredActivities = activities.filter(act => {
+    if (!act) return false;
+
+    const title = act.title || '';
+    const description = act.description || '';
+    const actCountry = act.country || '';
+    const actProvince = act.province || '';
+    const actTags = act.Tags || [];
+
     const matchesSearch =
-      act.title.toLowerCase().includes(search.toLowerCase()) ||
-      act.description.toLowerCase().includes(search.toLowerCase());
+      title.toLowerCase().includes(search.toLowerCase()) ||
+      description.toLowerCase().includes(search.toLowerCase());
 
-    const matchesCountry = country ? act.country === country : true;
-    const matchesProvince = province ? act.province === province : true;
+    const matchesCountry = country ? actCountry === country : true;
+    const matchesProvince = province ? actProvince === province : true;
 
-    // ✅ ใช้ act.Tags (ตัวใหญ่)
     const matchesTags = selectedTags.length === 0 ? true :
       selectedTags.some(selectedTag =>
-        (act.Tags || []).some(actTag => actTag.id === selectedTag.id)
+        actTags.some(actTag => actTag?.id === selectedTag?.id)
       );
 
     return matchesSearch && matchesCountry && matchesProvince && matchesTags;
@@ -337,7 +342,7 @@ const confirmDelete = async () => {
                       <input
                         type="checkbox"
                         checked={selectedTags.find(t => t.id === tag.id) ? true : false}
-                        onChange={() => {}} // handled by onClick
+                        onChange={() => {}}
                       />
                       <span>{tag.name}</span>
                     </div>
@@ -411,7 +416,8 @@ const confirmDelete = async () => {
         {filteredActivities.length === 0 ? (
           <div className="activities-empty">
             <div className="activities-empty-icon">📅</div>
-            <div>ไม่พบกิจกรรมที่ค้นหา</div>
+            <div>ไม่พบกิจกรรมที่คุณสร้าง</div>
+            <p>คุณยังไม่ได้สร้างกิจกรรมใดๆ</p>
           </div>
         ) : (
           <div>
@@ -453,11 +459,11 @@ const confirmDelete = async () => {
                       <div className="activities-meta-item">
                         <span>📅</span>
                         <span>
-                          Date: {new Date(act.startDate).toLocaleDateString('Eng', {
+                          Date: {act.startDate ? new Date(act.startDate).toLocaleDateString('en-US', {
                             year: 'numeric',
                             month: 'long',
                             day: 'numeric'
-                          })}
+                          }) : 'ไม่ระบุ'}
                         </span>
                       </div>
                       {act.Tags && act.Tags.length > 0 && (
@@ -472,7 +478,7 @@ const confirmDelete = async () => {
                     <div className="activities-management-buttons">
                       <button
                         onClick={(e) => {
-                          e.stopPropagation(); // ป้องกัน event bubbling
+                          e.stopPropagation();
                           showDeleteConfirmation(act);
                         }}
                         disabled={deletingId === act.id}
