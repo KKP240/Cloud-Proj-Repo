@@ -13,21 +13,31 @@ export default function ActivityDetail() {
 
   // Fetch activity details
   async function fetchDetail() {
-  setLoading(true);
-  try {
-    const res = await fetch(`/api/activities/${id}`);
-    const data = await res.json().catch(() => ({}));
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token'); // Get token from localStorage
+      const res = await fetch(`/api/activities/${id}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}) // Add Authorization header
+        }
+      });
+      const data = await res.json().catch(() => ({}));
 
-    console.log("Fetched data:", data); // 👈 ดูข้อมูลที่ดึงมา
+      console.log("Fetched data:", data); // Log response for debugging
 
-    if (!res.ok) setError(data.error || 'Failed to load activity');
-    else setActivityData(data);
-  } catch (e) {
-    setError(e.message || 'Network error');
-  } finally {
-    setLoading(false);
+      if (!res.ok) {
+        setError(data.error || 'Failed to load activity');
+      } else {
+        setActivityData(data);
+      }
+    } catch (e) {
+      setError(e.message || 'Network error');
+    } finally {
+      setLoading(false);
+    }
   }
-}
 
   useEffect(() => { fetchDetail(); }, [id]);
 

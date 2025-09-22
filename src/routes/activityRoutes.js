@@ -6,12 +6,12 @@ const checkJwt = require('../middlewares/authMiddleware');
 const requireRole = require('../middlewares/requireRole');
 const registrationController = require('../controllers/registrationController');
 
-// public endpoints (later add auth middleware for protected routes)
+// public endpoints
 router.get('/activities', activityController.list);
 router.get('/activities/:id', activityController.detail);
 router.get('/activitiesEdit', activityController.list);
 router.get('/activitiesEdit/:id', activityController.detail);
-router.post('/activities', checkJwt, activityController.create); // ต้อง login
+router.post('/activities', checkJwt, activityController.create);
 router.put('/activities/:id', checkJwt, activityController.update);
 router.delete('/activities/:id', checkJwt, activityController.remove);
 
@@ -20,7 +20,10 @@ router.post('/activities/:id/register', checkJwt, registrationController.registe
 router.post('/activities/:id/cancel', checkJwt, registrationController.cancel);
 router.get('/activities/:id/participants', checkJwt, registrationController.participants);
 
-// ✨ เพิ่ม route สำหรับดึงกิจกรรมที่ผู้ใช้ join แล้ว
+// ✅ แก้ไข: ใช้ controller ที่ถูกต้อง
 router.get('/user/activity-ids', checkJwt, registrationController.getUserActivityIds);
+
+// ✅ เพิ่ม route ใหม่สำหรับกิจกรรมที่ user สร้าง
+router.get('/user/my-activities', checkJwt, activityController.myActivities);
 
 module.exports = router;

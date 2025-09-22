@@ -26,28 +26,39 @@ module.exports = {
         where: { activityId: id, status: 'registered' }
       });
 
-      // ตรวจว่า request มีผู้ใช้ล็อกอินแล้วหรือไม่ และผู้ใช้นั้นลงทะเบียนไว้หรือยัง
-      let isRegistered = false;
-      let myRegistrationId = null;
-      const userId = req.auth && (req.auth.sub || req.auth.userId || req.auth.id) ? Number(req.auth.sub || req.auth.userId || req.auth.id) : null;
-      console.log('User ID is:', userId);
-      if (userId) {
-        const reg = await Registration.findOne({
-          where: { activityId: id, userId, status: 'registered' }
-        });
-        if (reg) { isRegistered = true; myRegistrationId = reg.id; }
-      }
+      // Initialize registration status
+    let isRegistered = false;
+    let myRegistrationId = null;
 
-      return res.json({
-        activity,
-        participantCount,
-        isRegistered,
-        myRegistrationId
+    // Extract userId from req.auth
+    const userId = req.auth?.sub ? Number(req.auth.sub) : null;
+    console.log('req.auth:', req.auth);
+    console.log('detail userId:', userId);
+
+    if (userId) {
+      // Check if user is registered for this activity
+      const reg = await Registration.findOne({
+        where: { activityId: id, userId, status: 'registered' }
       });
-    } catch (err) {
-      console.error('activity detail error', err);
-      return res.status(500).json({ error: 'Server error', details: err.message });
+
+      // Set initial isRegistered based on registration check
+      isRegistered = !!reg; // true if registration exists, false otherwise
+      myRegistrationId = reg ? reg.id : null;
+
+    } else {
+      console.log('No authenticated user, setting isRegistered to false');
     }
+
+    return res.json({
+      activity,
+      participantCount,
+      isRegistered,
+      myRegistrationId
+    });
+  } catch (err) {
+    console.error('activity detail error:', err);
+    return res.status(500).json({ error: 'Server error', details: err.message });
+  }
   },
 
   // ========================= LIST =========================
@@ -235,6 +246,29 @@ module.exports = {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
   }
-}
+},
+// ========================= LIST MY ACTIVITIES =========================
+async myActivities(req, res) {
+  try {
+    const userId = req.auth?.sub ? Number(req.auth.sub) : null;
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const activities = await Activity.findAll({
+      where: { creatorId: userId },
+      include: [
+        { model: Tag, through: { attributes: [] } },
+        { model: ActivityImage }
+      ]
+    });
+
+    res.json(activities);
+  } catch (err) {
+    console.error('myActivities error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+},
+
 
 };
