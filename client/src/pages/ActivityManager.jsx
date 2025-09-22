@@ -419,7 +419,7 @@ const confirmDelete = async () => {
               <div
                 key={act.id}
                 className="activities-card"
-                onClick={() => window.location.href = `/activities/${act.id}`}
+                onClick={() => window.location.href = `/activitiesEdit/${act.id}`}
                 style={{ cursor: 'pointer' }}
               >
                 <div className="activities-card-content">

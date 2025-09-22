@@ -139,7 +139,6 @@ export default function ActivityDetail() {
   )}
 </div>
 </div>
-
         {/* Tags */}
         <div className="tags-section2">
           <div className="tags-label">Tags for this Event</div>
