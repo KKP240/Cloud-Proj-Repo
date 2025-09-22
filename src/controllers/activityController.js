@@ -30,6 +30,7 @@ module.exports = {
       let isRegistered = false;
       let myRegistrationId = null;
       const userId = req.auth && (req.auth.sub || req.auth.userId || req.auth.id) ? Number(req.auth.sub || req.auth.userId || req.auth.id) : null;
+      console.log('User ID is:', userId);
       if (userId) {
         const reg = await Registration.findOne({
           where: { activityId: id, userId, status: 'registered' }
@@ -161,12 +162,63 @@ module.exports = {
 
   // ========================= UPDATE =========================
   async update(req, res) {
+    const t = await sequelize.transaction();
     try {
-      const activity = await Activity.findByPk(req.params.id);
-      if (!activity) return res.status(404).json({ error: 'Not found' });
-      await activity.update(req.body);
-      res.json(activity);
+      const activity = await Activity.findByPk(req.params.id, { transaction: t });
+      if (!activity) {
+        await t.rollback();
+        return res.status(404).json({ error: 'Not found' });
+      }
+
+      // Extract tags and images from body, remove from update fields
+      let { tags, images, ...updateFields } = req.body;
+      await activity.update(updateFields, { transaction: t });
+
+      // Handle tags update (add/remove/edit)
+      if (Array.isArray(tags)) {
+        // Normalize tag names
+        const normalized = tags.map(s => String(s).trim().toLowerCase()).filter(Boolean);
+        const tagRecords = [];
+        for (const tn of normalized) {
+          const [tag] = await Tag.findOrCreate({
+            where: { name: tn },
+            defaults: { name: tn },
+            transaction: t
+          });
+          tagRecords.push(tag);
+        }
+        // Set tags (this will update ActivityTags join table)
+        await activity.setTags(tagRecords, { transaction: t });
+      }
+
+      // Handle images update (add/remove/edit)
+      if (Array.isArray(images)) {
+        // Remove all old images for this activity
+        await ActivityImage.destroy({ where: { activityId: activity.id }, transaction: t });
+        // Add new images (skip empty strings)
+        const imageCreates = images
+          .map((url, idx) => String(url).trim())
+          .filter(url => url)
+          .map((url, idx) => ({ activityId: activity.id, url, alt: '', order: idx }));
+        if (imageCreates.length) {
+          await ActivityImage.bulkCreate(imageCreates, { transaction: t });
+        }
+        // Optionally update posterUrl to first image
+        await activity.update({ posterUrl: imageCreates[0] ? imageCreates[0].url : null }, { transaction: t });
+      }
+
+      await t.commit();
+
+      // Reload with associations
+      const result = await Activity.findByPk(activity.id, {
+        include: [
+          { model: Tag, through: { attributes: [] } },
+          { model: ActivityImage }
+        ]
+      });
+      res.json(result);
     } catch (err) {
+      try { await t.rollback(); } catch(e){}
       console.error(err);
       res.status(400).json({ error: 'Bad request', details: err.message });
     }
