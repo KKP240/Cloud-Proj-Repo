@@ -141,6 +141,7 @@ export default function Profile() {
     if (response.token) {
       localStorage.setItem("token", response.token);
     }
+    window.location.reload();
 
     setUser(response.user);
     setEditData(response.user);
