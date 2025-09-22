@@ -11,7 +11,7 @@ export default function Profile() {
   const [profileImage, setProfileImage] = useState(img12);
   const [showImageModal, setShowImageModal] = useState(false);
   const [imageUrl, setImageUrl] = useState("");
-  
+
   // สำหรับแก้ไขโปรไฟล์
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({});
@@ -137,6 +137,10 @@ export default function Profile() {
       username: editData.username,
       email: editData.email
     });
+
+    if (response.token) {
+      localStorage.setItem("token", response.token);
+    }
 
     setUser(response.user);
     setEditData(response.user);

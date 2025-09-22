@@ -101,8 +101,9 @@ export async function updateProfile(userData) {
     throw new Error(json.error || `HTTP ${res.status}`);
   }
   
-  return json;
+  return json; // 👈 อันนี้แหละที่ไม่รู้ว่า backend ส่ง { user } หรือ object ตรง ๆ
 }
+
 
 export async function postJson(path, body) {
   const res = await fetch(`${API_BASE}${path}`, {
