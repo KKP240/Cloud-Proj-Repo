@@ -11,6 +11,7 @@ export default function Profile() {
   const [profileImage, setProfileImage] = useState(img12);
   const [showImageModal, setShowImageModal] = useState(false);
   const [imageUrl, setImageUrl] = useState("");
+  const [imageLoading, setImageLoading] = useState(false); // สำหรับโหลดรูป
 
   // สำหรับแก้ไขโปรไฟล์
   const [isEditing, setIsEditing] = useState(false);
@@ -36,6 +37,7 @@ export default function Profile() {
         username: payload.username || "-",
         firstName: payload.firstname || "-",
         lastName: payload.lastname || "-",
+        profileImageUrl: payload.profileImageUrl || null, // เพิ่ม profileImageUrl
       };
 
       try {
@@ -49,14 +51,25 @@ export default function Profile() {
           username: backendUser.username || userFromToken.username,
           firstName: backendUser.firstName || userFromToken.firstName,
           lastName: backendUser.lastName || userFromToken.lastName,
+          profileImageUrl: backendUser.profileImageUrl || userFromToken.profileImageUrl,
         };
 
         setUser(finalUser);
         setEditData(finalUser);
+        
+        // ตั้งค่ารูปโปรไฟล์จากฐานข้อมูล
+        if (finalUser.profileImageUrl) {
+          setProfileImage(finalUser.profileImageUrl);
+        }
       } catch (apiError) {
         // ถ้า API ล้มเหลว ใช้ข้อมูลจาก JWT
         setUser(userFromToken);
         setEditData(userFromToken);
+        
+        // ตั้งค่ารูปโปรไฟล์จาก JWT
+        if (userFromToken.profileImageUrl) {
+          setProfileImage(userFromToken.profileImageUrl);
+        }
       }
     } catch (e) {
       setErr(e.message || "Network error");
@@ -75,31 +88,69 @@ export default function Profile() {
     setShowImageModal(true);
   };
 
-  const handleImageUrlSubmit = () => {
-    if (imageUrl.trim()) {
+  const handleImageUrlSubmit = async () => {
+    if (!imageUrl.trim()) {
+      alert("กรุณาใส่ URL รูปภาพ");
+      return;
+    }
+
+    setImageLoading(true);
+
+    try {
+      // ตรวจสอบว่ารูปภาพโหลดได้หรือไม่
       const img = new Image();
-      img.onload = () => {
-        setProfileImage(imageUrl);
-        setShowImageModal(false);
-        setImageUrl("");
-      };
-      img.onerror = () => {
-        alert("ไม่สามารถโหลดรูปภาพจาก URL นี้ได้ กรุณาตรวจสอบ URL อีกครั้ง");
-      };
-      img.src = imageUrl;
+      
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = () => reject(new Error("ไม่สามารถโหลดรูปภาพจาก URL นี้ได้"));
+        img.src = imageUrl;
+      });
+
+      // บันทึกรูปภาพลงฐานข้อมูล
+      const response = await updateProfile({
+        firstName: user.firstName,
+        lastName: user.lastName,
+        username: user.username,
+        email: user.email,
+        profileImageUrl: imageUrl // เพิ่ม profileImageUrl
+      });
+
+      // อัปเดต token ใหม่ถ้ามี
+      if (response.token) {
+        localStorage.setItem("token", response.token);
+      }
+
+      // อัปเดต state
+      const updatedUser = { ...response.user, profileImageUrl: imageUrl };
+      setUser(updatedUser);
+      setEditData(updatedUser);
+      setProfileImage(imageUrl);
+
+      // ปิด modal
+      setShowImageModal(false);
+      setImageUrl("");
+
+      alert("เปลี่ยนรูปโปรไฟล์สำเร็จ!");
+
+    } catch (error) {
+      console.error('Error updating profile image:', error);
+      alert(error.message || "เกิดข้อผิดพลาดในการบันทึกรูปภาพ");
+    } finally {
+      setImageLoading(false);
     }
   };
 
   const handleModalClose = () => {
+    if (imageLoading) return; // ป้องกันปิด modal ขณะโหลด
     setShowImageModal(false);
     setImageUrl("");
   };
 
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && !imageLoading) {
       handleImageUrlSubmit();
     }
-    if (e.key === 'Escape') {
+    if (e.key === 'Escape' && !imageLoading) {
       handleModalClose();
     }
   };
@@ -117,54 +168,56 @@ export default function Profile() {
   };
 
   const handleSaveProfile = async () => {
-  // ตรวจสอบว่ามีช่องว่างหรือ email ไม่ถูกต้อง
-  if (!editData.username || !editData.firstName || !editData.lastName || !editData.email) {
-    setSaveError("กรุณากรอกข้อมูลให้ครบทุกช่อง");
-    return;
-  }
-  if (!isEmailValid) {
-    setSaveError("กรุณากรอกอีเมลให้ถูกต้องก่อนบันทึก");
-    return;
-  }
-
-  setSaving(true);
-  setSaveError(null);
-
-  try {
-    const response = await updateProfile({
-      firstName: editData.firstName,
-      lastName: editData.lastName,
-      username: editData.username,
-      email: editData.email
-    });
-
-    if (response.token) {
-      localStorage.setItem("token", response.token);
+    // ตรวจสอบว่ามีช่องว่างหรือ email ไม่ถูกต้อง
+    if (!editData.username || !editData.firstName || !editData.lastName || !editData.email) {
+      setSaveError("กรุณากรอกข้อมูลให้ครบทุกช่อง");
+      return;
     }
-    window.location.reload();
+    if (!isEmailValid) {
+      setSaveError("กรุณากรอกอีเมลให้ถูกต้องก่อนบันทึก");
+      return;
+    }
 
-    setUser(response.user);
-    setEditData(response.user);
-    setIsEditing(false);
+    setSaving(true);
+    setSaveError(null);
 
-  } catch (error) {
-    setSaveError(error.message || "เกิดข้อผิดพลาดในการบันทึก");
-    console.error('Save profile error:', error);
-  } finally {
-    setSaving(false);
-  }
-};
+    try {
+      const response = await updateProfile({
+        firstName: editData.firstName,
+        lastName: editData.lastName,
+        username: editData.username,
+        email: editData.email,
+        profileImageUrl: user.profileImageUrl // รักษา profileImageUrl ไว้
+      });
 
+      if (response.token) {
+        localStorage.setItem("token", response.token);
+      }
+
+      const updatedUser = { ...response.user, profileImageUrl: user.profileImageUrl };
+      setUser(updatedUser);
+      setEditData(updatedUser);
+      setIsEditing(false);
+
+      alert("บันทึกข้อมูลสำเร็จ!");
+
+    } catch (error) {
+      setSaveError(error.message || "เกิดข้อผิดพลาดในการบันทึก");
+      console.error('Save profile error:', error);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const handleInputChange = (field, value) => {
-  // ถ้า field เป็น email ให้ตรวจสอบความถูกต้อง
-  if (field === 'email') {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    setIsEmailValid(emailRegex.test(value));
-  }
+    // ถ้า field เป็น email ให้ตรวจสอบความถูกต้อง
+    if (field === 'email') {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      setIsEmailValid(emailRegex.test(value));
+    }
 
-  setEditData(prev => ({ ...prev, [field]: value }));
-};
+    setEditData(prev => ({ ...prev, [field]: value }));
+  };
 
   if (loading) 
     return (
@@ -295,31 +348,30 @@ export default function Profile() {
             </div>
 
             <div className="info-card">
-  <div className="info-icon">✉️</div>
-  <div className="info-content">
-    <div className="info-row">
-      <span className="info-label">Email</span>
-      {isEditing ? (
-        <>
-          <input
-            type="email"
-            value={editData.email || ""}
-            onChange={(e) => handleInputChange('email', e.target.value)}
-            className={`info-edit-input ${!isEmailValid ? 'invalid' : ''}`}
-          />
-          {!isEmailValid && (
-            <span style={{ color: 'red', fontSize: '0.85rem' }}>
-              กรุณากรอกอีเมลให้ถูกต้อง
-            </span>
-          )}
-        </>
-      ) : (
-        <span className="info-value">{user.email || "Not provided"}</span>
-      )}
-    </div>
-  </div>
-</div>
-
+              <div className="info-icon">✉️</div>
+              <div className="info-content">
+                <div className="info-row">
+                  <span className="info-label">Email</span>
+                  {isEditing ? (
+                    <>
+                      <input
+                        type="email"
+                        value={editData.email || ""}
+                        onChange={(e) => handleInputChange('email', e.target.value)}
+                        className={`info-edit-input ${!isEmailValid ? 'invalid' : ''}`}
+                      />
+                      {!isEmailValid && (
+                        <span style={{ color: 'red', fontSize: '0.85rem' }}>
+                          กรุณากรอกอีเมลให้ถูกต้อง
+                        </span>
+                      )}
+                    </>
+                  ) : (
+                    <span className="info-value">{user.email || "Not provided"}</span>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Action Buttons */}
@@ -367,7 +419,11 @@ export default function Profile() {
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h3>เปลี่ยนรูปโปรไฟล์</h3>
-              <button className="modal-close" onClick={handleModalClose}>
+              <button 
+                className="modal-close" 
+                onClick={handleModalClose}
+                disabled={imageLoading}
+              >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -383,16 +439,25 @@ export default function Profile() {
                 value={imageUrl}
                 onChange={(e) => setImageUrl(e.target.value)}
                 onKeyDown={handleKeyPress}
+                disabled={imageLoading}
                 autoFocus
               />
               <p className="modal-hint">กรุณาใส่ URL ของรูปภาพที่ต้องการใช้</p>
             </div>
             <div className="modal-actions">
-              <button className="btn-cancel" onClick={handleModalClose}>
+              <button 
+                className="btn-cancel" 
+                onClick={handleModalClose}
+                disabled={imageLoading}
+              >
                 ยกเลิก
               </button>
-              <button className="btn-confirm" onClick={handleImageUrlSubmit}>
-                ยืนยัน
+              <button 
+                className="btn-confirm" 
+                onClick={handleImageUrlSubmit}
+                disabled={imageLoading || !imageUrl.trim()}
+              >
+                {imageLoading ? 'กำลังบันทึก...' : 'ยืนยัน'}
               </button>
             </div>
           </div>

@@ -23,7 +23,8 @@ module.exports = {
         password: hashed, 
         role: 'user', 
         firstName, 
-        lastName 
+        lastName,
+        profileImageUrl: null // เพิ่ม field สำหรับรูปโปรไฟล์
       });
 
       // return minimal user (no password)
@@ -33,7 +34,8 @@ module.exports = {
           username: user.username, 
           email: user.email,
           firstName: user.firstName,
-          lastName: user.lastName
+          lastName: user.lastName,
+          profileImageUrl: user.profileImageUrl
         } 
       });
     } catch (err) {
@@ -61,6 +63,7 @@ module.exports = {
         username: user.username,
         firstname: user.firstName, // ใช้ firstname แทน firstName ใน JWT
         lastname: user.lastName,   // ใช้ lastname แทน lastName ใน JWT
+        profileImageUrl: user.profileImageUrl, // เพิ่ม profileImageUrl ใน JWT
         'custom:role': user.role
       };
       const token = jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES });
@@ -73,7 +76,8 @@ module.exports = {
           email: user.email,
           username: user.username,
           firstName: user.firstName,
-          lastName: user.lastName
+          lastName: user.lastName,
+          profileImageUrl: user.profileImageUrl
         } 
       });
     } catch (err) {
@@ -95,7 +99,8 @@ module.exports = {
           name: auth.name, 
           username: auth.username, 
           firstName: auth.firstname || auth.firstName, // รองรับทั้ง 2 แบบ
-          lastName: auth.lastname || auth.lastName
+          lastName: auth.lastname || auth.lastName,
+          profileImageUrl: auth.profileImageUrl || null // เพิ่ม profileImageUrl
         }
       });
     }
@@ -105,7 +110,7 @@ module.exports = {
       if (!auth.sub) return res.status(401).json({ error: 'Unauthorized' });
       
       const user = await User.findByPk(auth.sub, { 
-        attributes: ['id', 'username', 'email', 'firstName', 'lastName'] 
+        attributes: ['id', 'username', 'email', 'firstName', 'lastName', 'profileImageUrl'] // เพิ่ม profileImageUrl
       });
       
       if (!user) return res.status(404).json({ error: 'User not found' });
@@ -125,10 +130,10 @@ module.exports = {
       
       if (!userId) return res.status(401).json({ error: 'Unauthorized' });
 
-      const { firstName, lastName, username, email } = req.body;
+      const { firstName, lastName, username, email, profileImageUrl } = req.body;
 
       // Validation
-      if (!firstName && !lastName && !username && !email) {
+      if (!firstName && !lastName && !username && !email && profileImageUrl === undefined) {
         return res.status(400).json({ error: 'At least one field is required' });
       }
 
@@ -164,6 +169,7 @@ module.exports = {
       if (lastName !== undefined) updateData.lastName = lastName;
       if (username !== undefined) updateData.username = username;
       if (email !== undefined) updateData.email = email;
+      if (profileImageUrl !== undefined) updateData.profileImageUrl = profileImageUrl; // เพิ่ม profileImageUrl
 
       // อัปเดตข้อมูล
       const [updatedRows] = await User.update(updateData, { 
@@ -176,7 +182,7 @@ module.exports = {
 
       // ดึงข้อมูลที่อัปเดตแล้ว
       const updatedUser = await User.findByPk(userId, {
-        attributes: ['id', 'username', 'email', 'firstName', 'lastName']
+        attributes: ['id', 'username', 'email', 'firstName', 'lastName', 'profileImageUrl'] // เพิ่ม profileImageUrl
       });
 
       // สร้าง JWT token ใหม่ด้วยข้อมูลที่อัปเดต
@@ -186,6 +192,7 @@ module.exports = {
         username: updatedUser.username,
         firstname: updatedUser.firstName,
         lastname: updatedUser.lastName,
+        profileImageUrl: updatedUser.profileImageUrl, // เพิ่ม profileImageUrl ใน JWT
         'custom:role': 'user' // หรือดึงจาก user.role ถ้ามี
       };
       const newToken = jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES });
