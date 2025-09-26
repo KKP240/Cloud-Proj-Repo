@@ -5,6 +5,36 @@ import '../css/ActivityDetail.css';
 
 
 export default function ActivityDetail() {
+    // Comment delete state
+    const [commentDeleting, setCommentDeleting] = useState(null); // comment id
+    const [commentDeleteError, setCommentDeleteError] = useState(null);
+
+    // Delete comment handler
+    async function handleDeleteComment(commentId) {
+        if (!window.confirm('Delete this comment?')) return;
+        setCommentDeleting(commentId);
+        setCommentDeleteError(null);
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`/api/comments/${commentId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { Authorization: `Bearer ${token}` } : {})
+                }
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                setCommentDeleteError(data.error || 'Failed to delete comment');
+            } else {
+                await fetchDetail();
+            }
+        } catch (e) {
+            setCommentDeleteError(e.message || 'Network error');
+        } finally {
+            setCommentDeleting(null);
+        }
+    }
     const { id } = useParams();
     const [activityData, setActivityData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -19,7 +49,15 @@ export default function ActivityDetail() {
     async function fetchDetail() {
         setLoading(true);
         try {
-            const res = await fetch(`/api/activitiesEdit/${id}`);
+            const token = localStorage.getItem('token');
+            const res = await fetch(`/api/activitiesEdit/${id}`,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(token ? { Authorization: `Bearer ${token}` } : {})
+                    }
+                }
+            );
             const data = await res.json().catch(() => ({}));
 
             console.log("Fetched data:", data); // 👈 ดูข้อมูลที่ดึงมา
@@ -422,16 +460,41 @@ export default function ActivityDetail() {
                     {activeTab === 'post' && (
                         <div>
                             <h3>Comments</h3>
+                            {commentDeleteError && <div style={{ color: 'red', marginBottom: 8 }}>{commentDeleteError}</div>}
                             {activity.Comments && activity.Comments.length ? (
                                 activity.Comments.map(c => (
                                     <div key={c.id} className="comment">
                                         <div className="comment-header">
                                             <span className="comment-author">
-                                                {c.User ? (c.User.firstName || c.User.username) : 'Guest'}
+                                                {c.User
+                                                    ? (c.User.username
+                                                        ? c.User.username
+                                                        : c.User.firstName
+                                                            ? c.User.firstName
+                                                            : 'Guest')
+                                                    : 'Guest'}
                                             </span>
                                             <span className="comment-date">
                                                 {new Date(c.createdAt).toLocaleString()}
                                             </span>
+                                            <button
+                                                className="delete-comment-btn"
+                                                onClick={() => handleDeleteComment(c.id)}
+                                                disabled={commentDeleting === c.id}
+                                            >
+                                                {commentDeleting === c.id ? 'Deleting...' : (
+                                                    <>
+                                                        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ verticalAlign: 'middle', marginRight: 4 }}>
+                                                            <path d="M6 8V15C6 15.55 6.45 16 7 16H13C13.55 16 14 15.55 14 15V8" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                                            <path d="M9 11V13" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                                            <path d="M11 11V13" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                                            <path d="M4 6H16" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                                            <path d="M8 6V5C8 4.45 8.45 4 9 4H11C11.55 4 12 4.45 12 5V6" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                                        </svg>
+                                                        <span>Delete</span>
+                                                    </>
+                                                )}
+                                            </button>
                                         </div>
                                         <div className="comment-content">{c.content}</div>
                                     </div>

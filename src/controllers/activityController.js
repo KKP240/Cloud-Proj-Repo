@@ -26,39 +26,49 @@ module.exports = {
         where: { activityId: id, status: 'registered' }
       });
 
+      // Debug: log headers, req.auth, and possible userId fields
+      console.log('==== [activityController.detail] Debug Info ====');
+      console.log('req.headers:', req.headers);
+      console.log('req.auth:', req.auth);
+      if (req.auth) {
+        console.log('req.auth.sub:', req.auth.sub);
+        console.log('req.auth.userId:', req.auth.userId);
+        console.log('req.auth.id:', req.auth.id);
+        console.log('typeof req.auth.sub:', typeof req.auth.sub);
+      }
+
       // Initialize registration status
-    let isRegistered = false;
-    let myRegistrationId = null;
+      let isRegistered = false;
+      let myRegistrationId = null;
 
-    // Extract userId from req.auth
-    const userId = req.auth?.sub ? Number(req.auth.sub) : null;
-    console.log('req.auth:', req.auth);
-    console.log('detail userId:', userId);
+      // Extract userId from req.auth
+      const userId = req.auth?.sub ? Number(req.auth.sub) : null;
+      console.log('detail userId:', userId);
 
-    if (userId) {
-      // Check if user is registered for this activity
-      const reg = await Registration.findOne({
-        where: { activityId: id, userId, status: 'registered' }
+      if (userId) {
+        // Check if user is registered for this activity
+        const reg = await Registration.findOne({
+          where: { activityId: id, userId, status: 'registered' }
+        });
+
+        // Set initial isRegistered based on registration check
+        isRegistered = !!reg; // true if registration exists, false otherwise
+        myRegistrationId = reg ? reg.id : null;
+
+      } else {
+        console.log('No authenticated user, setting isRegistered to false');
+      }
+
+      return res.json({
+        activity,
+        participantCount,
+        isRegistered,
+        myRegistrationId
       });
-
-      // Set initial isRegistered based on registration check
-      isRegistered = !!reg; // true if registration exists, false otherwise
-      myRegistrationId = reg ? reg.id : null;
-
-    } else {
-      console.log('No authenticated user, setting isRegistered to false');
+    } catch (err) {
+      console.error('activity detail error:', err);
+      return res.status(500).json({ error: 'Server error', details: err.message });
     }
-
-    return res.json({
-      activity,
-      participantCount,
-      isRegistered,
-      myRegistrationId
-    });
-  } catch (err) {
-    console.error('activity detail error:', err);
-    return res.status(500).json({ error: 'Server error', details: err.message });
-  }
   },
 
   // ========================= LIST =========================

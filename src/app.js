@@ -27,6 +27,9 @@ app.use('/api', uploadRoutes);
 const reportRoutes = require('./routes/reportRoutes');
 app.use('/api', reportRoutes);
 
+const commentRoutes = require('./routes/commentRoutes');
+app.use('/api', commentRoutes);
+
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
 module.exports = app;

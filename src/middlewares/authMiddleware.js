@@ -28,21 +28,28 @@ const checkJwt = async (req, res, next) => {
         name: getHeader(req, 'x-user-name') || (req.body?.userName) || 'Dev User',
         'cognito:groups': []
       };
+      console.log('[authMiddleware] DEV MODE: fakeUser:', fakeUser);
       req.auth = fakeUser;
       return next();
     }
 
     const authHeader = req.headers.authorization || req.get('Authorization') || '';
+    console.log('[authMiddleware] Authorization header:', authHeader);
     const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
-    if (!token) return res.status(401).json({ error: 'Missing Authorization header' });
+    if (!token) {
+      console.warn('[authMiddleware] No token found in Authorization header');
+      return res.status(401).json({ error: 'Missing Authorization header' });
+    }
 
     // Try local JWT verify first (dev token)
     if (LOCAL_JWT_SECRET) {
       try {
         const payload = jwtLib.verify(token, LOCAL_JWT_SECRET);
+        console.log('[authMiddleware] Local JWT payload:', payload);
         req.auth = payload;
         return next();
       } catch (e) {
+        console.warn('[authMiddleware] Local JWT verify failed:', e.message);
         // token is not local JWT or invalid -> fallthrough to Cognito verification
       }
     }
@@ -50,7 +57,7 @@ const checkJwt = async (req, res, next) => {
     // Cognito verification (RS256)
     const issuer = `https://cognito-idp.${REGION}.amazonaws.com/${USER_POOL_ID}`;
 
-    return jwt({
+  return jwt({
       secret: jwksRsa.expressJwtSecret({
         cache: true,
         rateLimit: true,
@@ -62,8 +69,10 @@ const checkJwt = async (req, res, next) => {
       algorithms: ['RS256']
     })(req, res, (err) => {
       if (err) {
+        console.warn('[authMiddleware] Cognito JWT verify failed:', err.message || err.name);
         return res.status(401).json({ error: 'Unauthorized', details: err.message || err.name });
       }
+      console.log('[authMiddleware] Cognito JWT req.auth:', req.auth);
       next();
     });
   } catch (topErr) {

@@ -9,6 +9,39 @@ export default function ActivityDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
+  // Comment form state
+  const [commentContent, setCommentContent] = useState('');
+  const [commentSubmitting, setCommentSubmitting] = useState(false);
+  const [commentError, setCommentError] = useState(null);
+  // Submit new comment
+  async function handleCommentSubmit(e) {
+    e.preventDefault();
+    if (!commentContent.trim()) return;
+    setCommentSubmitting(true);
+    setCommentError(null);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`/api/activities/${id}/comments`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({ content: commentContent })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setCommentError(data.error || 'Failed to post comment');
+      } else {
+        setCommentContent('');
+        await fetchDetail();
+      }
+    } catch (e) {
+      setCommentError(e.message || 'Network error');
+    } finally {
+      setCommentSubmitting(false);
+    }
+  }
   const [activeTab, setActiveTab] = useState('description');
 
   // Fetch activity details
@@ -247,12 +280,36 @@ export default function ActivityDetail() {
           {activeTab === 'post' && (
             <div>
               <h3>Comments</h3>
+              <form onSubmit={handleCommentSubmit} className="comment-form">
+                <label htmlFor="comment-textarea" className="comment-label">Add a Comment</label>
+                <textarea
+                  id="comment-textarea"
+                  className="comment-textarea"
+                  value={commentContent}
+                  onChange={e => setCommentContent(e.target.value)}
+                  placeholder="Write a comment..."
+                  rows={3}
+                  disabled={commentSubmitting}
+                />
+                <button
+                  type="submit"
+                  className="comment-submit-btn"
+                  disabled={commentSubmitting || !commentContent.trim()}
+                >
+                  {commentSubmitting ? 'Posting...' : 'Post Comment'}
+                </button>
+                {commentError && <div className="comment-error">{commentError}</div>}
+              </form>
               {activity.Comments && activity.Comments.length ? (
                 activity.Comments.map(c => (
                   <div key={c.id} className="comment">
                     <div className="comment-header">
                       <span className="comment-author">
-                        {c.User ? (c.User.firstName || c.User.username) : 'Guest'}
+                        {c.User && c.User.username
+                          ? c.User.username
+                          : c.User && c.User.firstName
+                            ? c.User.firstName
+                            : 'Guest'}
                       </span>
                       <span className="comment-date">
                         {new Date(c.createdAt).toLocaleString()}

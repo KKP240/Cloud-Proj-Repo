@@ -418,6 +418,68 @@
   border: 1px dashed rgba(255,255,255,0.2);
 }
 
+/* --- Comment Form Styles --- */
+.comment-form {
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: rgba(255,255,255,0.07);
+  padding: 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+.comment-label {
+  font-weight: 600;
+  color: #f7931e;
+  margin-bottom: 4px;
+}
+
+.comment-textarea {
+  width: 100%;
+  resize: vertical;
+  border-radius: 8px;
+  border: 2px solid #407CFF;
+  padding: 10px 14px;
+  font-size: 16px;
+  outline: none;
+  background: rgba(255,255,255,0.12);
+  color: #222;
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.comment-textarea:focus {
+  border-color: #f7931e;
+}
+
+.comment-submit-btn {
+  background: linear-gradient(45deg, #407CFF, #64b5f6);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(64,124,255,0.15);
+  align-self: flex-end;
+  margin-top: 4px;
+  transition: background 0.2s, opacity 0.2s;
+  opacity: 1;
+}
+.comment-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.comment-error {
+  color: red;
+  margin-top: 4px;
+}
+
 /* for ActivitiesEdit */
 
 .activity-header-rel {
@@ -511,4 +573,32 @@
 
 .about-edit-input:focus {
   border-color: #407CFF;
+}
+
+/* --- Delete Comment Button Styles --- */
+.delete-comment-btn {
+  margin-left: 12px;
+  color: #fff;
+  background: linear-gradient(45deg, #dc3545, #c82333);
+  border: none;
+  border-radius: 6px;
+  padding: 6px 18px 6px 12px;
+  font-size: 15px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s, opacity 0.2s;
+  box-shadow: 0 2px 8px rgba(220,53,69,0.10);
+  outline: none;
+}
+.delete-comment-btn:hover:not(:disabled) {
+  background: linear-gradient(45deg, #c82333, #bd2130);
+  box-shadow: 0 4px 16px rgba(220,53,69,0.18);
+  opacity: 0.92;
+}
+.delete-comment-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
