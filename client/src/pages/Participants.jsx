@@ -1,6 +1,7 @@
 // client/src/pages/Participants.jsx
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import "../css/Participants.css";
 
 export default function Participants() {
   const { id } = useParams();
@@ -31,11 +32,11 @@ export default function Participants() {
     return ()=> cancelled = true;
   }, [id]);
 
-  if (loading) return <div className="container">Loading...</div>;
-  if (err) return <div className="container" style={{color:'red'}}>Error: {err}</div>;
+  if (loading) return <div className="Parttic_css">Loading...</div>;
+  if (err) return <div className="Parttic_css" style={{color:'red'}}>Error: {err}</div>;
 
   return (
-    <div className="container">
+    <div className="Parttic_css">
       <h2>Participants</h2>
       <Link to={`/activities/${id}`}>Back to event</Link>
       <ul style={{marginTop:12}}>

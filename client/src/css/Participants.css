@@ -1,0 +1,171 @@
+/* client/src/css/Participants.css */
+.Parttic_css {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 24px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #ffffff;
+  min-height: 100vh;
+  text-align: left;
+}
+
+.Parttic_css h2 {
+  color: #2c3e50;
+  font-size: 28px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+  text-align: center;
+  border-bottom: 3px solid #3498db;
+  padding-bottom: 12px;
+}
+
+.Parttic_css a {
+  display: inline-block;
+  color: #3498db;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 8px 16px;
+  border: 2px solid #3498db;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  margin-bottom: 20px;
+}
+
+.Parttic_css a:hover {
+  background-color: #3498db;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+}
+
+.Parttic_css ul {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.Parttic_css li {
+  padding: 20px !important;
+  border-bottom: 1px solid #e9ecef !important;
+  background-color: white;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.Parttic_css li:hover {
+  background-color: #f1f8ff;
+  transform: translateX(4px);
+  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.15);
+}
+
+.Parttic_css li:last-child {
+  border-bottom: none !important;
+}
+
+.Parttic_css li strong {
+  color: #2c3e50;
+  font-size: 18px;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.Parttic_css li div:nth-of-type(1) {
+  color: #7f8c8d !important;
+  font-size: 14px !important;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.Parttic_css li div:nth-of-type(2) {
+  color: #95a5a6 !important;
+  font-size: 13px !important;
+  font-style: italic;
+}
+
+/* Loading state */
+.Parttic_css div:contains("Loading") {
+  text-align: center;
+  padding: 60px 20px;
+  font-size: 18px;
+  color: #7f8c8d;
+  font-weight: 500;
+}
+
+/* Error state */
+.Parttic_css div[style*="color:red"] {
+  text-align: center;
+  padding: 20px;
+  background-color: #fdf2f2;
+  border: 1px solid #f56565;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+/* Empty state */
+.Parttic_css li:contains("No participants") {
+  text-align: center;
+  padding: 40px 20px !important;
+  color: #7f8c8d;
+  font-style: italic;
+  font-size: 16px;
+  background-color: #f8f9fa;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .Parttic_css {
+    padding: 16px;
+    margin: 0;
+  }
+
+  .Parttic_css h2 {
+    font-size: 24px;
+  }
+
+  .Parttic_css li {
+    padding: 16px !important;
+  }
+
+  .Parttic_css li strong {
+    font-size: 16px;
+  }
+
+  .Parttic_css a {
+    padding: 10px 14px;
+    font-size: 14px;
+    width: 100%;
+    text-align: center;
+    box-sizing: border-box;
+  }
+}
+
+@media (max-width: 480px) {
+  .Parttic_css {
+    padding: 12px;
+  }
+
+  .Parttic_css h2 {
+    font-size: 20px;
+  }
+
+  .Parttic_css li {
+    padding: 12px !important;
+  }
+
+  .Parttic_css li strong {
+    font-size: 15px;
+  }
+
+  .Parttic_css li div:nth-of-type(1) {
+    font-size: 13px !important;
+  }
+
+  .Parttic_css li div:nth-of-type(2) {
+    font-size: 12px !important;
+  }
+}

@@ -35,6 +35,14 @@ export default function Activities() {
     }
   };
 
+  // ✨ ฟังก์ชันใหม่: ตรวจสอบว่ากิจกรรมเพิ่งสร้างใหม่หรือไม่ (ภายใน 7 วัน)
+  const isRecentActivity = (createdAt) => {
+    const now = new Date();
+    const activityDate = new Date(createdAt);
+    const daysDiff = (now - activityDate) / (1000 * 60 * 60 * 24);
+    return daysDiff <= 7; // แสดง NEW badge สำหรับกิจกรรมที่สร้างภายใน 7 วัน
+  };
+
   useEffect(() => {
     let mounted = true;
     (async () => {
@@ -52,10 +60,11 @@ export default function Activities() {
         console.log("✅ Activities data from API:", data);
         console.log("✅ User joined activities:", userJoinedActivities);
         
-        // ✨ เพิ่ม isJoined property ให้กับแต่ละกิจกรรม
+        // ✨ เพิ่ม isJoined และ isNew property ให้กับแต่ละกิจกรรม
         const activitiesWithJoinStatus = data.map(activity => ({
           ...activity,
-          isJoined: userJoinedActivities.includes(activity.id)
+          isJoined: userJoinedActivities.includes(activity.id),
+          isNew: isRecentActivity(activity.createdAt) // เพิ่ม property นี้
         }));
         
         setActivities(activitiesWithJoinStatus);
@@ -391,7 +400,7 @@ export default function Activities() {
             {filteredActivities.map((act) => (
               <div
                 key={act.id}
-                className="activities-card"
+                className={`activities-card ${act.isNew ? 'is-new' : ''}`} // เพิ่ม class เงื่อนไข
                 onClick={() => window.location.href = `/activities/${act.id}`}
                 style={{ cursor: 'pointer', position: 'relative' }}
               >
