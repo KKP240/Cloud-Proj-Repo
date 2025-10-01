@@ -73,22 +73,110 @@ export default function ActivityDetail() {
 
 
     useEffect(() => { fetchDetail(); }, [id]);
-    useEffect(() => {
-        if (activityData && activityData.activity) {
-            setEditData({
-                title: activityData.activity.title || '',
-                tags: activityData.activity.Tags ? activityData.activity.Tags.map(t => t.name) : [],
-                location: activityData.activity.location || '',
-                country: activityData.activity.country || '',
-                province: activityData.activity.province || '',
-                capacity: activityData.activity.capacity || '',
-                startDate: activityData.activity.startDate ? activityData.activity.startDate.slice(0, 10) : '',
-                endDate: activityData.activity.endDate ? activityData.activity.endDate.slice(0, 10) : '',
-                description: activityData.activity.description || '',
-                images: activityData.activity.ActivityImages ? activityData.activity.ActivityImages.map(img => img.url) : []
-            });
-        }
-    }, [activityData]);
+        // Country/Province dropdowns
+        const countries = {
+            Thailand: [
+                "Bangkok", "Chiang Mai", "Phuket", "Khon Kaen", "Chiang Rai", "Nakhon Ratchasima",
+                "Chonburi", "Nakhon Si Thammarat", "Udon Thani", "Songkhla", "Surat Thani",
+                "Nakhon Pathom", "Ayutthaya", "Pattani", "Lampang", "Loei", "Phitsanulok",
+                "Ratchaburi", "Trang", "Ubon Ratchathani", "Kanchanaburi", "Sukhothai", "Phetchabun",
+                "Phrae", "Nakhon Nayok", "Sakon Nakhon", "Chaiyaphum", "Mukdahan", "Chachoengsao",
+                "Samut Prakan", "Samut Sakhon", "Samut Songkhram", "Singburi", "Suphan Buri",
+                "Ang Thong", "Lopburi", "Pathum Thani", "Prachin Buri", "Phetchaburi", "Chumphon",
+                "Ranong", "Surin", "Sisaket", "Yasothon", "Amnat Charoen", "Bueng Kan", "Nong Bua Lamphu",
+                "Nong Khai", "Kalasin", "Khon Kaen", "Maha Sarakham", "Roi Et", "Saraburi", "Sing Buri",
+                "Sukhothai", "Tak", "Uttaradit", "Phayao", "Phichit", "Phitsanulok", "Prachuap Khiri Khan",
+                "Rayong", "Sa Kaeo", "Samut Sakhon", "Saraburi", "Satun", "Sing Buri", "Songkhla", "Sukhothai",
+                "Suphan Buri", "Surat Thani", "Trat", "Ubon Ratchathani", "Udon Thani", "Yala"
+            ],
+            USA: [
+                "New York", "California", "Texas", "Florida", "Illinois", "Pennsylvania", "Ohio", "Georgia",
+                "North Carolina", "Michigan", "New Jersey", "Virginia", "Washington", "Arizona", "Massachusetts",
+                "Tennessee", "Indiana", "Missouri", "Maryland", "Wisconsin", "Colorado", "Minnesota", "South Carolina",
+                "Alabama", "Louisiana", "Kentucky", "Oregon", "Oklahoma", "Connecticut", "Iowa", "Mississippi",
+                "Arkansas", "Kansas", "Utah", "Nevada", "New Mexico", "Nebraska", "West Virginia", "Idaho",
+                "Hawaii", "New Hampshire", "Montana", "Rhode Island", "Delaware", "South Dakota", "North Dakota",
+                "Alaska", "Vermont", "Wyoming"
+            ],
+            Japan: [
+                "Tokyo", "Osaka", "Kyoto", "Hokkaido", "Aomori", "Iwate", "Miyagi", "Akita", "Yamagata", "Fukushima",
+                "Ibaraki", "Tochigi", "Gunma", "Saitama", "Chiba", "Kanagawa", "Niigata", "Toyama", "Ishikawa",
+                "Fukui", "Yamanashi", "Nagano", "Gifu", "Shizuoka", "Aichi", "Mie", "Shiga", "Kyoto", "Osaka",
+                "Hyogo", "Nara", "Wakayama", "Tottori", "Shimane", "Okayama", "Hiroshima", "Yamaguchi", "Tokushima",
+                "Kagawa", "Ehime", "Kochi", "Fukuoka", "Saga", "Nagasaki", "Kumamoto", "Oita", "Miyazaki", "Kagoshima",
+                "Okinawa"
+            ],
+            Canada: [
+                "Ontario", "Quebec", "Nova Scotia", "New Brunswick", "Manitoba", "British Columbia", "Prince Edward Island",
+                "Saskatchewan", "Alberta", "Newfoundland and Labrador"
+            ],
+            UK: [
+                "England", "Scotland", "Wales", "Northern Ireland"
+            ],
+            Australia: [
+                "New South Wales", "Victoria", "Queensland", "South Australia", "Western Australia", "Tasmania", "Australian Capital Territory", "Northern Territory"
+            ],
+            Germany: [
+                "Bavaria", "North Rhine-Westphalia", "Baden-Württemberg", "Hesse", "Lower Saxony", "Saxony", "Rhineland-Palatinate", "Berlin", "Schleswig-Holstein", "Brandenburg",
+                "Hesse", "Saxony-Anhalt", "Thuringia", "Mecklenburg-Vorpommern", "Bremen", "Hamburg", "Saarland"
+            ],
+            France: [
+                "Île-de-France", "Provence-Alpes-Côte d'Azur", "Auvergne-Rhône-Alpes", "Nouvelle-Aquitaine", "Occitanie", "Hauts-de-France", "Grand Est", "Bretagne", "Normandie",
+                "Pays de la Loire", "Centre-Val de Loire", "Bourgogne-Franche-Comté", "Corse"
+            ],
+            Italy: [
+                "Lazio", "Lombardy", "Campania", "Sicily", "Veneto", "Emilia-Romagna", "Piedmont", "Apulia", "Calabria", "Tuscany",
+                "Sardinia", "Liguria", "Marche", "Abruzzo", "Trentino-Alto Adige/Südtirol", "Friuli Venezia Giulia", "Umbria", "Molise", "Basilicata", "Aosta Valley"
+            ],
+            Spain: [
+                "Andalusia", "Catalonia", "Madrid", "Valencia", "Galicia", "Castile and León", "Basque Country", "Castilla-La Mancha", "Canary Islands", "Aragon",
+                "Balearic Islands", "Extremadura", "Murcia", "Cantabria", "La Rioja", "Navarre", "Asturias", "Ceuta", "Melilla"
+            ],
+            China: [
+                "Beijing", "Shanghai", "Tianjin", "Chongqing", "Guangdong", "Shandong", "Jiangsu", "Zhejiang", "Henan", "Sichuan",
+                "Hunan", "Anhui", "Hubei", "Fujian", "Jiangxi", "Shanxi", "Liaoning", "Heilongjiang", "Hebei", "Hainan",
+                "Guangxi", "Inner Mongolia", "Ningxia", "Xinjiang", "Tibet", "Qinghai", "Gansu", "Shaanxi", "Yunnan", "Guizhou",
+                "Hainan", "Macau", "Hong Kong"
+            ],
+            India: [
+                "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand",
+                "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab",
+                "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal", "Andaman and Nicobar Islands",
+                "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", "Lakshadweep", "Delhi", "Puducherry", "Ladakh", "Lakshadweep", "Jammu and Kashmir"
+            ]
+        };
+        const [provinceOptions, setProvinceOptions] = useState([]);
+        useEffect(() => {
+            if (activityData && activityData.activity) {
+                // Extract time from startDate/endDate as HH:mm (24hr)
+                function getTimeStr(dateStr) {
+                  if (!dateStr) return '';
+                  const d = new Date(dateStr);
+                  const hour = d.getHours().toString().padStart(2, '0');
+                  const min = d.getMinutes().toString().padStart(2, '0');
+                  return `${hour}:${min}`;
+                }
+                let startDate = activityData.activity.startDate ? activityData.activity.startDate.slice(0, 10) : '';
+                let startTime = getTimeStr(activityData.activity.startDate);
+                let endDate = activityData.activity.endDate ? activityData.activity.endDate.slice(0, 10) : '';
+                let endTime = getTimeStr(activityData.activity.endDate);
+                setEditData({
+                    title: activityData.activity.title || '',
+                    tags: activityData.activity.Tags ? activityData.activity.Tags.map(t => t.name) : [],
+                    location: activityData.activity.location || '',
+                    country: activityData.activity.country || '',
+                    province: activityData.activity.province || '',
+                    capacity: activityData.activity.capacity || '',
+                    startDate,
+                    startTime,
+                    endDate,
+                    endTime,
+                    description: activityData.activity.description || '',
+                    images: activityData.activity.ActivityImages ? activityData.activity.ActivityImages.map(img => img.url) : []
+                });
+                setProvinceOptions(activityData.activity.country ? (countries[activityData.activity.country] || []) : []);
+            }
+        }, [activityData]);
     // Image edit handlers
     const handleImageChange = (idx, value) => {
         setEditData(prev => {
@@ -133,7 +221,15 @@ export default function ActivityDetail() {
     };
 
     const handleInputChange = (field, value) => {
-        setEditData(prev => ({ ...prev, [field]: value }));
+                setEditData(prev => {
+                    let newData = { ...prev, [field]: value };
+                    // If country changes, update province options and reset province
+                    if (field === 'country') {
+                        newData.province = '';
+                        setProvinceOptions(countries[value] || []);
+                    }
+                    return newData;
+                });
     };
 
     const handleTagChange = (idx, value) => {
@@ -165,6 +261,14 @@ export default function ActivityDetail() {
         setSaveError(null);
         try {
             const token = localStorage.getItem('token');
+            // Combine date and time
+            function combineDateTime(date, time) {
+              if (!date) return null;
+              if (time) return date + 'T' + time;
+              return date.length === 10 ? date + 'T00:00:00' : date;
+            }
+            const normStart = combineDateTime(editData.startDate, editData.startTime);
+            const normEnd = combineDateTime(editData.endDate, editData.endTime);
             const res = await fetch(`/api/activities/${id}`, {
                 method: 'PUT',
                 headers: {
@@ -178,8 +282,8 @@ export default function ActivityDetail() {
                     country: editData.country,
                     province: editData.province,
                     capacity: editData.capacity,
-                    startDate: editData.startDate,
-                    endDate: editData.endDate,
+                    startDate: normStart,
+                    endDate: normEnd,
                     description: editData.description,
                     images: editData.images
                 })
@@ -203,7 +307,6 @@ export default function ActivityDetail() {
     if (!activityData) return <div className="activity-detail-container">No data available</div>;
 
     const { activity, participantCount} = activityData;
-
 
     return (
         <div className="activity-detail-container">
@@ -313,21 +416,28 @@ export default function ActivityDetail() {
                                         <div className="detail-value">
                                             {isEditing ? (
                                                 <>
-                                                    <input
-                                                        type="text"
+                                                    <select
+                                                        className="info-edit-input"
                                                         value={editData.country}
                                                         onChange={e => handleInputChange('country', e.target.value)}
-                                                        className="info-edit-input"
-                                                        placeholder="Country"
                                                         style={{ marginRight: 8 }}
-                                                    />
-                                                    <input
-                                                        type="text"
+                                                    >
+                                                        <option value="">-- Select Country --</option>
+                                                        {Object.keys(countries).map((c, i) => (
+                                                            <option key={i} value={c}>{c}</option>
+                                                        ))}
+                                                    </select>
+                                                    <select
+                                                        className="info-edit-input"
                                                         value={editData.province}
                                                         onChange={e => handleInputChange('province', e.target.value)}
-                                                        className="info-edit-input"
-                                                        placeholder="Province"
-                                                    />
+                                                        disabled={!editData.country}
+                                                    >
+                                                        <option value="">-- Select Province --</option>
+                                                        {provinceOptions.map((p, i) => (
+                                                            <option key={i} value={p}>{p}</option>
+                                                        ))}
+                                                    </select>
                                                 </>
                                             ) : (
                                                 `${activity.country || '-'} / ${activity.province || '-'}`
@@ -356,14 +466,30 @@ export default function ActivityDetail() {
                                         <div className="detail-label">Start Date:</div>
                                         <div className="detail-value">
                                             {isEditing ? (
-                                                <input
-                                                    type="date"
-                                                    value={editData.startDate}
-                                                    onChange={e => handleInputChange('startDate', e.target.value)}
-                                                    className="date-input info-edit-input"
-                                                />
+                                                <>
+                                                    <input
+                                                        type="date"
+                                                        value={editData.startDate}
+                                                        onChange={e => handleInputChange('startDate', e.target.value)}
+                                                        className="date-input info-edit-input"
+                                                        style={{ marginRight: 8 }}
+                                                    />
+                                                    <input
+                                                        type="time"
+                                                        value={editData.startTime}
+                                                        onChange={e => handleInputChange('startTime', e.target.value)}
+                                                        className="time-input info-edit-input"
+                                                        step="60"
+                                                    />
+                                                </>
                                             ) : (
-                                                activity.startDate ? new Date(activity.startDate).toLocaleString() : '-'
+                                                activity.startDate ? (() => {
+                                                    const d = new Date(activity.startDate);
+                                                    const dateStr = d.toLocaleDateString();
+                                                    const hour = d.getHours().toString().padStart(2, '0');
+                                                    const min = d.getMinutes().toString().padStart(2, '0');
+                                                    return `${dateStr}, ${hour}:${min}`;
+                                                })() : '-'
                                             )}
                                         </div>
                                     </div>
@@ -371,14 +497,30 @@ export default function ActivityDetail() {
                                         <div className="detail-label">End Date:</div>
                                         <div className="detail-value">
                                             {isEditing ? (
-                                                <input
-                                                    type="date"
-                                                    value={editData.endDate}
-                                                    onChange={e => handleInputChange('endDate', e.target.value)}
-                                                    className="date-input info-edit-input"
-                                                />
+                                                <>
+                                                    <input
+                                                        type="date"
+                                                        value={editData.endDate}
+                                                        onChange={e => handleInputChange('endDate', e.target.value)}
+                                                        className="date-input info-edit-input"
+                                                        style={{ marginRight: 8 }}
+                                                    />
+                                                    <input
+                                                        type="time"
+                                                        value={editData.endTime}
+                                                        onChange={e => handleInputChange('endTime', e.target.value)}
+                                                        className="time-input info-edit-input"
+                                                        step="60"
+                                                    />
+                                                </>
                                             ) : (
-                                                activity.endDate ? new Date(activity.endDate).toLocaleString() : '-'
+                                                activity.endDate ? (() => {
+                                                    const d = new Date(activity.endDate);
+                                                    const dateStr = d.toLocaleDateString();
+                                                    const hour = d.getHours().toString().padStart(2, '0');
+                                                    const min = d.getMinutes().toString().padStart(2, '0');
+                                                    return `${dateStr}, ${hour}:${min}`;
+                                                })() : '-'
                                             )}
                                         </div>
                                     </div>

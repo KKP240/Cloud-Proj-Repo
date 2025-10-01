@@ -128,14 +128,26 @@ function UserMenu({ userChanged, setUserChanged }) {
     <div className="dropdown-item">
       <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#000000" viewBox="0 0 256 256"><path d="M238.73,43.67A8,8,0,0,0,232,40H152a8,8,0,0,0-7.28,4.69L135.94,64H28a8,8,0,0,0-5.92,13.38L57.19,116,22.08,154.62A8,8,0,0,0,28,168h73.09a8,8,0,0,0,7.28-4.69L117.15,144h62.43l-34.86,76.69a8,8,0,1,0,14.56,6.62l80-176A8,8,0,0,0,238.73,43.67ZM95.94,152H46.08l27.84-30.62a8,8,0,0,0,0-10.76L46.08,80h82.59Zm90.91-24H124.42l32.73-72h62.43Z"></path></svg>
       <Link to="/activities" onClick={() => setOpen(false)} style={{ flex: 1, textDecoration: 'none', color: '#333' }}>
-        Event
+        Activities
+      </Link>
+    </div>
+
+    <div className="dropdown-item">
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#000000" viewBox="0 0 24 24">
+          <rect x="3" y="4" width="18" height="18" rx="4" fill="#fff" stroke="#000" strokeWidth="1.5"/>
+          <path d="M8 2v4M16 2v4" stroke="#000" strokeWidth="1.5" strokeLinecap="round"/>
+          <path d="M12 15v-3M12 12h3M12 12h-3" stroke="#000" strokeWidth="1.5" strokeLinecap="round"/>
+          <circle cx="12" cy="12" r="5" fill="none" stroke="#000" strokeWidth="1.2"/>
+      </svg>
+      <Link to="/events/new" onClick={() => setOpen(false)} style={{ flex: 1, textDecoration: 'none', color: '#333' }}>
+        Create Event
       </Link>
     </div>
 
     <div className="dropdown-item">
       <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#000000" viewBox="0 0 256 256"><path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM72,48v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24V80H48V48ZM208,208H48V96H208V208Zm-48-56a8,8,0,0,1-8,8H136v16a8,8,0,0,1-16,0V160H104a8,8,0,0,1,0-16h16V128a8,8,0,0,1,16,0v16h16A8,8,0,0,1,160,152Z"></path></svg>
-      <Link to="/events/new" onClick={() => setOpen(false)} style={{ flex: 1, textDecoration: 'none', color: '#333' }}>
-        Created Event
+      <Link to="/activityManager" onClick={() => setOpen(false)} style={{ flex: 1, textDecoration: 'none', color: '#333' }}>
+        Activity Manager
       </Link>
     </div>
 
@@ -166,7 +178,7 @@ export default function App() {
           <Link to="/home">Home</Link>
           <Link to="/activities">Activities</Link>
           <Link to="/events/new">Create Event</Link>
-          <Link to="/activityManager">ActivityManager</Link>
+          <Link to="/activityManager">Activities Manager</Link>
         </div>
 
         <div className='navbar-signin'>

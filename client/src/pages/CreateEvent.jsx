@@ -10,7 +10,9 @@ export default function CreateEvent() {
   const [country, setCountry] = useState('');
   const [province, setProvince] = useState('');
   const [startDate, setStartDate] = useState('');
+  const [startTime, setStartTime] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [endTime, setEndTime] = useState('');
   const [capacity, setCapacity] = useState(1);
   const [tags, setTags] = useState([]);
   const [images, setImages] = useState('');
@@ -23,9 +25,14 @@ export default function CreateEvent() {
     e.preventDefault();
     setMsg('Creating...');
 
-    // normalize date-only (yyyy-mm-dd) to ISO start-of-day if needed
-    const normStart = startDate ? (startDate.length === 10 ? startDate + 'T00:00:00' : startDate) : null;
-    const normEnd = endDate ? (endDate.length === 10 ? endDate + 'T00:00:00' : endDate) : null;
+    // Combine date and time
+    function combineDateTime(date, time) {
+      if (!date) return null;
+      if (time) return date + 'T' + time;
+      return date.length === 10 ? date + 'T00:00:00' : date;
+    }
+    const normStart = combineDateTime(startDate, startTime);
+    const normEnd = combineDateTime(endDate, endTime);
 
     const payload = {
       title,
@@ -33,8 +40,8 @@ export default function CreateEvent() {
       location,
       country,
       province,
-      startDate: normStart,   // <- use normalized values
-      endDate: normEnd,       // <- use normalized values
+      startDate: normStart,
+      endDate: normEnd,
       capacity: capacity ? Number(capacity) : null,
       tags: Array.isArray(tags) ? tags : (tags ? String(tags).split(',').map(s => s.trim()).filter(Boolean) : []),
       images: images ? images.split(',').map(s => s.trim()).filter(Boolean) : []
@@ -191,7 +198,7 @@ const [provinceOptions, setProvinceOptions] = useState([]);
               />
             </div>
 
-            {/* Dates */}
+            {/* Dates & Times */}
             <div className='date-section'>
               <div className='date-group'>
                 <h4>Start Day</h4>
@@ -200,6 +207,13 @@ const [provinceOptions, setProvinceOptions] = useState([]);
                   className="date-input"
                   value={startDate}
                   onChange={e => setStartDate(e.target.value)}
+                  required
+                />
+                <input
+                  type="time"
+                  className="time-input"
+                  value={startTime}
+                  onChange={e => setStartTime(e.target.value)}
                   required
                 />
               </div>
@@ -211,6 +225,13 @@ const [provinceOptions, setProvinceOptions] = useState([]);
                   value={endDate}
                   onChange={e => setEndDate(e.target.value)}
                   min={startDate || ''}
+                />
+                <input
+                  type="time"
+                  className="time-input"
+                  value={endTime}
+                  onChange={e => setEndTime(e.target.value)}
+                  required
                 />
               </div>
             </div>
@@ -227,9 +248,17 @@ const [provinceOptions, setProvinceOptions] = useState([]);
                 />
                 <button type="button" className="tags-add-button" onClick={addTags}>+</button>
               </div>
-              <ul>
+              <ul className="tags-list">
                 {tags.map((tag, index) => (
-                  <li key={index}>{tag}</li>
+                  <li key={index} className="tag-item">
+                    <span>{tag}</span>
+                    <button
+                      type="button"
+                      className="tag-remove-btn"
+                      onClick={() => setTags(tags.filter((_, i) => i !== index))}
+                      aria-label={`Remove tag ${tag}`}
+                    >×</button>
+                  </li>
                 ))}
               </ul>
             </div>
@@ -267,46 +296,41 @@ const [provinceOptions, setProvinceOptions] = useState([]);
               />
             </div>
             {/* Country */}
-            {/* Country */}
-<div className='country-section'>
-  <h4>Country</h4>
-  <select
-    className="form-input"
-    value={country}
-    onChange={e => {
-      setCountry(e.target.value);
-      setProvince(""); // reset province
-      setProvinceOptions(countries[e.target.value] || []);
-    }}
-    required
-  >
-    <option value="">-- Select Country --</option>
-    {Object.keys(countries).map((c, i) => (
-      <option key={i} value={c}>{c}</option>
-    ))}
-  </select>
-</div>
+            <div className='country-section'>
+              <h4>Country</h4>
+              <select
+                className="form-input"
+                value={country}
+                onChange={e => {
+                  setCountry(e.target.value);
+                  setProvince(""); // reset province
+                  setProvinceOptions(countries[e.target.value] || []);
+                }}
+                required
+              >
+                <option value="">-- Select Country --</option>
+                {Object.keys(countries).map((c, i) => (
+                  <option key={i} value={c}>{c}</option>
+                ))}
+              </select>
+            </div>
 
             {/* Province */}
-            {/* Province */}
-<div className='province-section'>
-  <h4>Province</h4>
-  <select
-    className="form-input"
-    value={province}
-    onChange={e => setProvince(e.target.value)}
-    required
-    disabled={!country} // ปิดก่อนเลือกประเทศ
-  >
-    <option value="">-- Select Province --</option>
-    {provinceOptions.map((p, i) => (
-      <option key={i} value={p}>{p}</option>
-    ))}
-  </select>
-</div>
-
-
-            
+            <div className='province-section'>
+              <h4>Province</h4>
+              <select
+                className="form-input"
+                value={province}
+                onChange={e => setProvince(e.target.value)}
+                required
+                disabled={!country}
+              >
+                <option value="">-- Select Province --</option>
+                {provinceOptions.map((p, i) => (
+                  <option key={i} value={p}>{p}</option>
+                ))}
+              </select>
+            </div>
 
             <button type="submit" className='create-event-btn'>Create Event</button>
             {msg && <p>{msg}</p>}

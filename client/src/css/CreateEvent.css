@@ -132,12 +132,24 @@
 }
 
 .date-input {
-  padding: 8px;
+  padding: 8px 12px;
   border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 12px;
+  border-radius: 6px;
+  font-size: 1rem;
   background: #f8f8f8;
-  color: #999;
+  color: #222;
+  margin-bottom: 8px;
+}
+
+.time-input {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  background: #f8f8f8;
+  color: #222;
+  min-width: 120px;
+  margin-bottom: 8px;
 }
 
 /* Participants Section - Left Column */
@@ -351,18 +363,44 @@
   }
 }
 
-.tags-section ul {
+.tags-list {
   display: flex;
-  flex-wrap: wrap; /* ถ้าเกินบรรทัดให้ตัดลงแถวใหม่ */
-  gap: 8px;        /* ระยะห่างระหว่าง tag */
+  flex-wrap: wrap;
+  gap: 16px;
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.tags-section li {
+.tag-item {
+  display: flex;
+  align-items: center;
   background: #2563eb;
   color: #ffffff;
-  padding: 5px 10px;
-  border-radius: 8px;
+  padding: 6px 16px 6px 12px;
+  border-radius: 16px;
+  font-size: 15px;
+  font-weight: 500;
+  gap: 8px;
+  box-shadow: 0 1px 4px rgba(37,99,235,0.08);
+}
+
+.tag-remove-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 18px;
+  margin-left: 4px;
+  cursor: pointer;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+.tag-remove-btn:hover {
+  background: rgba(255,255,255,0.2);
+  color: #ff5252;
 }

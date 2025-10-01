@@ -231,11 +231,31 @@ export default function ActivityDetail() {
                 <div>
                   <div className="detail-item">
                     <div className="detail-label">Start Date:</div>
-                    <div className="detail-value">{activity.startDate ? new Date(activity.startDate).toLocaleString() : '-'}</div>
+                    <div className="detail-value">
+                      {activity.startDate ? (
+                        (() => {
+                          const d = new Date(activity.startDate);
+                          const dateStr = d.toLocaleDateString();
+                          const hour = d.getHours().toString().padStart(2, '0');
+                          const min = d.getMinutes().toString().padStart(2, '0');
+                          return `${dateStr}, ${hour}:${min}`;
+                        })()
+                      ) : '-'}
+                    </div>
                   </div>
                   <div className="detail-item">
                     <div className="detail-label">End Date:</div>
-                    <div className="detail-value">{activity.endDate ? new Date(activity.endDate).toLocaleString() : '-'}</div>
+                    <div className="detail-value">
+                      {activity.endDate ? (
+                        (() => {
+                          const d = new Date(activity.endDate);
+                          const dateStr = d.toLocaleDateString();
+                          const hour = d.getHours().toString().padStart(2, '0');
+                          const min = d.getMinutes().toString().padStart(2, '0');
+                          return `${dateStr}, ${hour}:${min}`;
+                        })()
+                      ) : '-'}
+                    </div>
                   </div>
                   <div className="detail-item">
                     <div className="detail-label">Participants:</div>
