@@ -13,6 +13,7 @@
   width: 100%;
   z-index: 1000;
   box-sizing: border-box; 
+  height: 80px;
 }
 
 /* Styling for the "Logo" */
