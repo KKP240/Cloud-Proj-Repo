@@ -391,8 +391,8 @@ const loadActivities = async () => {
         {filteredActivities.length === 0 ? (
           <div className="activities-empty">
             <div className="activities-empty-icon">📅</div>
-            <div>ไม่พบกิจกรรมที่คุณสร้าง</div>
-            <p>คุณยังไม่ได้สร้างกิจกรรมใดๆ</p>
+            <div>No activities found</div>
+            <p>You have no activities yet</p>
           </div>
         ) : (
           <div>
