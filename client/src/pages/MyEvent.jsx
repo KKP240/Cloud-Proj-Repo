@@ -1,85 +1,98 @@
 import React, { useEffect, useState } from 'react';
-import { getMyCreatedActivities, deleteActivity } from '../services/api';
+import { getActivities, getUserActivityIds } from '../services/api';
 import '../css/Activities.css';
-import { useNavigate } from 'react-router-dom';
 
-export default function ActivityManager() {
+export default function Activities() {
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState(null);
-  const [deletingId, setDeletingId] = useState(null);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [activityToDelete, setActivityToDelete] = useState(null);
-
+  
   // state สำหรับ search และ filter
   const [search, setSearch] = useState("");
   const [country, setCountry] = useState("");
   const [province, setProvince] = useState("");
   const [selectedTags, setSelectedTags] = useState([]);
-
+  const [sortOrder, setSortOrder] = useState("");
+  
   // เก็บค่า filter
   const [countries, setCountries] = useState([]);
   const [provinces, setProvinces] = useState([]);
   const [availableTags, setAvailableTags] = useState([]);
-  const [sortOrder, setSortOrder] = useState("");
   
   // dropdown states
   const [showTagDropdown, setShowTagDropdown] = useState(false);
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   const [showProvinceDropdown, setShowProvinceDropdown] = useState(false);
   const [showSortDropdown, setShowSortDropdown] = useState(false);
-  const nav = useNavigate();
+
+  // ✨ ฟังก์ชันใหม่: ตรวจสอบว่าผู้ใช้ join กิจกรรมไหนบ้าง
+  const fetchUserActivities = async () => {
+    try {
+      return await getUserActivityIds(); // ใช้ฟังก์ชันจาก api service
+    } catch (e) {
+      console.error("Error fetching user activities:", e);
+      return [];
+    }
+  };
+
+  // ✨ ฟังก์ชันใหม่: ตรวจสอบว่ากิจกรรมเพิ่งสร้างใหม่หรือไม่ (ภายใน 7 วัน)
+  const isRecentActivity = (createdAt) => {
+    const now = new Date();
+    const activityDate = new Date(createdAt);
+    const daysDiff = (now - activityDate) / (1000 * 60 * 60 * 24);
+    return daysDiff <= 7; // แสดง NEW badge สำหรับกิจกรรมที่สร้างภายใน 7 วัน
+  };
 
   useEffect(() => {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        alert('กรุณา login ก่อน');
-        nav('/login'); 
+    let mounted = true;
+    (async () => {
+      try {
+        setLoading(true);
+        
+        // ดึงกิจกรรมทั้งหมด
+        const data = await getActivities({ page: 1, limit: 50 });
+        
+        // ✨ ดึงข้อมูลกิจกรรมที่ผู้ใช้ join แล้ว
+        const userJoinedActivities = await fetchUserActivities();
+        
+        if (!mounted) return;
+        
+        console.log("✅ Activities data from API:", data);
+        console.log("✅ User joined activities:", userJoinedActivities);
+        
+        // ✨ เพิ่ม isJoined และ isNew property ให้กับแต่ละกิจกรรม
+        const activitiesWithJoinStatus = data.map(activity => ({
+          ...activity,
+          isJoined: userJoinedActivities.includes(activity.id),
+          isNew: isRecentActivity(activity.createdAt) // เพิ่ม property นี้
+        }));
+        
+        setActivities(activitiesWithJoinStatus);
+        
+        // สร้าง list ของ country, province
+        const uniqueCountries = [...new Set(data.map(a => a.country).filter(Boolean))];
+        const uniqueProvinces = [...new Set(data.map(a => a.province).filter(Boolean))];
+        
+        // ใช้ field Tags (ตัวใหญ่) จาก backend
+        const allTags = data.flatMap(a => a.Tags || []);
+        console.log("📌 All Tags from activities:", allTags);
+        const uniqueTags = allTags.filter((tag, index, self) => 
+          index === self.findIndex(t => t.id === tag.id)
+        );
+        console.log("✅ Unique Tags:", uniqueTags);
+        
+        setCountries(uniqueCountries);
+        setProvinces(uniqueProvinces);
+        setAvailableTags(uniqueTags);
+      } catch (e) {
+        console.error("❌ Error fetching activities:", e);
+        setErr(e.message);
+      } finally {
+        if (mounted) setLoading(false);
       }
-    }, [nav]);
-
-const loadActivities = async () => {
-  try {
-    setLoading(true);
-    // ✅ ใช้ฟังก์ชันที่ถูกต้อง
-    const data = await getMyCreatedActivities();
-    console.log("✅ My Created Activities:", data);
-
-    // ✅ ตรวจสอบว่า data เป็น array หรือไม่
-    const activitiesArray = Array.isArray(data) ? data : [];
-    setActivities(activitiesArray);
-
-    // ✅ ป้องกัน error จาก undefined/null values
-    const uniqueCountries = [...new Set(
-      activitiesArray
-        .map(a => a?.country)
-        .filter(country => country && typeof country === 'string')
-    )];
+    })();
     
-    const uniqueProvinces = [...new Set(
-      activitiesArray
-        .map(a => a?.province)
-        .filter(province => province && typeof province === 'string')
-    )];
-    
-    const allTags = activitiesArray.flatMap(a => a?.Tags || []);
-    const uniqueTags = allTags.filter((tag, index, self) =>
-      tag && tag.id && index === self.findIndex(t => t?.id === tag.id)
-    );
-
-    setCountries(uniqueCountries);
-    setProvinces(uniqueProvinces);
-    setAvailableTags(uniqueTags);
-  } catch (e) {
-    console.error("❌ Error fetching my activities:", e);
-    setErr(e.message);
-  } finally {
-    setLoading(false);
-  }
-};
-
-  useEffect(() => {
-    loadActivities();
+    return () => { mounted = false; };
   }, []);
 
   // Close dropdowns when clicking outside
@@ -93,21 +106,12 @@ const loadActivities = async () => {
         setShowTagDropdown(false);
       }
     };
-
+    
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const showDeleteConfirmation = (activity) => {
-    setActivityToDelete(activity);
-    setShowDeleteModal(true);
-  };
-
-  const cancelDelete = () => {
-    setActivityToDelete(null);
-    setShowDeleteModal(false);
-  };
-
+  // toggle เลือก tag
   const handleTagToggle = (tag) => {
     setSelectedTags(prev => {
       const exists = prev.find(t => t.id === tag.id);
@@ -127,6 +131,7 @@ const loadActivities = async () => {
     setSelectedTags([]);
   };
 
+  // Handle dropdown selections
   const handleCountrySelect = (selectedCountry) => {
     setCountry(selectedCountry);
     setShowCountryDropdown(false);
@@ -148,38 +153,44 @@ const loadActivities = async () => {
         <div className="activities-inner-container">
           <div className="activities-loading">
             <div className="activities-spinner"></div>
-            <div>Loading activities......</div>
+            <div>กำลังโหลดกิจกรรม...</div>
           </div>
         </div>
       </div>
     );
   }
 
+  if (err) {
+    return (
+      <div className="activities-container">
+        <div className="activities-inner-container">
+          <div className="activities-error">
+            <h3>เกิดข้อผิดพลาด</h3>
+            <p>Error: {err}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
+  // filter data
   let filteredActivities = activities.filter(act => {
-    if (!act) return false;
-
-    const title = act.title || '';
-    const description = act.description || '';
-    const actCountry = act.country || '';
-    const actProvince = act.province || '';
-    const actTags = act.Tags || [];
-
-    const matchesSearch =
-      title.toLowerCase().includes(search.toLowerCase()) ||
-      description.toLowerCase().includes(search.toLowerCase());
-
-    const matchesCountry = country ? actCountry === country : true;
-    const matchesProvince = province ? actProvince === province : true;
-
-    const matchesTags = selectedTags.length === 0 ? true :
-      selectedTags.some(selectedTag =>
-        actTags.some(actTag => actTag?.id === selectedTag?.id)
+    const matchesSearch = act.title.toLowerCase().includes(search.toLowerCase()) || 
+                         act.description.toLowerCase().includes(search.toLowerCase());
+    const matchesCountry = country ? act.country === country : true;
+    const matchesProvince = province ? act.province === province : true;
+    
+    // ✅ ใช้ act.Tags (ตัวใหญ่)
+    const matchesTags = selectedTags.length === 0 ? true : 
+      selectedTags.some(selectedTag => 
+        (act.Tags || []).some(actTag => actTag.id === selectedTag.id)
       );
-
-    return matchesSearch && matchesCountry && matchesProvince && matchesTags;
+    
+    // ✨ เพิ่มเงื่อนไข: แสดงเฉพาะกิจกรรมที่ user joined แล้ว
+    const isJoined = act.isJoined === true;
+    
+    return matchesSearch && matchesCountry && matchesProvince && matchesTags && isJoined;
   });
-
   if (sortOrder === "asc") {
     filteredActivities.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
   } else if (sortOrder === "desc") {
@@ -189,8 +200,8 @@ const loadActivities = async () => {
   return (
     <div className="activities-container">
       <div className="activities-inner-container">
-        <h2 className="activities-title">Activity Manager</h2>
-
+        <h2 className="activities-title">Activities</h2>
+        
         <input
           type="text"
           placeholder="Search"
@@ -203,7 +214,7 @@ const loadActivities = async () => {
         <div className="activities-filters">
           {/* Country Dropdown */}
           <div className="activities-select-container">
-            <div
+            <div 
               className="activities-select-button"
               onClick={() => setShowCountryDropdown(!showCountryDropdown)}
             >
@@ -214,11 +225,10 @@ const loadActivities = async () => {
                 ▼
               </span>
             </div>
-
             {showCountryDropdown && (
               <div className="activities-dropdown">
                 <div className="activities-dropdown-list">
-                  <div
+                  <div 
                     className="activities-dropdown-option"
                     onClick={() => handleCountrySelect("")}
                   >
@@ -240,7 +250,7 @@ const loadActivities = async () => {
 
           {/* Province Dropdown */}
           <div className="activities-select-container">
-            <div
+            <div 
               className="activities-select-button"
               onClick={() => setShowProvinceDropdown(!showProvinceDropdown)}
             >
@@ -251,11 +261,10 @@ const loadActivities = async () => {
                 ▼
               </span>
             </div>
-
             {showProvinceDropdown && (
               <div className="activities-dropdown">
                 <div className="activities-dropdown-list">
-                  <div
+                  <div 
                     className="activities-dropdown-option"
                     onClick={() => handleProvinceSelect("")}
                   >
@@ -277,21 +286,17 @@ const loadActivities = async () => {
 
           {/* Multi-select Tags Dropdown */}
           <div className="activities-tags-select">
-            <div
+            <div 
               className="activities-tags-button"
               onClick={() => setShowTagDropdown(!showTagDropdown)}
             >
               <span>
-                {selectedTags.length === 0
-                  ? "-- Select Tags --"
-                  : `Select ${selectedTags.length} tags`
-                }
+                {selectedTags.length === 0 ? "-- Select Tags --" : `Select ${selectedTags.length} tags`}
               </span>
               <span className={`activities-dropdown-arrow ${showTagDropdown ? 'open' : ''}`}>
                 ▼
               </span>
             </div>
-
             {showTagDropdown && (
               <div className="activities-tags-dropdown">
                 <div className="activities-tags-dropdown-header">
@@ -301,7 +306,7 @@ const loadActivities = async () => {
                       onClick={clearAllTags}
                       className="activities-clear-tags-btn"
                     >
-                      Clear All
+                      Clear all
                     </button>
                   )}
                 </div>
@@ -317,7 +322,7 @@ const loadActivities = async () => {
                       <input
                         type="checkbox"
                         checked={selectedTags.find(t => t.id === tag.id) ? true : false}
-                        onChange={() => {}}
+                        onChange={() => {}} // handled by onClick
                       />
                       <span>{tag.name}</span>
                     </div>
@@ -329,24 +334,23 @@ const loadActivities = async () => {
 
           {/* Sort Dropdown */}
           <div className="activities-select-container">
-            <div
+            <div 
               className="activities-select-button"
               onClick={() => setShowSortDropdown(!showSortDropdown)}
             >
               <span>
-                {sortOrder === "asc" ? "Oldest → Newest" :
-                 sortOrder === "desc" ? "Newest → Oldest" :
+                {sortOrder === "asc" ? "Oldest → Newest" : 
+                 sortOrder === "desc" ? "Newest → Oldest" : 
                  "-- Date created --"}
               </span>
               <span className={`activities-dropdown-arrow ${showSortDropdown ? 'open' : ''}`}>
                 ▼
               </span>
             </div>
-
             {showSortDropdown && (
               <div className="activities-dropdown">
                 <div className="activities-dropdown-list">
-                  <div
+                  <div 
                     className="activities-dropdown-option"
                     onClick={() => handleSortSelect("")}
                   >
@@ -373,7 +377,7 @@ const loadActivities = async () => {
         {/* Selected Tags */}
         {selectedTags.length > 0 && (
           <div className="activities-selected-tags">
-            <span className="activities-selected-tags-label">Tags ที่เลือก:</span>
+            <span className="activities-selected-tags-label">Select Tags:</span>
             {selectedTags.map((tag) => (
               <span key={tag.id} className="activities-selected-tag">
                 {tag.name}
@@ -391,18 +395,24 @@ const loadActivities = async () => {
         {filteredActivities.length === 0 ? (
           <div className="activities-empty">
             <div className="activities-empty-icon">📅</div>
-            <div>ไม่พบกิจกรรมที่คุณสร้าง</div>
-            <p>คุณยังไม่ได้สร้างกิจกรรมใดๆ</p>
+            <div>ไม่พบกิจกรรมที่ค้นหา</div>
           </div>
         ) : (
           <div>
             {filteredActivities.map((act) => (
               <div
                 key={act.id}
-                className="activities-card"
-                onClick={() => window.location.href = `/activitiesEdit/${act.id}`}
-                style={{ cursor: 'pointer' }}
+                className={`activities-card ${act.isNew ? 'is-new' : ''}`} // เพิ่ม class เงื่อนไข
+                onClick={() => window.location.href = `/activities/${act.id}`}
+                style={{ cursor: 'pointer', position: 'relative' }}
               >
+                {/* ✨ แสดง "Joined" badge เมื่อ user join กิจกรรมแล้ว */}
+                {act.isJoined && (
+                  <div className="activities-joined-badge">
+                    Joined
+                  </div>
+                )}
+                
                 <div className="activities-card-content">
                   <div className="activities-image-container">
                     {act.posterUrl ? (
@@ -417,11 +427,11 @@ const loadActivities = async () => {
                       </div>
                     )}
                   </div>
-
+                  
                   <div className="activities-content">
                     <h3 className="activities-activity-title">{act.title}</h3>
                     <div className="activities-description">{act.description}</div>
-
+                    
                     <div className="activities-meta">
                       <div className="activities-meta-item">
                         <span>✈️</span>
@@ -434,11 +444,11 @@ const loadActivities = async () => {
                       <div className="activities-meta-item">
                         <span>📅</span>
                         <span>
-                          Date: {act.startDate ? new Date(act.startDate).toLocaleDateString('en-US', {
+                          Date: {new Date(act.startDate).toLocaleDateString('Eng', {
                             year: 'numeric',
                             month: 'long',
                             day: 'numeric'
-                          }) : 'ไม่ระบุ'}
+                          })}
                         </span>
                       </div>
                       {act.Tags && act.Tags.length > 0 && (
@@ -448,82 +458,10 @@ const loadActivities = async () => {
                         </div>
                       )}
                     </div>
-
-                    {/* Management Buttons */}
-                    <div className="activities-management-buttons">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          showDeleteConfirmation(act);
-                        }}
-                        disabled={deletingId === act.id}
-                        className="activities-delete-btn"
-                      >
-                        {deletingId === act.id ? (
-                          <>
-                            <div className="activities-delete-spinner"></div>
-                            Deleting
-                          </>
-                        ) : (
-                          <>
-                            <span>🗑️</span>
-                            Delete
-                          </>
-                        )}
-                      </button>
-                    </div>
                   </div>
                 </div>
               </div>
             ))}
-          </div>
-        )}
-
-        {/* Delete Confirmation Modal */}
-        {showDeleteModal && activityToDelete && (
-          <div className="activities-delete-modal-overlay">
-            <div className="activities-delete-modal">
-              <div className="activities-delete-modal-header">
-                <h3>⚠️ ยืนยันการลบ</h3>
-              </div>
-              
-              <div className="activities-delete-modal-body">
-                <p>คุณต้องการลบกิจกรรมนี้ใช่หรือไม่?</p>
-                <div className="activities-delete-activity-info">
-                  <h4>"{activityToDelete.title}"</h4>
-                  <p>{activityToDelete.description}</p>
-                </div>
-                <p className="activities-delete-warning">
-                  <strong>⚠️ การดำเนินการนี้ไม่สามารถย้อนกลับได้</strong>
-                </p>
-              </div>
-              
-              <div className="activities-delete-modal-footer">
-                <button
-                  onClick={cancelDelete}
-                  className="activities-cancel-btn"
-                  disabled={deletingId === activityToDelete?.id}
-                >
-                  ยกเลิก
-                </button>
-                <button
-                  onClick={confirmDelete}
-                  className="activities-confirm-delete-btn"
-                  disabled={deletingId === activityToDelete?.id}
-                >
-                  {deletingId === activityToDelete?.id ? (
-                    <>
-                      <div className="activities-delete-spinner"></div>
-                      กำลังลบ...
-                    </>
-                  ) : (
-                    <>
-                      🗑️ ลบ
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
           </div>
         )}
       </div>

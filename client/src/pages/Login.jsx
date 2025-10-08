@@ -15,7 +15,7 @@ export default function Login({ setUserChanged }) {
     if (ok && body.token) {
       localStorage.setItem('token', body.token)
       setUserChanged(v => v + 1)
-      nav('/home')
+      nav('/')
     } else {
       setMsg(body.error || 'Login failed')
     }

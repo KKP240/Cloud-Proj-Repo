@@ -1359,3 +1359,17 @@
     left: 8px;
   }
 }
+
+.activities-login-btn {
+  background-color: #003cff;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.activities-login-btn:hover {
+  background-color: #3730a3;
+}

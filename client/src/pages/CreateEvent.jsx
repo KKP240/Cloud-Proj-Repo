@@ -1,5 +1,5 @@
 // client/src/pages/CreateEvent.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../css/CreateEvent.css';
 
@@ -10,29 +10,32 @@ export default function CreateEvent() {
   const [country, setCountry] = useState('');
   const [province, setProvince] = useState('');
   const [startDate, setStartDate] = useState('');
-  const [startTime, setStartTime] = useState('');
   const [endDate, setEndDate] = useState('');
-  const [endTime, setEndTime] = useState('');
   const [capacity, setCapacity] = useState(1);
   const [tags, setTags] = useState([]);
   const [images, setImages] = useState('');
   const [msg, setMsg] = useState(null);
   const [inputValue, setInputValue] = useState("");
+  const [provinceOptions, setProvinceOptions] = useState([]);
 
   const nav = useNavigate();
+
+  // ตรวจสอบว่า login หรือยัง
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('กรุณา login ก่อนสร้างอีเวนท์');
+      nav('/login'); // เปลี่ยนไปหน้า login (ปรับ path ตามที่คุณใช้)
+    }
+  }, [nav]);
 
   async function onSubmit(e) {
     e.preventDefault();
     setMsg('Creating...');
 
-    // Combine date and time
-    function combineDateTime(date, time) {
-      if (!date) return null;
-      if (time) return date + 'T' + time;
-      return date.length === 10 ? date + 'T00:00:00' : date;
-    }
-    const normStart = combineDateTime(startDate, startTime);
-    const normEnd = combineDateTime(endDate, endTime);
+    // normalize date-only (yyyy-mm-dd) to ISO start-of-day if needed
+    const normStart = startDate ? (startDate.length === 10 ? startDate + 'T00:00:00' : startDate) : null;
+    const normEnd = endDate ? (endDate.length === 10 ? endDate + 'T00:00:00' : endDate) : null;
 
     const payload = {
       title,
@@ -70,7 +73,6 @@ export default function CreateEvent() {
     }
   }
 
-
   function addTags(e) {
     e.preventDefault();
     if (inputValue.trim() !== "" && !tags.includes(inputValue.trim())) {
@@ -78,81 +80,78 @@ export default function CreateEvent() {
       setInputValue("");
     }
   }
-const countries = {
-  Thailand: [
-    "Bangkok", "Chiang Mai", "Phuket", "Khon Kaen", "Chiang Rai", "Nakhon Ratchasima",
-    "Chonburi", "Nakhon Si Thammarat", "Udon Thani", "Songkhla", "Surat Thani",
-    "Nakhon Pathom", "Ayutthaya", "Pattani", "Lampang", "Loei", "Phitsanulok",
-    "Ratchaburi", "Trang", "Ubon Ratchathani", "Kanchanaburi", "Sukhothai", "Phetchabun",
-    "Phrae", "Nakhon Nayok", "Sakon Nakhon", "Chaiyaphum", "Mukdahan", "Chachoengsao",
-    "Samut Prakan", "Samut Sakhon", "Samut Songkhram", "Singburi", "Suphan Buri",
-    "Ang Thong", "Lopburi", "Pathum Thani", "Prachin Buri", "Phetchaburi", "Chumphon",
-    "Ranong", "Surin", "Sisaket", "Yasothon", "Amnat Charoen", "Bueng Kan", "Nong Bua Lamphu",
-    "Nong Khai", "Kalasin", "Khon Kaen", "Maha Sarakham", "Roi Et", "Saraburi", "Sing Buri",
-    "Sukhothai", "Tak", "Uttaradit", "Phayao", "Phichit", "Phitsanulok", "Prachuap Khiri Khan",
-    "Rayong", "Sa Kaeo", "Samut Sakhon", "Saraburi", "Satun", "Sing Buri", "Songkhla", "Sukhothai",
-    "Suphan Buri", "Surat Thani", "Trat", "Ubon Ratchathani", "Udon Thani", "Yala"
-  ],
-  USA: [
-    "New York", "California", "Texas", "Florida", "Illinois", "Pennsylvania", "Ohio", "Georgia",
-    "North Carolina", "Michigan", "New Jersey", "Virginia", "Washington", "Arizona", "Massachusetts",
-    "Tennessee", "Indiana", "Missouri", "Maryland", "Wisconsin", "Colorado", "Minnesota", "South Carolina",
-    "Alabama", "Louisiana", "Kentucky", "Oregon", "Oklahoma", "Connecticut", "Iowa", "Mississippi",
-    "Arkansas", "Kansas", "Utah", "Nevada", "New Mexico", "Nebraska", "West Virginia", "Idaho",
-    "Hawaii", "New Hampshire", "Montana", "Rhode Island", "Delaware", "South Dakota", "North Dakota",
-    "Alaska", "Vermont", "Wyoming"
-  ],
-  Japan: [
-    "Tokyo", "Osaka", "Kyoto", "Hokkaido", "Aomori", "Iwate", "Miyagi", "Akita", "Yamagata", "Fukushima",
-    "Ibaraki", "Tochigi", "Gunma", "Saitama", "Chiba", "Kanagawa", "Niigata", "Toyama", "Ishikawa",
-    "Fukui", "Yamanashi", "Nagano", "Gifu", "Shizuoka", "Aichi", "Mie", "Shiga", "Kyoto", "Osaka",
-    "Hyogo", "Nara", "Wakayama", "Tottori", "Shimane", "Okayama", "Hiroshima", "Yamaguchi", "Tokushima",
-    "Kagawa", "Ehime", "Kochi", "Fukuoka", "Saga", "Nagasaki", "Kumamoto", "Oita", "Miyazaki", "Kagoshima",
-    "Okinawa"
-  ],
-  Canada: [
-    "Ontario", "Quebec", "Nova Scotia", "New Brunswick", "Manitoba", "British Columbia", "Prince Edward Island",
-    "Saskatchewan", "Alberta", "Newfoundland and Labrador"
-  ],
-  UK: [
-    "England", "Scotland", "Wales", "Northern Ireland"
-  ],
-  Australia: [
-    "New South Wales", "Victoria", "Queensland", "South Australia", "Western Australia", "Tasmania", "Australian Capital Territory", "Northern Territory"
-  ],
-  Germany: [
-    "Bavaria", "North Rhine-Westphalia", "Baden-Württemberg", "Hesse", "Lower Saxony", "Saxony", "Rhineland-Palatinate", "Berlin", "Schleswig-Holstein", "Brandenburg",
-    "Hesse", "Saxony-Anhalt", "Thuringia", "Mecklenburg-Vorpommern", "Bremen", "Hamburg", "Saarland"
-  ],
-  France: [
-    "Île-de-France", "Provence-Alpes-Côte d'Azur", "Auvergne-Rhône-Alpes", "Nouvelle-Aquitaine", "Occitanie", "Hauts-de-France", "Grand Est", "Bretagne", "Normandie",
-    "Pays de la Loire", "Centre-Val de Loire", "Bourgogne-Franche-Comté", "Corse"
-  ],
-  Italy: [
-    "Lazio", "Lombardy", "Campania", "Sicily", "Veneto", "Emilia-Romagna", "Piedmont", "Apulia", "Calabria", "Tuscany",
-    "Sardinia", "Liguria", "Marche", "Abruzzo", "Trentino-Alto Adige/Südtirol", "Friuli Venezia Giulia", "Umbria", "Molise", "Basilicata", "Aosta Valley"
-  ],
-  Spain: [
-    "Andalusia", "Catalonia", "Madrid", "Valencia", "Galicia", "Castile and León", "Basque Country", "Castilla-La Mancha", "Canary Islands", "Aragon",
-    "Balearic Islands", "Extremadura", "Murcia", "Cantabria", "La Rioja", "Navarre", "Asturias", "Ceuta", "Melilla"
-  ],
-  China: [
-    "Beijing", "Shanghai", "Tianjin", "Chongqing", "Guangdong", "Shandong", "Jiangsu", "Zhejiang", "Henan", "Sichuan",
-    "Hunan", "Anhui", "Hubei", "Fujian", "Jiangxi", "Shanxi", "Liaoning", "Heilongjiang", "Hebei", "Hainan",
-    "Guangxi", "Inner Mongolia", "Ningxia", "Xinjiang", "Tibet", "Qinghai", "Gansu", "Shaanxi", "Yunnan", "Guizhou",
-    "Hainan", "Macau", "Hong Kong"
-  ],
-  India: [
-    "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand",
-    "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab",
-    "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal", "Andaman and Nicobar Islands",
-    "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", "Lakshadweep", "Delhi", "Puducherry", "Ladakh", "Lakshadweep", "Jammu and Kashmir"
-  ]
-};
 
-
-// state สำหรับ list จังหวัดของประเทศที่เลือก
-const [provinceOptions, setProvinceOptions] = useState([]);
+  const countries = {
+    Thailand: [
+      "Bangkok", "Chiang Mai", "Phuket", "Khon Kaen", "Chiang Rai", "Nakhon Ratchasima",
+      "Chonburi", "Nakhon Si Thammarat", "Udon Thani", "Songkhla", "Surat Thani",
+      "Nakhon Pathom", "Ayutthaya", "Pattani", "Lampang", "Loei", "Phitsanulok",
+      "Ratchaburi", "Trang", "Ubon Ratchathani", "Kanchanaburi", "Sukhothai", "Phetchabun",
+      "Phrae", "Nakhon Nayok", "Sakon Nakhon", "Chaiyaphum", "Mukdahan", "Chachoengsao",
+      "Samut Prakan", "Samut Sakhon", "Samut Songkhram", "Singburi", "Suphan Buri",
+      "Ang Thong", "Lopburi", "Pathum Thani", "Prachin Buri", "Phetchaburi", "Chumphon",
+      "Ranong", "Surin", "Sisaket", "Yasothon", "Amnat Charoen", "Bueng Kan", "Nong Bua Lamphu",
+      "Nong Khai", "Kalasin", "Khon Kaen", "Maha Sarakham", "Roi Et", "Saraburi", "Sing Buri",
+      "Sukhothai", "Tak", "Uttaradit", "Phayao", "Phichit", "Phitsanulok", "Prachuap Khiri Khan",
+      "Rayong", "Sa Kaeo", "Samut Sakhon", "Saraburi", "Satun", "Sing Buri", "Songkhla", "Sukhothai",
+      "Suphan Buri", "Surat Thani", "Trat", "Ubon Ratchathani", "Udon Thani", "Yala"
+    ],
+    USA: [
+      "New York", "California", "Texas", "Florida", "Illinois", "Pennsylvania", "Ohio", "Georgia",
+      "North Carolina", "Michigan", "New Jersey", "Virginia", "Washington", "Arizona", "Massachusetts",
+      "Tennessee", "Indiana", "Missouri", "Maryland", "Wisconsin", "Colorado", "Minnesota", "South Carolina",
+      "Alabama", "Louisiana", "Kentucky", "Oregon", "Oklahoma", "Connecticut", "Iowa", "Mississippi",
+      "Arkansas", "Kansas", "Utah", "Nevada", "New Mexico", "Nebraska", "West Virginia", "Idaho",
+      "Hawaii", "New Hampshire", "Montana", "Rhode Island", "Delaware", "South Dakota", "North Dakota",
+      "Alaska", "Vermont", "Wyoming"
+    ],
+    Japan: [
+      "Tokyo", "Osaka", "Kyoto", "Hokkaido", "Aomori", "Iwate", "Miyagi", "Akita", "Yamagata", "Fukushima",
+      "Ibaraki", "Tochigi", "Gunma", "Saitama", "Chiba", "Kanagawa", "Niigata", "Toyama", "Ishikawa",
+      "Fukui", "Yamanashi", "Nagano", "Gifu", "Shizuoka", "Aichi", "Mie", "Shiga", "Kyoto", "Osaka",
+      "Hyogo", "Nara", "Wakayama", "Tottori", "Shimane", "Okayama", "Hiroshima", "Yamaguchi", "Tokushima",
+      "Kagawa", "Ehime", "Kochi", "Fukuoka", "Saga", "Nagasaki", "Kumamoto", "Oita", "Miyazaki", "Kagoshima",
+      "Okinawa"
+    ],
+    Canada: [
+      "Ontario", "Quebec", "Nova Scotia", "New Brunswick", "Manitoba", "British Columbia", "Prince Edward Island",
+      "Saskatchewan", "Alberta", "Newfoundland and Labrador"
+    ],
+    UK: [
+      "England", "Scotland", "Wales", "Northern Ireland"
+    ],
+    Australia: [
+      "New South Wales", "Victoria", "Queensland", "South Australia", "Western Australia", "Tasmania", "Australian Capital Territory", "Northern Territory"
+    ],
+    Germany: [
+      "Bavaria", "North Rhine-Westphalia", "Baden-Württemberg", "Hesse", "Lower Saxony", "Saxony", "Rhineland-Palatinate", "Berlin", "Schleswig-Holstein", "Brandenburg",
+      "Hesse", "Saxony-Anhalt", "Thuringia", "Mecklenburg-Vorpommern", "Bremen", "Hamburg", "Saarland"
+    ],
+    France: [
+      "Île-de-France", "Provence-Alpes-Côte d'Azur", "Auvergne-Rhône-Alpes", "Nouvelle-Aquitaine", "Occitanie", "Hauts-de-France", "Grand Est", "Bretagne", "Normandie",
+      "Pays de la Loire", "Centre-Val de Loire", "Bourgogne-Franche-Comté", "Corse"
+    ],
+    Italy: [
+      "Lazio", "Lombardy", "Campania", "Sicily", "Veneto", "Emilia-Romagna", "Piedmont", "Apulia", "Calabria", "Tuscany",
+      "Sardinia", "Liguria", "Marche", "Abruzzo", "Trentino-Alto Adige/Südtirol", "Friuli Venezia Giulia", "Umbria", "Molise", "Basilicata", "Aosta Valley"
+    ],
+    Spain: [
+      "Andalusia", "Catalonia", "Madrid", "Valencia", "Galicia", "Castile and León", "Basque Country", "Castilla-La Mancha", "Canary Islands", "Aragon",
+      "Balearic Islands", "Extremadura", "Murcia", "Cantabria", "La Rioja", "Navarre", "Asturias", "Ceuta", "Melilla"
+    ],
+    China: [
+      "Beijing", "Shanghai", "Tianjin", "Chongqing", "Guangdong", "Shandong", "Jiangsu", "Zhejiang", "Henan", "Sichuan",
+      "Hunan", "Anhui", "Hubei", "Fujian", "Jiangxi", "Shanxi", "Liaoning", "Heilongjiang", "Hebei", "Hainan",
+      "Guangxi", "Inner Mongolia", "Ningxia", "Xinjiang", "Tibet", "Qinghai", "Gansu", "Shaanxi", "Yunnan", "Guizhou",
+      "Hainan", "Macau", "Hong Kong"
+    ],
+    India: [
+      "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand",
+      "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab",
+      "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal", "Andaman and Nicobar Islands",
+      "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", "Lakshadweep", "Delhi", "Puducherry", "Ladakh", "Lakshadweep", "Jammu and Kashmir"
+    ]
+  };
 
   return (
     <div className='StartEvent1'>
@@ -198,7 +197,7 @@ const [provinceOptions, setProvinceOptions] = useState([]);
               />
             </div>
 
-            {/* Dates & Times */}
+            {/* Dates */}
             <div className='date-section'>
               <div className='date-group'>
                 <h4>Start Day</h4>
@@ -207,13 +206,6 @@ const [provinceOptions, setProvinceOptions] = useState([]);
                   className="date-input"
                   value={startDate}
                   onChange={e => setStartDate(e.target.value)}
-                  required
-                />
-                <input
-                  type="time"
-                  className="time-input"
-                  value={startTime}
-                  onChange={e => setStartTime(e.target.value)}
                   required
                 />
               </div>
@@ -225,13 +217,6 @@ const [provinceOptions, setProvinceOptions] = useState([]);
                   value={endDate}
                   onChange={e => setEndDate(e.target.value)}
                   min={startDate || ''}
-                />
-                <input
-                  type="time"
-                  className="time-input"
-                  value={endTime}
-                  onChange={e => setEndTime(e.target.value)}
-                  required
                 />
               </div>
             </div>
@@ -248,17 +233,9 @@ const [provinceOptions, setProvinceOptions] = useState([]);
                 />
                 <button type="button" className="tags-add-button" onClick={addTags}>+</button>
               </div>
-              <ul className="tags-list">
+              <ul>
                 {tags.map((tag, index) => (
-                  <li key={index} className="tag-item">
-                    <span>{tag}</span>
-                    <button
-                      type="button"
-                      className="tag-remove-btn"
-                      onClick={() => setTags(tags.filter((_, i) => i !== index))}
-                      aria-label={`Remove tag ${tag}`}
-                    >×</button>
-                  </li>
+                  <li key={index}>{tag}</li>
                 ))}
               </ul>
             </div>
@@ -295,6 +272,7 @@ const [provinceOptions, setProvinceOptions] = useState([]);
                 required
               />
             </div>
+
             {/* Country */}
             <div className='country-section'>
               <h4>Country</h4>
@@ -303,7 +281,7 @@ const [provinceOptions, setProvinceOptions] = useState([]);
                 value={country}
                 onChange={e => {
                   setCountry(e.target.value);
-                  setProvince(""); // reset province
+                  setProvince("");
                   setProvinceOptions(countries[e.target.value] || []);
                 }}
                 required
