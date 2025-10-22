@@ -1,0 +1,105 @@
+# #version: '3.8' # it cant run docker-compose with this line active
+# services:
+#   db:
+#     image: postgres:15
+#     container_name: activity_postgres
+#     environment:
+#       POSTGRES_USER: ${DB_USER:-postgres}
+#       POSTGRES_PASSWORD: ${DB_PASS:-postgres}
+#       POSTGRES_DB: ${DB_NAME:-activitydb}
+#     ports:
+#       - "${DB_PORT:-5432}:5432"
+#     volumes:
+#       - pgdata:/var/lib/postgresql/data
+#     networks:
+#       - app-network
+
+#   pgadmin:
+#     image: dpage/pgadmin4
+#     container_name: activity_pgadmin
+#     environment:
+#       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@local}
+#       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASS:-admin}
+#     ports:
+#       - "8080:80"
+#     depends_on:
+#       - db
+#     networks:
+#       - app-network
+
+# volumes:
+#   pgdata:
+
+# networks:
+#   app-network:
+
+version: '3.8'  # เปิดใช้งาน version
+services:
+  db:
+    image: postgres:15
+    container_name: activity_postgres
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASS:-1234}
+      POSTGRES_DB: ${DB_NAME:-activitydb}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: activity_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@local}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASS:-admin}
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: activity_backend
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASS=${DB_PASS:-1234}
+      - DB_NAME=${DB_NAME:-activitydb}
+      - AWS_REGION=${AWS_REGION:-ap-southeast-1}
+      - S3_BUCKET=${S3_BUCKET}
+      - COGNITO_POOL_ID=${COGNITO_POOL_ID}
+      - COGNITO_CLIENT_ID=${COGNITO_CLIENT_ID}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: activity_frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+volumes:
+  pgdata:
+
+networks:
+  app-network:
+    driver: bridge
