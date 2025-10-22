@@ -69,15 +69,13 @@ services:
     container_name: activity_backend
     environment:
       - NODE_ENV=production
-      - DB_HOST=db
+      - DB_HOST=activitydb-rds.ckl8c157l9vz.us-east-1.rds.amazonaws.com
       - DB_PORT=5432
       - DB_USER=${DB_USER:-postgres}
       - DB_PASS=${DB_PASS:-1234}
       - DB_NAME=${DB_NAME:-activitydb}
       - AWS_REGION=${AWS_REGION:-ap-southeast-1}
       - S3_BUCKET=${S3_BUCKET}
-      - COGNITO_POOL_ID=${COGNITO_POOL_ID}
-      - COGNITO_CLIENT_ID=${COGNITO_CLIENT_ID}
     ports:
       - "3000:3000"
     depends_on:
