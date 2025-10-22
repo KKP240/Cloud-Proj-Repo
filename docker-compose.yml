@@ -33,7 +33,7 @@
 # networks:
 #   app-network:
 
-version: '3.8'  # เปิดใช้งาน version
+version: '3'  # เปิดใช้งาน version
 services:
   backend:
     build:
@@ -65,9 +65,6 @@ services:
       - backend
     networks:
       - app-network
-
-volumes:
-  pgdata:
 
 networks:
   app-network:
