@@ -44,7 +44,8 @@ export default function ActivityDetail() {
     const [editData, setEditData] = useState({});
     const [saving, setSaving] = useState(false);
     const [saveError, setSaveError] = useState(null);
-
+    const [newFiles, setNewFiles] = useState([]); // 👈 เก็บ File objects ที่เลือกใหม่
+    const [isUploading, setIsUploading] = useState(false); // 👈 สถานะสำหรับปุ่ม
     // Fetch activity details
     async function fetchDetail() {
         setLoading(true);
@@ -200,6 +201,17 @@ export default function ActivityDetail() {
         });
     };
 
+    // 👈 1. เมื่อ User เลือกไฟล์ใหม่จาก <input type="file">
+    const handleFileSelect = (e) => {
+        const files = Array.from(e.target.files);
+        setNewFiles(prev => [...prev, ...files]); // เพิ่มไฟล์ใหม่เข้าไปในคิว
+    };
+
+    // 👈 2. เมื่อ User ลบไฟล์ที่เพิ่งเลือก (ก่อนที่จะอัปโหลด)
+    const handleRemoveNewFile = (index) => {
+        setNewFiles(prev => prev.filter((_, i) => i !== index));
+    };
+
     const handleEditClick = () => {
         setIsEditing(true);
         setSaveError(null);
@@ -258,17 +270,56 @@ export default function ActivityDetail() {
 
     const handleSave = async () => {
         setSaving(true);
+        setIsUploading(true); // 👈 เริ่มสถานะอัปโหลด
         setSaveError(null);
+        const token = localStorage.getItem('token');
+        let uploadedNewUrls = []; // เก็บ URL ของไฟล์ใหม่ที่อัปโหลดเสร็จ
+
         try {
-            const token = localStorage.getItem('token');
-            // Combine date and time
+            // --- 1. อัปโหลดไฟล์ใหม่ (ถ้ามี) ---
+            if (newFiles.length > 0) {
+                for (const file of newFiles) {
+                    // 1a. ขอ Pre-signed URL
+                    const presignRes = await fetch('/api/upload/presigned-url', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + token
+                        },
+                        body: JSON.stringify({ fileName: file.name, fileType: file.type })
+                    });
+                    if (!presignRes.ok) {
+                        const err = await presignRes.json();
+                        throw new Error(`Could not get pre-signed URL: ${err.details || err.error}`);
+                    }
+                    const { signedUrl, finalUrl } = await presignRes.json();
+
+                    // 1b. อัปโหลดไป S3
+                    const uploadRes = await fetch(signedUrl, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': file.type },
+                        body: file
+                    });
+                    if (!uploadRes.ok) throw new Error(`Failed to upload ${file.name}`);
+
+                    uploadedNewUrls.push(finalUrl); // เก็บ URL ที่สำเร็จ
+                }
+            }
+            setIsUploading(false); // 👈 อัปโหลดเสร็จ
+
+            // --- 2. เตรียมข้อมูล (รวม URL เก่า + ใหม่) ---
+            const finalImageUrls = [...editData.images, ...uploadedNewUrls];
+
+            // (โค้ดเดิมของคุณสำหรับรวม Date + Time)
             function combineDateTime(date, time) {
-              if (!date) return null;
-              if (time) return date + 'T' + time;
-              return date.length === 10 ? date + 'T00:00:00' : date;
+            if (!date) return null;
+            if (time) return date + 'T' + time;
+            return date.length === 10 ? date + 'T00:00:00' : date;
             }
             const normStart = combineDateTime(editData.startDate, editData.startTime);
             const normEnd = combineDateTime(editData.endDate, editData.endTime);
+
+            // --- 3. ส่ง PUT request ไปยัง API ---
             const res = await fetch(`/api/activities/${id}`, {
                 method: 'PUT',
                 headers: {
@@ -285,20 +336,24 @@ export default function ActivityDetail() {
                     startDate: normStart,
                     endDate: normEnd,
                     description: editData.description,
-                    images: editData.images
+                    images: finalImageUrls, // 👈 ส่ง Array URL ที่รวมแล้ว
+                    posterUrl: finalImageUrls[0] || null // 👈 อัปเดต posterUrl ด้วย
                 })
             });
+
             if (!res.ok) {
                 const data = await res.json().catch(() => ({}));
                 setSaveError(data.error || 'Save failed');
             } else {
                 setIsEditing(false);
-                fetchDetail();
+                setNewFiles([]); // 👈 เคลียร์คิวไฟล์ใหม่
+                fetchDetail(); // 👈 โหลดข้อมูลใหม่ทั้งหมด
             }
         } catch (e) {
             setSaveError(e.message || 'Network error');
         } finally {
             setSaving(false);
+            setIsUploading(false); // 👈 ปิดสถานะอัปโหลดเสมอ
         }
     };
 
@@ -557,27 +612,43 @@ export default function ActivityDetail() {
                             <h3>Event Images</h3>
                             {isEditing ? (
                                 <div>
-                                    {(editData.images && editData.images.length > 0) ? (
-                                        <div className="image-gallery">
-                                            {editData.images.map((url, idx) => (
-                                                <div key={idx} style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
-                                                    <input
-                                                        type="text"
-                                                        value={url}
-                                                        onChange={e => handleImageChange(idx, e.target.value)}
-                                                        className="info-edit-input"
-                                                        placeholder="Image URL"
-                                                        style={{ flex: 1, marginRight: 8 }}
-                                                    />
-                                                    {url && <img src={url} alt="preview" style={{ width: 80, height: 50, objectFit: 'cover', borderRadius: 6, marginRight: 8 }} />}
-                                                    <button onClick={() => handleRemoveImage(idx)} className="tag-remove-btn">X</button>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <div className="no-image">No images available</div>
-                                    )}
-                                    <button onClick={handleAddImage} className="tag-add-btn" style={{ marginTop: 8 }}>+ Add Image</button>
+                                    {/* 1. แสดงรูปเก่าที่มีอยู่ (จาก S3 URL) */}
+                                    <h4>Current Images:</h4>
+                                    {(!editData.images || editData.images.length === 0) && <p>No current images.</p>}
+                                    <div className="image-gallery">
+                                        {editData.images && editData.images.map((url, idx) => (
+                                            <div key={idx} className="image-edit-item">
+                                                <img src={url} alt="Existing event" />
+                                                <button onClick={() => handleRemoveImage(idx)} className="tag-remove-btn">X</button>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    {/* 2. แสดงไฟล์ใหม่ที่ user เลือก (รออัปโหลด) */}
+                                    <h4 style={{marginTop: '20px'}}>New Images to Upload:</h4>
+                                    {newFiles.length === 0 && <p>No new files selected.</p>}
+                                    <ul style={{ listStyleType: 'disc', marginLeft: '20px' }}>
+                                        {newFiles.map((file, idx) => (
+                                            <li key={idx} className="new-file-item">
+                                                {file.name} ({Math.round(file.size / 1024)} KB)
+                                                <button onClick={() => handleRemoveNewFile(idx)} className="tag-remove-btn" style={{marginLeft: '10px', padding: '2px 5px'}}>X</button>
+                                            </li>
+                                        ))}
+                                    </ul>
+
+                                    {/* 3. ปุ่มสำหรับเลือกไฟล์ */}
+                                    <div style={{marginTop: '20px'}}>
+                                        <label className="tag-add-btn" style={{cursor: 'pointer'}}>
+                                            + Add Images
+                                            <input
+                                                type="file"
+                                                multiple
+                                                accept="image/*"
+                                                style={{ display: 'none' }} // ซ่อน input จริง
+                                                onChange={handleFileSelect}
+                                            />
+                                        </label>
+                                    </div>
                                 </div>
                             ) : (
                                 activity.ActivityImages && activity.ActivityImages.length ? (
@@ -650,7 +721,9 @@ export default function ActivityDetail() {
                     {isEditing ? (
                         <>
                             <button className="btn-secondary" onClick={handleCancelEdit} disabled={saving}>Cancel</button>
-                            <button className="btn-primary" onClick={handleSave} disabled={saving}>{saving ? 'Saving...' : 'Save Changes'}</button>
+                            <button className="btn-primary" onClick={handleSave} disabled={saving}>
+                                {isUploading ? 'Uploading...' : (saving ? 'Saving...' : 'Save Changes')}
+                            </button>
                             {saveError && <span style={{ color: 'red', marginLeft: 12 }}>{saveError}</span>}
                         </>
                     ) : (
