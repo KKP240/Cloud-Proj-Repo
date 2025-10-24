@@ -96,7 +96,6 @@ export default function ActivityDetail() {
 
   // Cancel registration
   async function doCancel() {
-    if (!confirm('ยืนยันยกเลิกการลงทะเบียนใช่หรือไม่?')) return;
     setBusy(true);
     try {
       const token = localStorage.getItem('token');

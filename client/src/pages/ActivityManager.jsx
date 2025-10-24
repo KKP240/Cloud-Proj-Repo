@@ -125,7 +125,6 @@ const loadActivities = async () => {
       // 3. ปิด Modal
       cancelDelete(); // เรียกใช้ฟังก์ชัน cancel ที่คุณมีอยู่แล้วเพื่อปิด modal
       
-      alert('ลบกิจกรรมสำเร็จ');
 
     } catch (e) {
       console.error("Delete error:", e);

@@ -24,7 +24,6 @@ export default function Register() {
       password 
     })
     if (ok || status === 201) {
-      alert('Registered. Please login.')
       nav('/login')
     } else {
       setMsg(body.error || JSON.stringify(body))
