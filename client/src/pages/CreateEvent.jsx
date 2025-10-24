@@ -13,7 +13,10 @@ export default function CreateEvent() {
   const [endDate, setEndDate] = useState('');
   const [capacity, setCapacity] = useState(1);
   const [tags, setTags] = useState([]);
-  const [images, setImages] = useState('');
+  //const [images, setImages] = useState(''); // ไม่ใช้แล้ว เปลี่ยนเป็น s3
+  const [selectedFiles, setSelectedFiles] = useState([]); // เก็บไฟล์ที่เลือก
+  const [previewUrl, setPreviewUrl] = useState(null);     // สำหรับพรีวิวรูปแรก
+  const [isUploading, setIsUploading] = useState(false);  // สถานะอัปโหลด
   const [msg, setMsg] = useState(null);
   const [inputValue, setInputValue] = useState("");
   const [provinceOptions, setProvinceOptions] = useState([]);
@@ -29,34 +32,97 @@ export default function CreateEvent() {
     }
   }, [nav]);
 
-  async function onSubmit(e) {
+  useEffect(() => {
+    if (selectedFiles.length > 0) {
+      // 1. สร้าง URL ชั่วคราวสำหรับไฟล์แรก
+      const firstFile = selectedFiles[0];
+      const objectUrl = URL.createObjectURL(firstFile);
+      setPreviewUrl(objectUrl);
+
+      // 2. คืนค่า memory เมื่อ component ถูกปิด หรือไฟล์เปลี่ยน
+      return () => URL.revokeObjectURL(objectUrl);
+    } else {
+      setPreviewUrl(null); // เคลียร์พรีวิวถ้าไม่เลือกไฟล์
+    }
+  }, [selectedFiles]); // ทำงานใหม่ทุกครั้งที่ 'selectedFiles' เปลี่ยน
+
+async function onSubmit(e) {
     e.preventDefault();
-    setMsg('Creating...');
-
-    // normalize date-only (yyyy-mm-dd) to ISO start-of-day if needed
-    const normStart = startDate ? (startDate.length === 10 ? startDate + 'T00:00:00' : startDate) : null;
-    const normEnd = endDate ? (endDate.length === 10 ? endDate + 'T00:00:00' : endDate) : null;
-
-    const payload = {
-      title,
-      description,
-      location,
-      country,
-      province,
-      startDate: normStart,
-      endDate: normEnd,
-      capacity: capacity ? Number(capacity) : null,
-      tags: Array.isArray(tags) ? tags : (tags ? String(tags).split(',').map(s => s.trim()).filter(Boolean) : []),
-      images: images ? images.split(',').map(s => s.trim()).filter(Boolean) : []
-    };
     const token = localStorage.getItem('token');
+    
+    // --- 1. ตรวจสอบว่ามีไฟล์ให้เลือกหรือไม่ ---
+    if (selectedFiles.length === 0) {
+      setMsg('กรุณาเลือกรูปภาพอย่างน้อย 1 รูป');
+      return;
+    }
+    
+    setMsg('กำลังอัปโหลดรูปภาพ...');
+    setIsUploading(true);
+
+    const uploadedImageUrls = [];
 
     try {
+      // --- 2. วนลูปอัปโหลดทีละไฟล์ ---
+      for (const file of selectedFiles) {
+        
+        // 2a. ขอ Pre-signed URL จาก Backend
+        const presignRes = await fetch('/api/upload/presigned-url', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          },
+          body: JSON.stringify({ fileName: file.name, fileType: file.type })
+        });
+
+        if (!presignRes.ok) {
+          const err = await presignRes.json();
+          throw new Error(`ไม่สามารถรับ URL: ${err.details || err.error}`);
+        }
+
+        const { signedUrl, finalUrl } = await presignRes.json();
+
+        // 2b. อัปโหลดไฟล์ไปที่ S3 โดยตรง (ใช้ PUT)
+        const uploadRes = await fetch(signedUrl, {
+          method: 'PUT',
+          headers: { 'Content-Type': file.type },
+          body: file
+        });
+
+        if (!uploadRes.ok) {
+          throw new Error(`อัปโหลดไฟล์ ${file.name} ไปที่ S3 ล้มเหลว`);
+        }
+
+        // 2c. เก็บ URL จริงที่อัปโหลดเสร็จแล้ว
+        uploadedImageUrls.push(finalUrl);
+      }
+
+      // --- 3. เมื่ออัปโหลดเสร็จทั้งหมดแล้ว สร้าง Event ---
+      setMsg('กำลังสร้างอีเวนท์...');
+
+      const normStart = startDate ? (startDate.length === 10 ? startDate + 'T00:00:00' : startDate) : null;
+      const normEnd = endDate ? (endDate.length === 10 ? endDate + 'T00:00:00' : endDate) : null;
+
+      const payload = {
+        title,
+        description,
+        location,
+        country,
+        province,
+        startDate: normStart,
+        endDate: normEnd,
+        capacity: capacity ? Number(capacity) : null,
+        tags: Array.isArray(tags) ? tags : (tags ? String(tags).split(',').map(s => s.trim()).filter(Boolean) : []),
+        images: uploadedImageUrls, // 👈 ใช้ URL จาก S3
+        posterUrl: uploadedImageUrls[0] || null // 👈 ใช้รูปแรกเป็น poster
+      };
+
+      // 4. ส่งข้อมูลไปที่ API สร้าง Activity
       const res = await fetch('/api/activities', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...(token ? { 'Authorization': 'Bearer ' + token } : {})
+          'Authorization': 'Bearer ' + token
         },
         body: JSON.stringify(payload)
       });
@@ -66,10 +132,14 @@ export default function CreateEvent() {
         setMsg('Created');
         nav(`/activities/${data.activity.id}`);
       } else {
-        setMsg('Error: ' + (data.error || JSON.stringify(data)));
+        setMsg('Error: ' (data.error || JSON.stringify(data)));
       }
+
     } catch (err) {
-      setMsg('Network error: ' + err.message);
+      setMsg('เกิดข้อผิดพลาด: ' + err.message);
+      console.error(err);
+    } finally {
+      setIsUploading(false); // ปลดล็อกปุ่ม
     }
   }
 
@@ -191,12 +261,14 @@ export default function CreateEvent() {
             <div className='image-section'>
               <h4>Image</h4>
               <input
+                type="file"
+                multiple  // 👈 อนุญาตให้เลือกหลายไฟล์
+                accept="image/*" // 👈 รับเฉพาะไฟล์รูปภาพ
                 className="form-input"
-                placeholder="Image URLs (comma separated)"
-                value={images}
-                onChange={e => setImages(e.target.value)}
+                onChange={e => setSelectedFiles(Array.from(e.target.files))} // 👈 เก็บไฟล์ใน state
                 style={{ marginTop: '10px' }}
               />
+              <small>คุณสามารถเลือกได้หลายรูป</small>
             </div>
 
             {/* Dates */}
@@ -261,17 +333,13 @@ export default function CreateEvent() {
             <div className='show-event-section'>
               <h4>Show Event Page</h4>
               <div className="event-preview-area">
-                {firstImageUrl ? (
-                  // ถ้ามี URL รูปภาพ
+                {previewUrl ? (
                   <img 
-                    src={firstImageUrl} 
+                    src={previewUrl} 
                     alt="Event Preview" 
-                    className="event-preview-image"
-                    onError={(e) => { e.target.style.display = 'none'; }}
-                    onLoad={(e) => { e.target.style.display = 'block'; }}
+                    className="event-preview-image" 
                   />
                 ) : (
-                  // ถ้ายังไม่มี URL (กล่องสีเทา)
                   <div className="event-preview-placeholder">
                     <span>Image Preview</span>
                   </div>
@@ -328,7 +396,9 @@ export default function CreateEvent() {
               </select>
             </div>
 
-            <button type="submit" className='create-event-btn'>Create Event</button>
+            <button type="submit" className='create-event-btn' disabled={isUploading}>
+              {isUploading ? 'กำลังอัปโหลด...' : 'Create Event'}
+            </button>
             {msg && <p>{msg}</p>}
           </div>
 
