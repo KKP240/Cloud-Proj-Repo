@@ -27,60 +27,39 @@ export default function Profile() {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("No token found");
 
-      // decode JWT payload
-      const payload = JSON.parse(atob(token.split(".")[1]));
+      // --- นี่คือส่วนที่แก้ไข ---
+      // ลบการ decode JWT ด้วย atob() ที่พังออกไป
+      // เราจะดึงข้อมูลจาก /me API (getCurrentUser) เท่านั้น
+      // ซึ่งเป็นวิธีที่ถูกต้องและปลอดภัยกว่า
 
-      // fallback จาก JWT
-      const userFromToken = {
-        id: payload.sub || "-",
-        email: payload.email || "-",
-        username: payload.username || "-",
-        firstName: payload.firstname || "-",
-        lastName: payload.lastname || "-",
-        profileImageUrl: payload.profileImageUrl || null, // เพิ่ม profileImageUrl
-      };
+      // 1. เรียก API โดยตรง
+      const response = await getCurrentUser();
+      const backendUser = response.user || response;
 
-      try {
-        const response = await getCurrentUser();
-        const backendUser = response.user || response;
-        
-        // fallback: ใช้ JWT payload ถ้า /me ไม่ส่ง field
-        const finalUser = {
-          id: backendUser.id || userFromToken.id,
-          email: backendUser.email || userFromToken.email,
-          username: backendUser.username || userFromToken.username,
-          firstName: backendUser.firstName || userFromToken.firstName,
-          lastName: backendUser.lastName || userFromToken.lastName,
-          profileImageUrl: backendUser.profileImageUrl || userFromToken.profileImageUrl,
-        };
-
-        setUser(finalUser);
-        setEditData(finalUser);
-        
-        // ตั้งค่ารูปโปรไฟล์จากฐานข้อมูล
-        if (finalUser.profileImageUrl) {
-          setProfileImage(finalUser.profileImageUrl);
-        }
-      } catch (apiError) {
-        // ถ้า API ล้มเหลว ใช้ข้อมูลจาก JWT
-        setUser(userFromToken);
-        setEditData(userFromToken);
-        
-        // ตั้งค่ารูปโปรไฟล์จาก JWT
-        if (userFromToken.profileImageUrl) {
-          setProfileImage(userFromToken.profileImageUrl);
-        }
+      if (!backendUser || !backendUser.id) {
+        throw new Error("Could not load user from API");
       }
+
+      // 2. ใช้ข้อมูลจาก API ที่ได้มา
+      setUser(backendUser);
+      setEditData(backendUser);
+      
+      // 3. ตั้งค่ารูปโปรไฟล์
+      if (backendUser.profileImageUrl) {
+        setProfileImage(backendUser.profileImageUrl);
+      } else {
+        setProfileImage(img12); // ใช้รูป default ถ้าใน DB เป็น null
+      }
+      // --- จบส่วนที่แก้ไข ---
+
     } catch (e) {
+      // ถ้า getCurrentUser() ล้มเหลว (เช่น token หมดอายุ หรือ API พัง)
+      // e.message จะแสดงข้อความ error จาก API (เช่น 'Unauthorized')
       setErr(e.message || "Network error");
     } finally {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    loadUser();
-  }, []);
 
   // ฟังก์ชันสำหรับการเปลี่ยนรูปภาพ
   const handleImageClick = () => {
@@ -121,10 +100,10 @@ export default function Profile() {
       }
 
       // อัปเดต state
-      const updatedUser = { ...response.user, profileImageUrl: imageUrl };
+      const updatedUser = response.user; 
       setUser(updatedUser);
       setEditData(updatedUser);
-      setProfileImage(imageUrl);
+      setProfileImage(updatedUser.profileImageUrl || img12);
 
       // ปิด modal
       setShowImageModal(false);
@@ -194,7 +173,8 @@ export default function Profile() {
         localStorage.setItem("token", response.token);
       }
 
-      const updatedUser = { ...response.user, profileImageUrl: user.profileImageUrl };
+      // อัปเดต state (ใช้ response.user โดยตรง)
+      const updatedUser = response.user;
       setUser(updatedUser);
       setEditData(updatedUser);
       setIsEditing(false);
