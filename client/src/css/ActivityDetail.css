@@ -602,3 +602,45 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+
+.image-edit-item {
+  position: relative; /* 1. ทำให้เป็นกรอบสำหรับปุ่มลบ (button) */
+  width: 100%; /* 2. ให้ความกว้างเต็มพื้นที่ grid ที่มี (จาก .image-gallery) */
+  height: 200px; /* 3. กำหนดความสูง (เท่ากับรูปใน .activity-image) */
+  border-radius: 12px; /* 4. ทำให้ขอบมน (เหมือน .activity-image) */
+  overflow: hidden; /* 5. ซ่อนขอบรูปที่ล้น */
+  background: #333; /* 6. สีพื้นหลังเผื่อรูปโหลดช้า */
+  border: 2px solid rgba(255,255,255,0.1); /* 7. เพิ่มขอบให้เหมือนรูปอื่น */
+}
+
+.image-edit-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 8. นี่คือส่วนสำคัญ: ทำให้รูปเต็มกรอบโดยไม่เสียสัดส่วน */
+}
+
+.image-edit-item .tag-remove-btn {
+  /* 9. ย้ายปุ่ม 'X' ไปไว้มุมบนขวา */
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2; /* 10. ให้ปุ่มอยู่เหนือรูป */
+
+  /* 11. (ปรับปรุง) ทำให้ปุ่ม 'X' สวยขึ้น */
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  font-size: 16px;
+  line-height: 30px; /* จัด 'X' ให้อยู่กลางแนวตั้ง */
+  text-align: center; /* จัด 'X' ให้อยู่กลางแนวนอน */
+  padding: 0;
+  transition: background-color 0.2s;
+}
+
+.image-edit-item .tag-remove-btn:hover {
+  background-color: rgba(220, 53, 69, 0.9); /* สีแดงเมื่อ hover */
+  color: white;
+}
