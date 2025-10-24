@@ -7,7 +7,12 @@ module.exports = (sequelize, DataTypes) => {
       Activity.hasMany(models.Registration, { foreignKey: 'activityId' });
       Activity.hasMany(models.ActivityImage, { foreignKey: 'activityId' });
       Activity.hasMany(models.Comment, { foreignKey: 'activityId' });
-      Activity.belongsToMany(models.Tag, { through: 'ActivityTags', foreignKey: 'activityId', otherKey: 'tagId' });
+      Activity.belongsToMany(models.Tag, { 
+        through: 'ActivityTags', 
+        foreignKey: 'activityId', 
+        otherKey: 'tagId',
+        timestamps: false // <-- เพิ่มบรรทัดนี้
+      });
       Activity.belongsTo(models.User, { foreignKey: 'creatorId', as: 'creator' });
       // หากต้องการเก็บ creator ของกิจกรรม (user) ให้สร้างคอลัมน์ creatorId ผ่าน migration แล้ว uncomment:
       // Activity.belongsTo(models.User, { foreignKey: 'creatorId', as: 'creator' });

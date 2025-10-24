@@ -4,7 +4,12 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Tag extends Model {
     static associate(models) {
-      Tag.belongsToMany(models.Activity, { through: 'ActivityTags', foreignKey: 'tagId', otherKey: 'activityId' });
+      Tag.belongsToMany(models.Activity, { 
+      through: 'ActivityTags', 
+      foreignKey: 'tagId', 
+      otherKey: 'activityId',
+      timestamps: false // <-- เพิ่มบรรทัดนี้
+    });
     }
   }
   Tag.init({
