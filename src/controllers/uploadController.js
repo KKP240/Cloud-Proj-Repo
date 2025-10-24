@@ -27,7 +27,8 @@ module.exports = {
       const command = new PutObjectCommand({
         Bucket: BUCKET_NAME,
         Key: uniqueKey,
-        ContentType: fileType
+        ContentType: fileType,
+        ACL: 'public-read'
       });
 
       // 4. สร้าง Pre-signed URL
