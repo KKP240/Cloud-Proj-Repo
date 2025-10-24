@@ -1,39 +1,4 @@
-# #version: '3.8' # it cant run docker-compose with this line active
-# services:
-#   db:
-#     image: postgres:15
-#     container_name: activity_postgres
-#     environment:
-#       POSTGRES_USER: ${DB_USER:-postgres}
-#       POSTGRES_PASSWORD: ${DB_PASS:-postgres}
-#       POSTGRES_DB: ${DB_NAME:-activitydb}
-#     ports:
-#       - "${DB_PORT:-5432}:5432"
-#     volumes:
-#       - pgdata:/var/lib/postgresql/data
-#     networks:
-#       - app-network
-
-#   pgadmin:
-#     image: dpage/pgadmin4
-#     container_name: activity_pgadmin
-#     environment:
-#       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@local}
-#       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASS:-admin}
-#     ports:
-#       - "8080:80"
-#     depends_on:
-#       - db
-#     networks:
-#       - app-network
-
-# volumes:
-#   pgdata:
-
-# networks:
-#   app-network:
-
-version: '3'  # เปิดใช้งาน version
+version: '3'
 services:
   backend:
     build:
@@ -45,12 +10,11 @@ services:
       - DB_HOST=activitydb-rds.ckl8c157l9vz.us-east-1.rds.amazonaws.com
       - DB_PORT=5432
       - DB_USER=${DB_USER:-postgres}
-      - DB_PASS=${DB_PASS:-1234}
+      - DB_PASS=${DB_PASS:-password}  # <-- แก้ไข: ใช้ password จาก .env โดยตรง
       - DB_NAME=${DB_NAME:-activitydb}
       - AWS_REGION=${AWS_REGION:-us-east-1}
       - S3_BUCKET=${S3_BUCKET}
-    ports:
-      - "3000:3000"
+    # ลบ ports: ออกจากตรงนี้
     networks:
       - app-network
 
@@ -59,10 +23,22 @@ services:
       context: ./client
       dockerfile: Dockerfile
     container_name: activity_frontend
-    ports:
-      - "80:80"
+    # ลบ ports: ออกจากตรงนี้
     depends_on:
       - backend
+    networks:
+      - app-network
+
+  nginx: # <--- เพิ่ม Service นี้เข้ามา
+    image: nginx:latest
+    container_name: activity_nginx
+    ports:
+      - "80:80" # Nginx จะรับ port 80 จากภายนอก
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf # map ไฟล์ config
+    depends_on:
+      - backend
+      - frontend
     networks:
       - app-network
 
