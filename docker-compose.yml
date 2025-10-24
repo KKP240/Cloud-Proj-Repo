@@ -14,6 +14,7 @@ services:
       - DB_NAME=${DB_NAME:-activitydb}
       - AWS_REGION=${AWS_REGION:-us-east-1}
       - S3_BUCKET=${S3_BUCKET}
+      - LOCAL_JWT_SECRET=${LOCAL_JWT_SECRET}
     # ลบ ports: ออกจากตรงนี้
     networks:
       - app-network
