@@ -153,6 +153,8 @@ export default function CreateEvent() {
     ]
   };
 
+  const firstImageUrl = images.split(',')[0].trim();
+
   return (
     <div className='StartEvent1'>
       <div className='StartEvent-life'>
@@ -258,7 +260,23 @@ export default function CreateEvent() {
             {/* Show Event Page */}
             <div className='show-event-section'>
               <h4>Show Event Page</h4>
-              <div className="event-preview-area"></div>
+              <div className="event-preview-area">
+                {firstImageUrl ? (
+                  // ถ้ามี URL รูปภาพ
+                  <img 
+                    src={firstImageUrl} 
+                    alt="Event Preview" 
+                    className="event-preview-image"
+                    onError={(e) => { e.target.style.display = 'none'; }}
+                    onLoad={(e) => { e.target.style.display = 'block'; }}
+                  />
+                ) : (
+                  // ถ้ายังไม่มี URL (กล่องสีเทา)
+                  <div className="event-preview-placeholder">
+                    <span>Image Preview</span>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Location */}

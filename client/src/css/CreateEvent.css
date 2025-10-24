@@ -212,6 +212,18 @@
   align-items: center;
   justify-content: space-between;
   padding: 20px;
+  overflow: hidden;
+}
+
+.event-preview-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.event-preview-placeholder {
+  color: #888;
+  font-style: italic;
 }
 
 .preview-icon {
