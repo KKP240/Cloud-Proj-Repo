@@ -61,6 +61,10 @@ export default function Profile() {
     }
   };
 
+  useEffect(() => {
+    loadUser();
+  }, []);
+  
   // ฟังก์ชันสำหรับการเปลี่ยนรูปภาพ
   const handleImageClick = () => {
     setImageUrl("");
