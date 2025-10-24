@@ -64,7 +64,7 @@ export default function Profile() {
   useEffect(() => {
     loadUser();
   }, []);
-  
+
   // ฟังก์ชันสำหรับการเปลี่ยนรูปภาพ
   const handleImageClick = () => {
     setImageUrl("");
@@ -73,7 +73,6 @@ export default function Profile() {
 
   const handleImageUrlSubmit = async () => {
     if (!imageUrl.trim()) {
-      alert("กรุณาใส่ URL รูปภาพ");
       return;
     }
 
@@ -113,7 +112,6 @@ export default function Profile() {
       setShowImageModal(false);
       setImageUrl("");
 
-      alert("เปลี่ยนรูปโปรไฟล์สำเร็จ!");
 
     } catch (error) {
       console.error('Error updating profile image:', error);
@@ -183,7 +181,6 @@ export default function Profile() {
       setEditData(updatedUser);
       setIsEditing(false);
 
-      alert("บันทึกข้อมูลสำเร็จ!");
 
     } catch (error) {
       setSaveError(error.message || "เกิดข้อผิดพลาดในการบันทึก");
