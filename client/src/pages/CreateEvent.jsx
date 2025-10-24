@@ -132,7 +132,7 @@ async function onSubmit(e) {
         setMsg('Created');
         nav(`/activities/${data.activity.id}`);
       } else {
-        setMsg('Error: ' (data.error || JSON.stringify(data)));
+        setMsg('Error: ' + (data.error || JSON.stringify(data)));
       }
 
     } catch (err) {
@@ -223,7 +223,7 @@ async function onSubmit(e) {
     ]
   };
 
-  const firstImageUrl = images.split(',')[0].trim();
+  // const firstImageUrl = images.split(',')[0].trim();
 
   return (
     <div className='StartEvent1'>
