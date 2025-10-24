@@ -108,6 +108,34 @@ const loadActivities = async () => {
     setShowDeleteModal(false);
   };
 
+  const confirmDelete = async () => {
+    if (!activityToDelete) return; // ตรวจสอบว่ามี activity ที่จะลบ
+
+    setDeletingId(activityToDelete.id); // แสดง spinner บนปุ่ม
+
+    try {
+      // 1. เรียก API เพื่อลบ
+      await deleteActivity(activityToDelete.id);
+
+      // 2. อัปเดต state ใน React ทันที (ลบอันที่ถูกลบออกจาก list)
+      setActivities(prevActivities => 
+        prevActivities.filter(act => act.id !== activityToDelete.id)
+      );
+
+      // 3. ปิด Modal
+      cancelDelete(); // เรียกใช้ฟังก์ชัน cancel ที่คุณมีอยู่แล้วเพื่อปิด modal
+      
+      alert('ลบกิจกรรมสำเร็จ');
+
+    } catch (e) {
+      console.error("Delete error:", e);
+      alert(e.message || 'เกิดข้อผิดพลาดในการลบ');
+    } finally {
+      // 4. ซ่อน spinner ไม่ว่าจะสำเร็จหรือล้มเหลว
+      setDeletingId(null); 
+    }
+  };
+
   const handleTagToggle = (tag) => {
     setSelectedTags(prev => {
       const exists = prev.find(t => t.id === tag.id);
@@ -400,7 +428,7 @@ const loadActivities = async () => {
               <div
                 key={act.id}
                 className="activities-card"
-                onClick={() => window.location.href = `/activitiesEdit/${act.id}`}
+                onClick={() => nav(`/activitiesEdit/${act.id}`)}
                 style={{ cursor: 'pointer' }}
               >
                 <div className="activities-card-content">
