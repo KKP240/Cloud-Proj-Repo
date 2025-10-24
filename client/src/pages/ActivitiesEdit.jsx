@@ -638,16 +638,23 @@ export default function ActivityDetail() {
 
                                     {/* 3. ปุ่มสำหรับเลือกไฟล์ */}
                                     <div style={{marginTop: '20px'}}>
-                                        <label className="tag-add-btn" style={{cursor: 'pointer'}}>
+
+                                        {/* เปลี่ยน <label> ให้ใช้ htmlFor="file-upload" 
+                                            ซึ่งจะไป "เรียก" input ที่มี id="file-upload" 
+                                        */}
+                                        <label htmlFor="file-upload" className="tag-add-btn" style={{cursor: 'pointer'}}>
                                             + Add Images
-                                            <input
-                                                type="file"
-                                                multiple
-                                                accept="image/*"
-                                                style={{ display: 'none' }} // ซ่อน input จริง
-                                                onChange={handleFileSelect}
-                                            />
                                         </label>
+
+                                        {/* ย้าย <input> ออกมาอยู่นอก <label> และเพิ่ม id ให้ตรงกัน */}
+                                        <input
+                                            id="file-upload"  // 👈 เพิ่ม ID
+                                            type="file"
+                                            multiple
+                                            accept="image/*"
+                                            style={{ display: 'none' }} // ซ่อน input จริง
+                                            onChange={handleFileSelect}
+                                        />
                                     </div>
                                 </div>
                             ) : (
