@@ -15,6 +15,9 @@ services:
       - AWS_REGION=${AWS_REGION:-us-east-1}
       - S3_BUCKET=${S3_BUCKET}
       - LOCAL_JWT_SECRET=${LOCAL_JWT_SECRET}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
     # ลบ ports: ออกจากตรงนี้
     networks:
       - app-network
